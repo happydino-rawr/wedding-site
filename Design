@@ -1,0 +1,129 @@
+Master LLD Specification: Functional Mobile Wedding Web App (v10)
+You are an expert full-stack engineer specializing in Next.js 14+ (App Router), React, Tailwind CSS, and relational databases (Supabase/PostgreSQL). Write a complete, production-ready mobile-first single-page web application based strictly on the functional parameters and architectural states detailed below.
+
+1. The Generative Design Shuffling Engine (Layout Freedom)
+Procedural Rendering: The code generator must not lock in a static, unyielding color palette, rigid typography set, or immutable component border styles across builds.
+Design Freedom: Upon a user requesting code execution from this LLD, the model must programmatically shuffle the UI presentation tokens. It should alternate dynamically between variations of pastel accents, pure high-contrast crisp white formats, modern layout shapes, and clean editorial borders.
+Aesthetic Constraints: Regardless of the randomized styling selection, the final canvas must always remain clean, highly breathable, heavily image-centric, and fully optimized for intuitive mobile-first thumb-zone scrolling.
+2. Non-Specific Abstract Design Toolkit Suggestions
+When compiling the code interface, look to this matrix for inspirational aesthetic modifiers to mix and match dynamically:
+
+Containers & Surfacing: Alternate between soft watercolor wash backdrops, subtle paper-grain textures, clean glassmorphic panels (backdrop-blur-md), or flat porcelain blocks separated by generous negative space.
+Borders & Edge Details: Use minimalist hairline strokes (border-[0.5px]), delicate organic curving lines, clean sharp architectural frames, or stylized deckled/frayed paper-edge patterns.
+Shadow Profiling: Utilize micro-shadow depth offsets (shadow-[0_4px_24px_rgba(0,0,0,0.02)]) to give structural components a delicate floating layered dimension.
+Imagery Framing: Toggle layout frames between classical soft arches, unaligned asymmetrical grid collages, or clean standard minimalist rounded rectangles (rounded-2xl).
+3. Authentication & Session Persistence Logic
+Gatekeeper Gateway: The landing view restricts site access behind a security barrier requiring a universal group passcode (123).
+Token Dropper: Upon validation, the application must drop a persistent client session cookie or localStorage token (wedding_session_token: true) configured with a 60-day post-event expiration timeline.
+Bypass Engine: On layout load, a root lifecycle check must verify if the active session token exists. If valid, the gatekeeper access screen is entirely skipped, and the main scrolling feed mounts immediately.
+Typo Tolerance: If a guest corrects a spelling mistake in their first or last name inside their Profile Sheet, the system must execute an atomic database UPDATE on their row without invalidating or clearing their active device session token.
+4. Core Functional Block Sequence (SPA Scroll Architecture) - Include couple weddings photos throughout for design and layout
+Block 1: The Welcome Arena
+Displays an adaptive welcome header layout overlayed on a baseline opening graphic canvas placeholder. Couple picture on the background. 
+Block 2: The Timeline Event Countdown Clock till the couples wedding with a message from the couple above the countdown.
+Displays an automated live countdown timer widget actively ticking down to the event timestamp: [ Days : Hours : Minutes : Seconds ].
+Block 3: The Relationship Chronicle (Our Story)
+A chronological memory line layout tracking sequential relationship milestones (e.g., First Meeting, The Proposal, Future Plans). Each memory must contain to a text description data frame and a dedicated photo placeholder. As the user scrolls through the page, each event will show up. One even on each side. 
+Block 4: The Scroll-Triggered Invitation Envelope
+Interaction Mechanical Loop: Uses a React IntersectionObserver hook tracking element visibility thresholds. As the user scrolls into this target region, an automated trigger fires a visual open state: the envelope's top flap swivels completely open, and a hidden couple's picture slides up vertically out of the card sleeve. The picture needs to be over the top of the envelop. Make this envelop smaller and no words on the envelop. This should act like a header into the calender matrix. 
+A picture of the couple will becoming out of the envelope. Underneath the envelope it will say Your Invitation before displaying the calender matrix.
+The Calendar Matrix: Under the envelope, Have the words Save the Date. Then display a clean monthly calendar grid layout. The exact wedding date square (march 06, 2027) must be dynamically highlighted and enclosed inside an outline graphic vector shaped explicitly like a heart, very thin line and subtitle. Underneath have the day of the week, date and the time of the event. Should be smaller and in a more elegant manner. Out of the calender box. Calender should have no boarder or back.
+Block 5: Interactive Transit Map & Navigation Routing (Picures of couple before this section starts)
+Displays explicit venue location name and address typography fields.
+Includes a functional, responsive interactive map window element i.e. google maps.
+Features a prominent action button: [ Getting There ]. Clicking this must pass the hardcoded venue coordinates directly into an outbound browser tab utilizing the universal Google Maps route query scheme (http://googleusercontent.com/maps.google.com/dir/?api=1).
+Block 6: Transportation Step-By-Step Guide
+An informational guide hosting step-by-step text directions for: recommended driving routes, free guest parking zones, and public transport. 
+Block 7: Timings Grid & Interactive Dress Code Palette (Picures of couple before the header for this section)
+Renders a scannable timeline grid detailing key timeline phases (Tea ceremony, Arrival, Ceremony, Cocktail hour, Banquet). In a vertical layout. Dress Code Guide should be below the schedule.
+Interactive Palette Swatches: Displays formal dress code guidelines. Directly below, render an array of distinct circular color swatch elements with name of the colur under each.
+Block 8: The RSVP Bottom Sheet Profile Anchor (Picures of couple before the header for this section)
+Launches the sliding bottom drawer workspace panel via a primary [ Manage RSVP Profile ] button hook.
+Block 9: Layered Record Visualizer Pre-Hub
+A revolving music element acting as a visual prelude to the interactive playlist tools.
+Renders a continuously spinning disc/vinyl graphic containing a circular couple photo cropped into the center spindle track. Looks like music is playing and spins.This will play a song.
+1. Overall Layout & Composition
+Format: A vertical (9:16 aspect ratio) card-style layout framed by a soft cream or ivory border.
+
+Structure: It functions as a single scrolling interface, segmented into a graphic header at the top, a main portrait photograph in the center, and interactive UI buttons at the bottom.
+
+2. Graphic Header & Typography
+The Vinyl Record: At the top, a realistic black vinyl record partially peeks out from behind a translucent white card overlay. A miniature version of the wedding photo is embedded as the record's center label.
+Overall Layout & Composition
+Format: A vertical (9:16 aspect ratio) card-style layout framed by a soft cream or ivory border.
+
+Structure: It functions as a single scrolling interface, segmented into a graphic header at the top, a main portrait photograph in the center, and interactive UI buttons at the bottom.
+The Header Text: Above the record, the words "《ONLY FOR YOU》" are styled in an elegant, serif, all-caps font with stylized bracket accents.
+
+The Quote Card: Overlapping the record is a semi-transparent white text block with a soft drop shadow, featuring a romantic three-line English poem in a clean, italicized serif font:
+
+"If the sun were to rise in the west,
+I'd never change my mind to love you forever.
+I love you not for who you are, but for who I am before you."
+
+BLCCK 10 AND 11 ARE tecnically one secction but one above the other.
+Block 10: Crowd Playlist Request Queue(Underneath the Record)
+DJ Playlist Queue: Form fields capturing [ Song Title ] and [ Artist ]. Submitting pushes data into an operational list component displaying a live ticker stream of guest tracks.
+Block 11:The Journal Ledger: Renders written notes. 
+Archive Portal: Tapping [ Browse Ledger Archives ] launches an overlay container tracking all stored messages.
+Block 12: Crowdsourced Media Upload Gallery Feed
+At the top of this desction before the words come in. I want polaroids of the colours pictures to appear as the user scrolls fown to the gallery section, 3 of them. There should be bigger and nearly fill the screen.One on the left, another on the right below it, and then another on the left below that one. Next the header will be Our Gallery, the info on this section, the upload button and then the uploaded pics underneath. Polaroid pics are on the bigger side but doesnt cover the full screen.
+Features a media upload button triggering native smartphone camera roll or multi-file image/video pickers.
+Grid Segmentation Control: To prevent page loading lag, the immediate scrolling view must be a truncated image container displaying only the 6 most recent media items. Tapping a secondary button expands a fullscreen lightbox modal showing all historic entries. 
+Block 13: Wishing Well Registry
+A clean data card detailing specific direct banking parameters (Account Name, BSB, Account Number) or an outbound redirection link to an external registry profile.
+5. Smart RSVP Profile Chaining Sheet Logic
+The slide-up modal workspace adapts its internal views depending on database verification queries:
+
+Cutoff Date Deadline Rule: The system checks a hardcoded timestamp variable. If the current user clock exceeds this deadline, the form input fields freeze into a disabled tracking view. Strict UI Requirement: The submission control button must be completely removed from the DOM tree post-cutoff, rather than just grayed out, leaving only a close window button.
+Fresh Form Interface (First-Time Registration): Mounts empty validation string forms capturing First Name, Last Name, Attendance Choice (Attending/Declining), and Dietary Comments. Features an active [ + Add Family Member ] control button. Tapping it appends a brand-new identical object block into a local state flat array, spawning another form frame underneath for a spouse, child, or relative. Upon saving don not auto close the RSVP Menu. Display the details they have filled out and the option to edit. 
+Profile Overview Interface (Returning Registrant): Bypasses blank inputs. The component displays an official Registered Profile Card layout showing the user's active choices stored on file. It offers an isolated trigger button: [ ✎ Edit Guest Details or Add Family ]. Clicking this unlocks the text input arrays to correct typos or append new family entries before execution. Saving fires a unified batch transaction to the endpoint.
+6. Floating Nav Layer (Speed Dial)
+Proximity Controller: Stays completely hidden on page load. It fades into position on the bottom right of the viewport immediately after the page scrolls past Section 1 (The Hero).
+Menu Spread: Tapping the FAB fires a subtle background blur panel filter and opens a spring array stack of navigation target shortcut bubbles:
+[ Profile/RSVP ] (Triggers bottom-sheet modal sheet)
+[ Shared Gallery ] (Anchors view to Block 11)
+[ Interactive Hub ] (Anchors view to Block 10)
+[ Schedule Details ] (Anchors view to Block 7)
+[ Venue & Map ] (Anchors view to Block 5)
+7. PostgreSQL Relational Schema Blueprints
+SQL
+
+CREATE TABLE guests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    rsvp_status VARCHAR(50) DEFAULT 'Pending', -- 'Attending', 'Declining', 'Pending'
+    dietary_requirements TEXT DEFAULT NULL,
+    added_by_guest_id UUID DEFAULT NULL,       -- Matches family rows together cleanly
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);CREATE TABLE media_gallery (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    url TEXT NOT NULL,                         -- Target storage bucket URL
+    media_type VARCHAR(20) NOT NULL,           -- 'image' or 'video'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);CREATE TABLE song_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    song_title VARCHAR(255) NOT NULL,
+    artist VARCHAR(255) NOT NULL,
+    requested_by_name VARCHAR(200) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);CREATE TABLE guestbook_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    guest_name VARCHAR(200) NOT NULL,
+    message_text TEXT NOT NULL,
+    is_private BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+Dynamic Scroll Reveals: Built and applied <FadeInSection> which dynamically tracks elements entering the viewport using native browser IntersectionObserver to reveal blocks smoothly with subtle 32px vertical offsets.
+
+Framework: Next.js (Modern App Router Architecture)
+Component Library: React.js (Functional Component Engine)
+Styling Engine: Tailwind CSS (Utility-First Compilation)
+Iconography: Lucide React
+State & Interactivity Model: Controlled Client UI State
+No black or really dark backgrounds.
+
+Design and create the site with the above details. Add more pictures of the couples throughtout the site to improve on the overall design and include more animations to make it more engaging. 
