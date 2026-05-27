@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       ContentType: file.type,
     }));
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, key: uniqueKey });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Failed" }, { status: 500 });

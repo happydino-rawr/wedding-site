@@ -21,6 +21,7 @@ interface Guest {
 interface MediaItem {
   type?: string;
   url: string;
+  key: string;
 }
 
 export default function WeddingPage() {
@@ -49,8 +50,23 @@ export default function WeddingPage() {
 
   const [showGalleryGrid, setShowGalleryGrid] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [myUploadedKeys, setMyUploadedKeys] = useState<string[]>([]);
+
+  // States for multi-select delete mode
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [keysToDelete, setKeysToDelete] = useState<string[]>([]);
 
   const isCutoffPassed = new Date() > RSVP_CUTOFF_DATE;
+
+  useEffect(() => {
+    const saved = localStorage.getItem("my_wedding_uploads");
+    if (saved) {
+      setMyUploadedKeys(JSON.parse(saved));
+    }
+    refreshGallery();
+  }, []);
 
   useEffect(() => {
     const session = localStorage.getItem("wedding_session_token");
@@ -83,16 +99,14 @@ export default function WeddingPage() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // 1. Prepare to track new files for the optimistic update
     const newOptimisticFiles = Array.from(files).map(file => ({
       url: URL.createObjectURL(file),
-      type: file.type
+      type: file.type,
+      key: `temp-${Date.now()}-${file.name}`
     }));
 
-    // 2. Add all new files to the UI instantly
     setMediaGallery(prev => [...newOptimisticFiles, ...prev]);
 
-    // 3. Upload files one by one (or in parallel)
     const uploadPromises = Array.from(files).map(async (file) => {
       const formData = new FormData();
       formData.append("file", file);
@@ -104,17 +118,79 @@ export default function WeddingPage() {
         });
 
         if (!res.ok) throw new Error(`Failed to upload ${file.name}`);
+
+        const data = await res.json(); 
+        
+        if (data.key) {
+          setMyUploadedKeys(prev => {
+            const updated = [...prev, data.key];
+            localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
+            return updated;
+          });
+        }
       } catch (err) {
         console.error("Error during upload:", err);
       }
     });
 
-    // 4. Wait for all uploads to complete
     await Promise.all(uploadPromises);
-
-    // 5. Final sync: Fetch official URLs from bucket to replace temporary ones
     await refreshGallery();
     alert("Uploads complete!");
+  };
+
+  const handleDelete = async (key: string) => {
+    if (!confirm("Are you sure you want to delete this moment?")) return;
+
+    try {
+      const res = await fetch('/api/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key }),
+      });
+
+      if (res.ok) {
+        setMediaGallery(prev => prev.filter(item => item.key !== key));
+        setMyUploadedKeys(prev => {
+          const updated = prev.filter(k => k !== key);
+          localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
+          return updated;
+        });
+      } else {
+        alert("Failed to delete the file from the server.");
+      }
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    try {
+      const deletePromises = keysToDelete.map(async (key) => {
+        const res = await fetch('/api/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key }),
+        });
+        return { key, ok: res.ok };
+      });
+
+      const results = await Promise.all(deletePromises);
+      const successfullyDeleted = results.filter(r => r.ok).map(r => r.key);
+
+      setMediaGallery(prev => prev.filter(item => !successfullyDeleted.includes(item.key)));
+      setMyUploadedKeys(prev => {
+        const updated = prev.filter(k => !successfullyDeleted.includes(k));
+        localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
+        return updated;
+      });
+
+      setSelectedKeys([]);
+      setKeysToDelete([]);
+      setShowDeleteModal(false);
+      setIsDeleteMode(false);
+    } catch (err) {
+      console.error("Failed to delete items:", err);
+    }
   };
 
   const handleAddFamilyMember = () => {
@@ -167,10 +243,7 @@ export default function WeddingPage() {
     const publicBaseUrl = "https://pub-24a198c3bcd44e7ab19fd37353cb5c07.r2.dev";
     
     const itemsWithUrls = data.images.map((key: string) => {
-      // 1. Convert key to lowercase to easily catch .MP4, .MOV, .MOV_123, etc.
       const lowerKey = key.toLowerCase();
-      
-      // 2. Check if the file contains any common video extensions anywhere in its name
       const isVideoFile = 
         lowerKey.endsWith('.mp4') || 
         lowerKey.endsWith('.mov') || 
@@ -180,6 +253,7 @@ export default function WeddingPage() {
         lowerKey.includes('.mov');
 
       return {
+        key,
         url: `${publicBaseUrl}/${key}`,
         type: isVideoFile ? 'video' : 'image'
       };
@@ -189,7 +263,7 @@ export default function WeddingPage() {
   };
 
   useEffect(() => {
-  refreshGallery();
+    refreshGallery();
   }, []);
 
   const triggerOpenRsvp = () => setIsRsvpOpen(true);
@@ -228,7 +302,6 @@ export default function WeddingPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
 
-        {/* Floating Minimal Sound Toggle */}
         <div className="absolute top-6 right-6 z-30">
           <button 
             onClick={() => setIsMusicPlaying(!isMusicPlaying)}
@@ -248,7 +321,6 @@ export default function WeddingPage() {
           </button>
         </div>
 
-        {/* Refined Minimalist Editorial Layout */}
         <div className="relative z-10 flex flex-col items-center mt-32 px-4">
           <span className="text-white/80 uppercase tracking-[0.5em] text-[9px] sm:text-[10px] mb-8 font-light">
             The Wedding Celebration Of
@@ -261,7 +333,6 @@ export default function WeddingPage() {
           </h1>
         </div>
 
-        {/* Custom Delicate Begin Indicator */}
         <div 
           className="relative z-10 flex flex-col items-center text-white/90 animate-bounce cursor-pointer opacity-80 hover:opacity-100 transition-opacity" 
           onClick={() => scrollToAnchor('countdown-anchor')}
@@ -272,7 +343,7 @@ export default function WeddingPage() {
       </section>
 
       {/* ============================================================================
-          BLOCK 2: TIMELINE EVENT COUNTDOWN CLOCK (Delicate Typographic Design)
+          BLOCK 2: TIMELINE EVENT COUNTDOWN CLOCK
           ============================================================================ */}
       <section id="countdown-anchor" className="py-20 px-4 bg-[#FDFBF7] relative overflow-hidden flex flex-col items-center justify-center border-b border-[#EADCC9]/30">
         <div className="text-center space-y-8 relative z-10 max-w-2xl w-full">
@@ -284,7 +355,6 @@ export default function WeddingPage() {
             </p>
           </div>
           
-          {/* Micro Countdown Blocks */}
           <div className="flex items-center justify-center gap-5 sm:gap-10">
             <div className="flex flex-col items-center">
               <span className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wider">{timeLeft.days}</span>
@@ -313,7 +383,7 @@ export default function WeddingPage() {
       </section>
 
       {/* ============================================================================
-          BLOCK 3: THE RELATIONSHIP CHRONICLE (Redesigned Continuous Vertical Flow)
+          BLOCK 3: THE RELATIONSHIP CHRONICLE
           ============================================================================ */}
       <section id="story" className="py-24 px-4 bg-[#FAF6F0]">
         <div className="max-w-5xl mx-auto">
@@ -324,12 +394,9 @@ export default function WeddingPage() {
           </div>
 
           <div className="relative">
-            {/* Continuous Center Timeline Line */}
             <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-[#EADCC9]" />
 
             <div className="space-y-24 relative z-10">
-              
-              {/* Story Event 1 */}
               <div className="flex flex-col md:flex-row items-center w-full">
                 <div className="md:w-1/2 md:pr-16 text-center md:text-right flex flex-col items-center md:items-end mb-8 md:mb-0">
                   <FadeInSection>
@@ -340,7 +407,6 @@ export default function WeddingPage() {
                   </FadeInSection>
                 </div>
                 
-                {/* Center Floating Date Pill */}
                 <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 bg-white px-4 py-1.5 rounded-full border border-[#EADCC9] shadow-sm items-center justify-center z-20">
                   <span className="text-[8px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Nov 14, 2021</span>
                 </div>
@@ -351,7 +417,6 @@ export default function WeddingPage() {
                 </div>
               </div>
 
-              {/* Story Event 2 */}
               <div className="flex flex-col md:flex-row items-center w-full">
                 <div className="md:w-1/2 md:pr-16 flex justify-center md:justify-end order-2 md:order-1 mt-8 md:mt-0">
                   <img src={COUPLE_PHOTOS.story2} alt="Proposal" className="w-full max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
@@ -372,7 +437,6 @@ export default function WeddingPage() {
                 </div>
               </div>
 
-              {/* Story Event 3 */}
               <div className="flex flex-col md:flex-row items-center w-full">
                 <div className="md:w-1/2 md:pr-16 text-center md:text-right flex flex-col items-center md:items-end mb-8 md:mb-0">
                   <FadeInSection>
@@ -392,30 +456,25 @@ export default function WeddingPage() {
                   <span className="md:hidden text-[9px] uppercase tracking-[0.2em] text-[#C5A880] font-bold block mt-4 text-center w-full">Looking Ahead</span>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       </section>
 
       {/* ============================================================================
-          BLOCK 4: THE SCROLL-TRIGGERED ENVELOPE (MATCHING 12934.JPG STYLE)
+          BLOCK 4: THE SCROLL-TRIGGERED ENVELOPE
           ============================================================================ */}
       <section className="py-24 px-4 bg-[#FDFBF7] flex flex-col items-center min-h-[700px] justify-center overflow-visible">
         <div className="max-w-xl w-full text-center">
-
-          {/* Envelope with 3D perspective */}
           <div 
             ref={envelopeRef} 
             className="relative w-80 sm:w-[350px] h-48 sm:h-56 mx-auto mb-40 select-none overflow-visible animate-pulse-subtle"
             style={{ perspective: '1200px' }}
           >
-            {/* Pocket back */}
             <div className="absolute inset-0 bg-[#EAE3D2] rounded-xl shadow-inner border border-[#DCD3BD] overflow-hidden z-0">
               <div className="absolute inset-1 bg-[#F4EDE0] rounded-lg" />
             </div>
 
-            {/* Polaroid photo inside - slides upwards out of sleeve */}
             <div 
               className="absolute left-6 right-6 bottom-4 h-48 sm:h-52 bg-white p-3 pb-8 rounded-sm shadow-xl border border-slate-200/60 transition-all duration-[1200ms] ease-out z-10"
               style={{
@@ -435,7 +494,6 @@ export default function WeddingPage() {
               </div>
             </div>
 
-            {/* Front pouch layer */}
             <svg 
               viewBox="0 0 350 200" 
               preserveAspectRatio="none"
@@ -446,7 +504,6 @@ export default function WeddingPage() {
               <polygon points="0,200 350,200 175,100" fill="#F6F1E5" stroke="#DCD3BD" strokeWidth="0.5" />
             </svg>
 
-            {/* Opening top triangular flap */}
             <div 
               className="absolute top-0 inset-x-0 h-32 sm:h-36 origin-top transition-transform duration-[1200ms] ease-in-out z-30 pointer-events-none"
               style={{ 
@@ -459,7 +516,6 @@ export default function WeddingPage() {
               </svg>
             </div>
 
-            {/* Red cord ribbon tied into bow */}
             <div className={`absolute bottom-4 inset-x-0 text-center z-40 pointer-events-none flex flex-col items-center transition-opacity duration-700 delay-300 ${envelopeVisible ? 'opacity-0' : 'opacity-100'}`}>
               <div className="w-20 h-10 -mt-2 opacity-95">
                 <svg viewBox="0 0 100 50" fill="none" className="w-full h-full">
@@ -480,29 +536,10 @@ export default function WeddingPage() {
             </div>
           </div>
 
-          {/* <div className="space-y-6 pt-12 text-center relative z-20">
-            <h3 className="font-serif text-lg tracking-[0.2em] text-[#5C5346]">邀您参加我们的婚礼</h3>
-            <div className="flex justify-center items-center gap-4 text-2xl font-serif text-[#4A433A]">
-              <span>卢莱川</span>
-              <span className="text-rose-700 font-thin">∞</span>
-              <span>梁 奎</span>
-            </div>
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
-              <div className="w-8 h-[1px] bg-[#EADCC9] mx-auto my-2" />
-            </div>
-          </div> */}
-
           <div className="space-y-6 pt-12 text-center relative z-20">
             <div className="space-y-1">
-              {/* Use an actual h3 tag for the header, or a span with the correct classes */}
-              <h3 className="font-serif text-lg tracking-[0.2em] text-[#5C5346]">
-                Save the Date
-              </h3>
-              <span className="text-[8px] uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">
-                March
-              </span>
-
+              <h3 className="font-serif text-lg tracking-[0.2em] text-[#5C5346]">Save the Date</h3>
+              <span className="text-[8px] uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">March</span>
               <div className="w-8 h-[1px] bg-[#EADCC9] mx-auto my-2" />
             </div>
           </div>
@@ -531,7 +568,6 @@ export default function WeddingPage() {
               <span className="text-[10px] uppercase tracking-widest text-[#9C8F7E] block italic">Date</span>
               <div className="space-y-0.5">
                 <p className="font-serif text-lg tracking-wider text-[#4A433A]">2027.3.6</p>
-                {/* <p className="text-xs text-[#9C8F7E]">农历正月廿九 周六</p> */}
               </div>
               <div className="w-12 h-[1px] bg-[#EADCC9]/40 mx-auto my-3" />
               <span className="text-[10px] uppercase tracking-widest text-[#9C8F7E] block italic">TIME</span>
@@ -540,8 +576,6 @@ export default function WeddingPage() {
           </div>
 
           <div className="flex flex-col items-center pt-8 space-y-4 relative z-20">
-            {/* <span className="text-[10px] uppercase tracking-widest text-[#9C8F7E] block italic">Address</span>
-            <p className="text-sm font-serif text-[#4A433A] tracking-wider px-6">伦敦公园巷喜来登大酒店 · 世纪厅</p> */}
             <p className="text-[10px] text-[#D5CBA7] italic tracking-wider max-w-xs mx-auto">
               Sincerely invite you. Come and share this wonderful day with us.
             </p>
@@ -552,11 +586,9 @@ export default function WeddingPage() {
               </div>
             </div>
           </div>
-
         </div>
       </section>
 
-      {/* Pre-Map Photo Frame */}
       <div className="w-full max-w-4xl mx-auto px-4 mt-12">
         <img 
           src={COUPLE_PHOTOS.pre_map} 
@@ -629,7 +661,6 @@ export default function WeddingPage() {
         </div>
       </section>
 
-      {/* Pre-Dress code image backdrop */}
       <div className="w-full max-w-4xl mx-auto px-4 mt-20">
         <img 
           src={COUPLE_PHOTOS.pre_dress} 
@@ -639,7 +670,7 @@ export default function WeddingPage() {
       </div>
 
       {/* ============================================================================
-          BLOCK 7: TIMINGS GRID (Sophisticated Asymmetrical Timeline Path Redesign)
+          BLOCK 7: TIMINGS GRID
           ============================================================================ */}
       <section id="timings" className="py-24 px-4 bg-[#FDFBF7]">
         <div className="max-w-3xl mx-auto">
@@ -651,7 +682,6 @@ export default function WeddingPage() {
           </div>
 
           <div className="relative">
-            {/* Center Axis Line */}
             <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-[#EADCC9]" />
 
             <div className="space-y-12 relative z-10">
@@ -663,15 +693,12 @@ export default function WeddingPage() {
                 { time: "6:00 PM", title: "Grand Banquet", desc: "A four-course culinary journey, heartfelt speeches." },
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-col md:flex-row items-center w-full">
-                  {/* Left Column (Times) */}
                   <div className="md:w-1/2 md:pr-12 md:text-right flex md:block justify-center mb-2 md:mb-0">
                     <span className="font-serif italic text-lg text-[#C5A880] tracking-wide">{item.time}</span>
                   </div>
                   
-                  {/* Axis Node Indicator */}
                   <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 w-3 h-3 rounded-full bg-[#C5A880] ring-4 ring-[#FDFBF7]" />
                   
-                  {/* Right Column (Descriptions) */}
                   <div className="md:w-1/2 md:pl-12 text-center md:text-left">
                     <h4 className="font-serif font-bold text-xl text-[#4A433A] mb-2">{item.title}</h4>
                     <p className="text-sm text-[#7D7261] leading-relaxed max-w-xs mx-auto md:mx-0">{item.desc}</p>
@@ -708,11 +735,9 @@ export default function WeddingPage() {
               ))}
             </div>
           </div>
-
         </div>
       </section>
 
-      {/* Pre-RSVP Backdrop Photo */}
       <div className="w-full max-w-4xl mx-auto px-4 mt-8">
         <img 
           src={COUPLE_PHOTOS.pre_rsvp} 
@@ -722,7 +747,7 @@ export default function WeddingPage() {
       </div>
 
       {/* ============================================================================
-          BLOCK 8: THE RSVP (Luxurious Bordered Physical RSVP Card Redesign)
+          BLOCK 8: THE RSVP
           ============================================================================ */}
       <section className="py-24 px-4 bg-[#FAF6F0] flex justify-center">
         <div className="bg-white border border-[#EADCC9] shadow-2xl p-8 sm:p-12 rounded-sm max-w-2xl w-full text-center relative overflow-hidden">
@@ -758,12 +783,11 @@ export default function WeddingPage() {
       </section>
 
       {/* ============================================================================
-          BLOCK 9: LAYERED RECORD VISUALIZER PRE-HUB (Realistic Vinyl Record Overlay)
+          BLOCK 9: LAYERED RECORD VISUALIZER PRE-HUB
           ============================================================================ */}
       <section id="interactive" className="py-20 px-4 bg-[#FDFBF7] flex flex-col items-center">
         <div className="w-full max-w-md relative flex flex-col items-center mt-10">
 
-          {/* Record Peeking from Top */}
           <div className="relative w-[280px] h-[280px] -mb-32 z-10 flex flex-col items-center justify-start pointer-events-none">
             <div 
               className={`absolute top-0 w-[260px] h-[260px] rounded-full bg-[#111111] border-4 border-[#222222] shadow-[0_-10px_30px_rgba(0,0,0,0.3)] flex items-center justify-center overflow-hidden transition-all duration-[4000ms] ease-linear pointer-events-auto ${
@@ -773,7 +797,6 @@ export default function WeddingPage() {
                 backgroundImage: "repeating-radial-gradient(circle, #222222, #111111 2px, #222222 4px)"
               }}
             >
-              {/* Arched text across grooves */}
               <svg viewBox="0 0 260 260" className="absolute inset-0 w-full h-full z-20">
                 <path id="vinyl-curve" d="M 30,130 A 100,100 0 0,1 230,130" fill="transparent" />
                 <text className="text-[12px] uppercase tracking-[0.3em] font-serif fill-[#EADCC9] opacity-90 drop-shadow-md">
@@ -787,7 +810,6 @@ export default function WeddingPage() {
               <div className="absolute inset-10 rounded-full border border-white/5" />
               <div className="absolute inset-16 rounded-full border border-white/10" />
 
-              {/* Center spindle photo */}
               <div className="absolute w-24 h-24 rounded-full bg-[#C5A880] border-2 border-white overflow-hidden shadow-inner flex items-center justify-center">
                 <img src={COUPLE_PHOTOS.vinyl_center} alt="Couple label" className="w-full h-full object-cover" />
                 <div className="absolute w-3 h-3 rounded-full bg-white border border-[#5C5346]" />
@@ -795,7 +817,6 @@ export default function WeddingPage() {
             </div>
           </div>
 
-          {/* Overlapping Glass Quote Card */}
           <div className="relative z-20 w-[90%] bg-white/80 backdrop-blur-xl p-8 rounded-t-[2rem] shadow-[0_-10px_20px_rgba(0,0,0,0.03)] border-t border-x border-white/60 text-center">
             <p className="font-serif italic text-xs sm:text-sm leading-loose text-[#5C5346] tracking-wide">
               "If the sun were to rise in the west, <br />
@@ -804,11 +825,9 @@ export default function WeddingPage() {
             </p>
           </div>
 
-          {/* Main Portrait Frame with Redesigned Sleek Audio Player */}
           <div className="relative z-10 w-full bg-white rounded-b-[2rem] shadow-2xl overflow-hidden border border-white">
             <img src={COUPLE_PHOTOS.pre_rsvp} className="w-full h-[450px] sm:h-[500px] object-cover" alt="Couple portrait" />
             
-            {/* Redesigned sleek play/pause media bar */}
             <div className="absolute bottom-6 left-6 right-6 z-30 bg-black/45 backdrop-blur-md border border-white/20 p-3 sm:p-4 rounded-2xl flex items-center justify-between shadow-2xl">
               <div className="flex items-center gap-4">
                 <button
@@ -823,7 +842,6 @@ export default function WeddingPage() {
                 </div>
               </div>
               
-              {/* Animated Audio Visualizer */}
               <div className="flex items-end gap-[3px] h-8 pr-2">
                 {[1, 2, 3, 4, 5].map((bar) => (
                   <div 
@@ -845,12 +863,11 @@ export default function WeddingPage() {
       </section>
 
       {/* ============================================================================
-          BLOCK 10 & 11: SONG REQUESTS & LEDGER (Stacked Vertical Design)
+          BLOCK 10 & 11: SONG REQUESTS & LEDGER
           ============================================================================ */}
       <section id="song-requests" className="py-24 px-4 bg-[#FAF6F0]">
         <div className="max-w-3xl mx-auto flex flex-col space-y-24">
           
-          {/* Song Requests Section (On Top) */}
           <div className="space-y-8 bg-white p-8 sm:p-12 border border-[#EADCC9] shadow-sm rounded-sm">
             <div className="text-center space-y-2 border-b border-[#EADCC9]/50 pb-6">
               <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Your Sound, Our Day</span>
@@ -907,7 +924,6 @@ export default function WeddingPage() {
             )}
           </div>
 
-          {/* Journal Ledger Section (On Bottom) */}
           <div className="space-y-8 bg-white p-8 sm:p-12 border border-[#EADCC9] shadow-sm rounded-sm">
             <div className="text-center space-y-2 border-b border-[#EADCC9]/50 pb-6">
               <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Leave Your Blessings</span>
@@ -959,7 +975,7 @@ export default function WeddingPage() {
       </section>
 
       {/* ============================================================================
-          BLOCK 12: CROWDSOURCED MEDIA UPLOAD GALLERY FEED
+          BLOCK 12: SHARED GALLERY PREVIEW & UPLOAD (MAIN PAGE FEED)
           ============================================================================ */}
       <section id="gallery-header" className="py-24 px-4 bg-[#FDFBF7] overflow-hidden">
         <div className="max-w-4xl mx-auto space-y-16">
@@ -983,7 +999,6 @@ export default function WeddingPage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
             {mediaGallery.slice(0, 6).map((media, idx) => {
-              // 1. Check if it's a video file
               const isVideo = 
                 media.type?.startsWith?.('video') || 
                 media.type === 'video' || 
@@ -993,25 +1008,16 @@ export default function WeddingPage() {
                 <div 
                   key={idx} 
                   onClick={() => setLightboxIndex(idx)}
-                  className="aspect-square bg-[#EADCC9] overflow-hidden cursor-pointer relative group rounded-sm"
+                  className="aspect-square bg-[#EADCC9] overflow-hidden relative group rounded-sm cursor-pointer"
                 >
                   {isVideo ? (
-                    <video 
-                      src={media.url} 
-                      className="w-full h-full object-cover" 
-                      muted 
-                      autoPlay 
-                      loop 
-                      playsInline 
-                    />
+                    <video src={media.url} className="w-full h-full object-cover" muted autoPlay loop playsInline />
                   ) : (
                     <img 
                       src={media.url} 
                       alt="Wedding moment" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" 
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   )}
                 </div>
@@ -1019,7 +1025,8 @@ export default function WeddingPage() {
             })}
           </div>
 
-          {mediaGallery.length > 6 && (
+          {/* This button triggers the Full Grid Modal we just finished! */}
+          {mediaGallery.length > 6 ? (
             <div className="flex justify-center mt-8">
               <button
                 onClick={() => setShowGalleryGrid(true)}
@@ -1028,10 +1035,223 @@ export default function WeddingPage() {
                 View Full Grid
               </button>
             </div>
+          ) : (
+            mediaGallery.length > 0 && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => setShowGalleryGrid(true)}
+                  className="px-8 py-3 bg-transparent border border-[#C5A880] text-[#C5A880] text-xs font-semibold tracking-widest uppercase rounded-sm hover:bg-[#C5A880] hover:text-white transition-all"
+                >
+                  Manage Gallery
+                </button>
+              </div>
+            )
           )}
 
         </div>
       </section>
+
+      {/* ============================================================================
+          BLOCK 12: FULL GALLERY GRID INTERACTIVE OVERLAY MODAL
+          ============================================================================ */}
+      {showGalleryGrid && (
+        <div className="fixed inset-0 z-50 bg-[#FDFBF7] flex flex-col animate-fade-in">
+          
+          <div className="sticky top-0 z-40 bg-[#FDFBF7] border-b border-[#EADCC9] shadow-sm px-4 sm:px-10 py-4 sm:py-6 flex justify-between items-center">
+            <div>
+              <h2 className="font-serif text-2xl sm:text-3xl text-[#4A433A]">Full Gallery</h2>
+              <p className="text-xs text-[#7D7261] mt-1 hidden sm:block">Select photos to manage your uploads.</p>
+            </div>
+            
+            <div className="flex items-center gap-2 sm:gap-3">
+              {!isDeleteMode ? (
+                <button
+                  onClick={() => setIsDeleteMode(true)}
+                  className="text-[11px] font-sans tracking-wider uppercase border border-[#EADCC9] text-[#7D7261] px-4 py-2 rounded-sm hover:bg-[#FAF6F0] transition-all bg-white shadow-sm"
+                >
+                  Manage My Files
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 sm:gap-3">
+                  {selectedKeys.length > 0 && (
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      // Swapped failing hex color for standard Tailwind rose-800 so it always renders
+                      className="text-[11px] font-sans tracking-wider uppercase bg-rose-800 text-white px-4 py-2 rounded-sm hover:bg-rose-900 transition-all shadow-md animate-fade-in"
+                    >
+                      Delete Selected ({selectedKeys.length})
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setIsDeleteMode(false);
+                      setSelectedKeys([]);
+                    }}
+                    className="text-[11px] font-sans tracking-wider uppercase border border-[#EADCC9] text-[#7D7261] px-4 py-2 rounded-sm hover:bg-[#FAF6F0] transition-all bg-white shadow-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              <button 
+                onClick={() => {
+                  setShowGalleryGrid(false);
+                  setIsDeleteMode(false);
+                  setSelectedKeys([]);
+                }}
+                className="text-xs font-sans tracking-widest uppercase px-4 py-2 border border-[#EADCC9] text-[#7D7261] rounded-sm hover:bg-[#FAF6F0] transition-all bg-white ml-2 shadow-sm"
+              >
+                ← Back
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 sm:p-10">
+            <div className="max-w-6xl mx-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3 relative z-20">
+                {mediaGallery.map((media, idx) => {
+                  const isVideo = 
+                    media.type?.startsWith?.('video') || 
+                    media.type === 'video' || 
+                    /\.(mp4|mov|m4v|webm|avi|mkv)/i.test(media.url);
+                    
+                  const safeKey = media.key || `fallback-${idx}`;
+                  const isSelected = selectedKeys.includes(safeKey);
+
+                  return (
+                    <div 
+                      key={safeKey} 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        if (isDeleteMode) {
+                          setSelectedKeys((current) => {
+                            if (current.includes(safeKey)) {
+                              return current.filter(k => k !== safeKey);
+                            } else {
+                              return [...current, safeKey];
+                            }
+                          });
+                        } else {
+                          setLightboxIndex(idx);
+                        }
+                      }}
+                      // Using ring-[#C5A880] (gold) so the selected picture outline is visible against the white background
+                      className={`aspect-square bg-[#EADCC9] overflow-hidden relative group rounded-sm transition-all duration-200 cursor-pointer ${
+                        isDeleteMode ? 'z-30' : 'z-10'
+                      } ${isDeleteMode && isSelected ? 'ring-[3px] ring-[#C5A880] scale-[0.96] shadow-lg' : 'hover:opacity-95'}`}
+                    >
+                      {/* STRONG WHITE OUTLINE SELECTION INDICATOR ON TOP LEFT */}
+                      {isDeleteMode && (
+                        <div className="absolute top-2 left-2 z-40 flex items-center justify-center w-6 h-6 rounded-full border-2 border-white bg-black/30 shadow-md transition-all duration-200">
+                          {isSelected && <div className="w-3 h-3 bg-white rounded-full animate-scale-up" />}
+                        </div>
+                      )}
+
+                      {isVideo ? (
+                        <video 
+                          src={media.url} 
+                          className={`w-full h-full object-cover pointer-events-none transition-all duration-300 ${isDeleteMode && !isSelected ? 'opacity-40 saturate-50' : ''}`} 
+                          muted 
+                          autoPlay 
+                          loop 
+                          playsInline 
+                        />
+                      ) : (
+                        <img 
+                          src={media.url} 
+                          alt="Wedding snapshot" 
+                          className={`w-full h-full object-cover pointer-events-none transition-all duration-300 ${isDeleteMode && !isSelected ? 'opacity-40 saturate-50' : 'group-hover:scale-105'}`}
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================================
+          LIGHTBOX MODAL FOR IMAGES
+          ============================================================================ */}
+      {lightboxIndex !== null && (
+        <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-6">
+          <div className="flex justify-end pt-2">
+            <button 
+              onClick={() => setLightboxIndex(null)}
+              className="w-12 h-12 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center overflow-hidden py-4">
+            <img 
+              src={mediaGallery[lightboxIndex].url} 
+              alt={`Expanded item ${lightboxIndex}`} 
+              className="max-h-full max-w-full object-contain rounded-sm border border-white/10 shadow-2xl" 
+            />
+          </div>
+
+          <div className="flex justify-center items-center gap-6 pb-4">
+            <button
+              disabled={lightboxIndex === 0}
+              onClick={() => setLightboxIndex(lightboxIndex - 1)}
+              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold tracking-widest uppercase disabled:opacity-30 transition-colors"
+            >
+              Prev
+            </button>
+            <span className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-mono">
+              {lightboxIndex + 1} / {mediaGallery.length}
+            </span>
+            <button
+              disabled={lightboxIndex === mediaGallery.length - 1}
+              onClick={() => setLightboxIndex(lightboxIndex + 1)}
+              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold tracking-widest uppercase disabled:opacity-30 transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================================
+          SINGLE ELEGANT DIALOG OVERLAY CONSOLE FOR DELETION VERIFICATION
+          ============================================================================ */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#FDFBF7] border border-[#EADCC9] max-w-md w-full rounded-sm p-8 text-center shadow-2xl transform transition-all animate-scale-up">
+            <h3 className="font-serif text-2xl text-[#4A433A] mb-3 tracking-wide">
+              Remove from Gallery?
+            </h3>
+            <p className="text-xs text-[#7D7261] font-sans px-4 mb-6 leading-relaxed">
+              Are you sure you want to permanently delete {keysToDelete.length} of your uploaded {keysToDelete.length === 1 ? 'moment' : 'moments'}? This action cannot be reversed.
+            </p>
+            
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-6 py-2.5 text-xs font-semibold uppercase tracking-wider border border-[#EADCC9] text-[#7D7261] rounded-sm hover:bg-[#FAF6F0] transition-colors bg-white shadow-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBatchDelete}
+                className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider bg-rose-800 text-white rounded-sm hover:bg-rose-900 transition-colors shadow-md"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ============================================================================
           BLOCK 13: WISHING WELL REGISTRY
@@ -1078,8 +1298,9 @@ export default function WeddingPage() {
       {/* ============================================================================
           FLOATING NAV LAYER (SPEED DIAL)
           ============================================================================ */}
-      {showFAB && (
-        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+      {/* ADDED FIX: Automatically hides this entire floating menu when the Grid or RSVP modals are open! */}
+      {showFAB && !showGalleryGrid && !isRsvpOpen && (
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 animate-fade-in">
           
           <div className="flex flex-col items-end gap-2 transition-all duration-300">
             <button 
@@ -1098,7 +1319,6 @@ export default function WeddingPage() {
               <span>Schedule Details</span>
             </button>
 
-            {/* Anchors directly to the song-requests section header */}
             <button 
               onClick={() => scrollToAnchor('song-requests')}
               className="bg-white hover:bg-[#C5A880] text-[#5C5346] hover:text-white text-xs font-semibold px-4 py-2 rounded-full border border-[#EADCC9] shadow-md flex items-center gap-2 transform hover:scale-105 active:scale-95 transition-all"
@@ -1127,7 +1347,7 @@ export default function WeddingPage() {
       )}
 
       {/* ============================================================================
-          SMART RSVP PROFILE CHAINING SHEET (Redesigned Editorial Minimalist Inputs)
+          SMART RSVP PROFILE CHAINING SHEET
           ============================================================================ */}
       {isRsvpOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-end justify-center bg-black/50 backdrop-blur-md transition-all duration-300">
@@ -1221,7 +1441,6 @@ export default function WeddingPage() {
                             )}
                           </div>
 
-                          {/* Minimalist Floating Label / Bottom Border Inputs */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                             <div className="relative">
                               <input
@@ -1249,7 +1468,6 @@ export default function WeddingPage() {
                             </div>
                           </div>
 
-                          {/* Refined Clickable Toggles instead of Select Box */}
                           <div className="relative pt-2">
                             <label className="text-[9px] uppercase font-bold text-[#9C8F7E] tracking-widest mb-3 block">Attendance Status</label>
                             <div className="flex gap-4">
@@ -1324,102 +1542,6 @@ export default function WeddingPage() {
           </div>
         </div>
       )}
-
-      {/* ============================================================================
-          FULL GRID GALLERY MODAL (Redesigned Gallery View)
-          ============================================================================ */}
-      {showGalleryGrid && (
-        <div className="fixed inset-0 z-50 bg-[#FDFBF7] overflow-y-auto">
-          <div className="sticky top-0 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EADCC9] z-20 px-6 py-4 flex justify-between items-center">
-            <h3 className="font-serif text-2xl text-[#4A433A]">Full Gallery Grid</h3>
-            <button 
-              onClick={() => setShowGalleryGrid(false)}
-              className="flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#7D7261] hover:text-[#C5A880] transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back to Invite
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-            {mediaGallery.map((media, idx) => {
-              // 1. Case-insensitive check for common video formats anywhere in the URL string
-              const isVideo = 
-                media.type?.startsWith?.('video') || 
-                media.type === 'video' || 
-                /\.(mp4|mov|m4v|webm|avi|mkv)/i.test(media.url);
-
-              return (
-                <div key={idx} className="aspect-square bg-[#EADCC9] overflow-hidden rounded-sm relative group cursor-pointer">
-                  {isVideo ? (
-                    <video 
-                      src={media.url} 
-                      className="w-full h-full object-cover" 
-                      muted 
-                      autoPlay 
-                      loop 
-                      playsInline 
-                    />
-                  ) : (
-                    <img 
-                      src={media.url} 
-                      alt="Wedding moment" // Removed {idx} so it doesn't read "Gallery item 0" if it flashes
-                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" 
-                      // 2. SAFETY FALLBACK: If the image fails to load because it's secretly a video, hide the broken text
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-      {/* ============================================================================
-          LIGHTBOX MODAL FOR IMAGES (Z-index 60 to sit above Grid Modal)
-          ============================================================================ */}
-      {lightboxIndex !== null && (
-        <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-6">
-          <div className="flex justify-end pt-2">
-            <button 
-              onClick={() => setLightboxIndex(null)}
-              className="w-12 h-12 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors"
-            >
-              <X className="w-8 h-8" />
-            </button>
-          </div>
-
-          <div className="flex-1 flex items-center justify-center overflow-hidden py-4">
-            <img 
-              src={mediaGallery[lightboxIndex].url} 
-              alt={`Expanded item ${lightboxIndex}`} 
-              className="max-h-full max-w-full object-contain rounded-sm border border-white/10 shadow-2xl" 
-            />
-          </div>
-
-          <div className="flex justify-center items-center gap-6 pb-4">
-            <button
-              disabled={lightboxIndex === 0}
-              onClick={() => setLightboxIndex(lightboxIndex - 1)}
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold tracking-widest uppercase disabled:opacity-30 transition-colors"
-            >
-              Prev
-            </button>
-            <span className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-mono">
-              {lightboxIndex + 1} / {mediaGallery.length}
-            </span>
-            <button
-              disabled={lightboxIndex === mediaGallery.length - 1}
-              onClick={() => setLightboxIndex(lightboxIndex + 1)}
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold tracking-widest uppercase disabled:opacity-30 transition-colors"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
