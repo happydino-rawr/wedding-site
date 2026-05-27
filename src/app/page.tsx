@@ -19,7 +19,7 @@ interface Guest {
 }
 
 interface MediaItem {
-  type: string;
+  type?: string;
   url: string;
 }
 
@@ -30,7 +30,7 @@ export default function WeddingPage() {
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
   const [showFAB, setShowFAB] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [mediaGallery, setMediaGallery] = useState<{url: string}[]>([]);
+  const [mediaGallery, setMediaGallery] = useState<MediaItem[]>([]);
   const [guestsList, setGuestsList] = useState<Guest[]>([]);
   const [envelopeVisible, setEnvelopeVisible] = useState(false);
   const envelopeRef = useRef(null);
@@ -85,7 +85,8 @@ export default function WeddingPage() {
 
     // 1. Prepare to track new files for the optimistic update
     const newOptimisticFiles = Array.from(files).map(file => ({
-      url: URL.createObjectURL(file)
+      url: URL.createObjectURL(file),
+      type: file.type
     }));
 
     // 2. Add all new files to the UI instantly
@@ -163,13 +164,28 @@ export default function WeddingPage() {
     const res = await fetch('/api/gallery'); 
     const data = await res.json();
     
-    // Map the keys (filenames) to the full Public Development URL
     const publicBaseUrl = "https://pub-24a198c3bcd44e7ab19fd37353cb5c07.r2.dev";
-    const imagesWithUrls = data.images.map((key: string) => ({
-      url: `${publicBaseUrl}/${key}`
-    }));
     
-    setMediaGallery(imagesWithUrls);
+    const itemsWithUrls = data.images.map((key: string) => {
+      // 1. Convert key to lowercase to easily catch .MP4, .MOV, .MOV_123, etc.
+      const lowerKey = key.toLowerCase();
+      
+      // 2. Check if the file contains any common video extensions anywhere in its name
+      const isVideoFile = 
+        lowerKey.endsWith('.mp4') || 
+        lowerKey.endsWith('.mov') || 
+        lowerKey.endsWith('.m4v') || 
+        lowerKey.endsWith('.webm') ||
+        lowerKey.includes('.mp4') || 
+        lowerKey.includes('.mov');
+
+      return {
+        url: `${publicBaseUrl}/${key}`,
+        type: isVideoFile ? 'video' : 'image'
+      };
+    });
+    
+    setMediaGallery(itemsWithUrls);
   };
 
   useEffect(() => {
@@ -966,15 +982,41 @@ export default function WeddingPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-            {mediaGallery.slice(0, 6).map((media, idx) => (
-              <div 
-                key={idx} 
-                onClick={() => setLightboxIndex(idx)}
-                className="aspect-square bg-[#EADCC9] overflow-hidden cursor-pointer relative group rounded-sm"
-              >
-                <img src={media.url} alt={`Gallery item ${idx}`} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" />
-              </div>
-            ))}
+            {mediaGallery.slice(0, 6).map((media, idx) => {
+              // 1. Check if it's a video file
+              const isVideo = 
+                media.type?.startsWith?.('video') || 
+                media.type === 'video' || 
+                /\.(mp4|mov|m4v|webm|avi|mkv)/i.test(media.url);
+
+              return (
+                <div 
+                  key={idx} 
+                  onClick={() => setLightboxIndex(idx)}
+                  className="aspect-square bg-[#EADCC9] overflow-hidden cursor-pointer relative group rounded-sm"
+                >
+                  {isVideo ? (
+                    <video 
+                      src={media.url} 
+                      className="w-full h-full object-cover" 
+                      muted 
+                      autoPlay 
+                      loop 
+                      playsInline 
+                    />
+                  ) : (
+                    <img 
+                      src={media.url} 
+                      alt="Wedding moment" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" 
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {mediaGallery.length > 6 && (
@@ -1298,30 +1340,42 @@ export default function WeddingPage() {
             </button>
           </div>
           
-          <div className="p-4 sm:p-8 max-w-6xl mx-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-              {mediaGallery.map((media, idx) => (
-                <div key={idx} className="aspect-square bg-[#EADCC9] overflow-hidden rounded-sm">
-                  {media.url.match(/\.(mp4|mov|m4v)$/i) ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+            {mediaGallery.map((media, idx) => {
+              // 1. Case-insensitive check for common video formats anywhere in the URL string
+              const isVideo = 
+                media.type?.startsWith?.('video') || 
+                media.type === 'video' || 
+                /\.(mp4|mov|m4v|webm|avi|mkv)/i.test(media.url);
+
+              return (
+                <div key={idx} className="aspect-square bg-[#EADCC9] overflow-hidden rounded-sm relative group cursor-pointer">
+                  {isVideo ? (
                     <video 
                       src={media.url} 
                       className="w-full h-full object-cover" 
-                      controls={false} // Disable controls for a clean aesthetic
+                      muted 
+                      autoPlay 
+                      loop 
+                      playsInline 
                     />
                   ) : (
                     <img 
                       src={media.url} 
-                      alt={`Gallery item ${idx}`} 
-                      className="w-full h-full object-cover" 
+                      alt="Wedding moment" // Removed {idx} so it doesn't read "Gallery item 0" if it flashes
+                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" 
+                      // 2. SAFETY FALLBACK: If the image fails to load because it's secretly a video, hide the broken text
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   )}
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       )}
-
       {/* ============================================================================
           LIGHTBOX MODAL FOR IMAGES (Z-index 60 to sit above Grid Modal)
           ============================================================================ */}

@@ -17,12 +17,13 @@ export async function POST(request: Request) {
     const file = formData.get("file") as File;
     
     if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
-
+    // This keeps the timestamp at the front and preserves the extension at the very end
+    const uniqueKey = `${Date.now()}_${file.name}`;
     const buffer = Buffer.from(await file.arrayBuffer());
 
     await r2.send(new PutObjectCommand({
       Bucket: "jess-will-wedding",
-      Key: file.name, // You can use your uniqueKey logic here too
+      Key: uniqueKey, // Use the unique key for the uploaded file
       Body: buffer,
       ContentType: file.type,
     }));
