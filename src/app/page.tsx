@@ -576,7 +576,7 @@ export default function WeddingPage() {
 
           <div className="relative">
             {/* Center Timeline Line (Visible on Mobile & Desktop) */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-[#C5A880]" />
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-[#EBE3D0]" />
 
             <div className="space-y-16 md:space-y-24 relative z-10">
               
@@ -1168,7 +1168,7 @@ export default function WeddingPage() {
               />
               <textarea
                 placeholder="Write your note..."
-                rows="3"
+                rows={3}
                 value={tempMessage}
                 onChange={(e) => setTempMessage(e.target.value)}
                 className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EADCC9] text-sm focus:outline-none focus:border-[#C5A880] placeholder-[#9C8F7E]"
