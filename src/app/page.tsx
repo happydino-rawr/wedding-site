@@ -38,7 +38,7 @@ export default function WeddingPage() {
   const [mediaGallery, setMediaGallery] = useState<MediaItem[]>([]);
   const [guestsList, setGuestsList] = useState<Guest[]>([]); 
   const [envelopeVisible, setEnvelopeVisible] = useState(false);
-  const envelopeRef = useRef(null);
+  const envelopeRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   // Playlist state & Deletion tracking
@@ -153,7 +153,7 @@ export default function WeddingPage() {
     const handleEnvelopeCheck = () => {
       if (!envelopeRef.current) return;
 
-      const rect = envelopeRef.current.getBoundingClientRect();
+      const rect = envelopeRef.current!.getBoundingClientRect();
       const vh = window.innerHeight;
       const currentScrollY = window.scrollY;
 
