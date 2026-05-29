@@ -7,6 +7,7 @@ import {
   VolumeX, X, Users, BookOpen, Check, Play, Pause, ArrowLeft,
   Lock, Trash2, Menu
 } from 'lucide-react';
+import { audio, initAudio, getAudio } from '../utils/audio'; // Adjust path as needed
 
 interface Guest {
   id: number;
@@ -26,10 +27,9 @@ export default function WeddingPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState("");
   const [passcode, setPasscode] = useState("");
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [showFAB, setShowFAB] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const [isMusicPlaying, setIsMusicPlaying] = useState(true);
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [mediaGallery, setMediaGallery] = useState<MediaItem[]>([]);
@@ -127,7 +127,7 @@ export default function WeddingPage() {
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, []);
+    }, []); 
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -173,27 +173,80 @@ export default function WeddingPage() {
       lastScrollY.current = currentScrollY;
     };
 
-  window.addEventListener('scroll', handleEnvelopeCheck, { passive: true });
-  return () => window.removeEventListener('scroll', handleEnvelopeCheck);
-}, []);
+    window.addEventListener('scroll', handleEnvelopeCheck, { passive: true });
+    return () => window.removeEventListener('scroll', handleEnvelopeCheck);
+  }, []);
+
+  useEffect(() => {
+    // 1. Initialize audio only once on mount
+    initAudio('/wedding_song.mp3');
+
+    // 2. This function handles the "unlock" and playing
+    const handleInteraction = () => {
+      if (audio) {
+        audio.play().catch((err: unknown) => {
+          console.error("Playback failed:", err instanceof Error ? err.message : err);
+        });
+      }
+      // Remove listeners once the browser is unlocked
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+    };
+
+    // Add the listeners
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+    };
+  }, []); // Empty dependency array: runs ONLY on mount
+
+  // 3. Separate effect ONLY for the play/pause toggle
+  useEffect(() => {
+    if (audio) {
+      if (isMusicPlaying) {
+        audio.play().catch(e => console.log("Play toggle blocked:", e));
+      } else {
+        audio.pause();
+      }
+    }
+  }, [isMusicPlaying]);
 
   const handleAuthSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  
-  if (passcode.trim() === ACCESS_PASSCODE) {
-    // Drop the persistent session token so they don't have to log in again
-    localStorage.setItem("wedding_session_token", "true");
+    e.preventDefault();
     
-    // Unlock the application
-    setIsAuthenticated(true);
-    
-    // Automatically start the ambient background music for a magical entrance
-    setIsMusicPlaying(true);
-  } else {
-    // Trigger the error state if the passcode is wrong
-    setAuthError("Incorrect passcode. Please refer to your invitation card.");
-  }
-};
+    if (passcode.trim() === ACCESS_PASSCODE) {
+      // Drop the persistent session token so they don't have to log in again
+      localStorage.setItem("wedding_session_token", "true");
+      
+      // Unlock the application
+      setIsAuthenticated(true);
+      
+      // Automatically start the ambient background music for a magical entrance
+      setIsMusicPlaying(true);
+    } else {
+      // Trigger the error state if the passcode is wrong
+      setAuthError("Incorrect passcode. Please refer to your invitation card.");
+    }
+  };
+
+  useEffect(() => {
+    const startMusic = () => {
+      const audio = getAudio('/wedding-song.mp3');
+      if (audio && audio.paused) {
+        audio.currentTime = 6;
+        audio.play().catch(console.error);
+        // Remove the listener once the music starts
+        window.removeEventListener('click', startMusic);
+        window.removeEventListener('touchstart', startMusic);
+      }
+    };
+
+    window.addEventListener('click', startMusic);
+    window.addEventListener('touchstart', startMusic);
+  }, []);
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -310,6 +363,26 @@ export default function WeddingPage() {
     setMySongIds(updated);
     localStorage.setItem("my_song_requests", JSON.stringify(updated));
   };
+
+  const handleInteraction = () => {
+    const audioInstance = getAudio('/wedding_song.mp3');
+    if (audioInstance) {
+      audioInstance.play().catch(e => console.error("Playback failed:", e));
+      audioInstance.currentTime = 6; // Start from 6 seconds in for a more dynamic entrance
+    }
+    // Remove listener after first interaction
+    window.removeEventListener('click', handleInteraction);
+    window.removeEventListener('touchstart', handleInteraction);
+  };
+
+  useEffect(() => {
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+    };
+  }, []);
 
   // Add Message & Track Session IDs
   const handleAddMessage = (e: React.FormEvent<HTMLFormElement>) => {
