@@ -117,7 +117,7 @@ export default function WeddingPage() {
   useEffect(() => {
     const updateCountdown = () => {
       const now = new Date();
-      const difference = WEDDING_DATE - now;
+      const difference = WEDDING_DATE.getTime() - now.getTime();
 
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
@@ -152,6 +152,7 @@ export default function WeddingPage() {
   useEffect(() => {
     const handleEnvelopeCheck = () => {
       if (!envelopeRef.current) return;
+
       const rect = envelopeRef.current.getBoundingClientRect();
       const vh = window.innerHeight;
       const currentScrollY = window.scrollY;
