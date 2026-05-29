@@ -2,12 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import FadeInSection from '../components/FadeInSection';
 import { COUPLE_PHOTOS, ACCESS_PASSCODE, WEDDING_DATE, RSVP_CUTOFF_DATE } from '../lib/constants';
-import { playProceduralSong } from '@/utils/audio';
 import { 
-  Heart, Calendar, MapPin, Navigation, Car, Info, Music, 
-  Send, Image as ImageIcon, Camera, Plus, Edit2, Volume2, 
+  Heart, Calendar, MapPin, Navigation, Car, Info, Music, Image as ImageIcon, Camera, Plus, Edit2, Volume2, 
   VolumeX, X, Users, BookOpen, Check, Play, Pause, ArrowLeft,
-  Lock, ChevronDown, Trash2, Menu
+  Lock, Trash2, Menu
 } from 'lucide-react';
 
 interface Guest {
@@ -29,7 +27,6 @@ export default function WeddingPage() {
   const [authError, setAuthError] = useState("");
   const [passcode, setPasscode] = useState("");
   const [showFAB, setShowFAB] = useState(false);
-  const [isFabDismissed, setIsFabDismissed] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [isMusicPlaying, setIsMusicPlaying] = useState(true);
@@ -78,7 +75,7 @@ export default function WeddingPage() {
 
   const [showGalleryGrid, setShowGalleryGrid] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [myUploadedKeys, setMyUploadedKeys] = useState<string[]>([]);
+  const [_myUploadedKeys, setMyUploadedKeys] = useState<string[]>([]);
 
   // States for multi-select delete mode
   const [isDeleteMode, setIsDeleteMode] = useState(false);
@@ -239,31 +236,6 @@ export default function WeddingPage() {
     await Promise.all(uploadPromises);
     await refreshGallery();
     alert("Uploads complete!");
-  };
-
-  const handleDelete = async (key: string) => {
-    if (!confirm("Are you sure you want to delete this moment?")) return;
-
-    try {
-      const res = await fetch('/api/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key }),
-      });
-
-      if (res.ok) {
-        setMediaGallery(prev => prev.filter(item => item.key !== key));
-        setMyUploadedKeys(prev => {
-          const updated = prev.filter(k => k !== key);
-          localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
-          return updated;
-        });
-      } else {
-        alert("Failed to delete the file from the server.");
-      }
-    } catch (err) {
-      console.error("Failed to delete item:", err);
-    }
   };
 
   const handleBatchDelete = async () => {
@@ -1674,7 +1646,7 @@ export default function WeddingPage() {
                         </div>
 
                         <div className="space-y-4">
-                          {guestsList.map((guest, idx) => (
+                          {guestsList.map((guest) => (
                             <div key={guest.id} className="bg-[#FAF6F0] p-5 rounded-sm border border-[#EADCC9]/50 shadow-sm">
                               <h4 className="font-serif text-lg text-[#4A433A] mb-3">
                                 {guest.firstName || "Unnamed"} {guest.lastName || "Guest"}
