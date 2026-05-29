@@ -1,9 +1,14 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 
-export default function FadeInSection({ children, className = "" }) {
+interface FadeInSectionProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export default function FadeInSection({ children, className = "" }: FadeInSectionProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const domRef = useRef();
+  const domRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleCheck = () => {

@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "target": "es6",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "lib": [
       "dom",
       "dom.iterable",
