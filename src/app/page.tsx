@@ -402,7 +402,7 @@ export default function WeddingPage() {
             </div>
             
             <h1 className="font-serif text-2xl sm:text-3xl text-[#4A433A] tracking-widest font-light mb-2">
-              Arthur & Sophie
+              Jessica & William
             </h1>
             <p className="text-[#9C8F7E] text-[8px] sm:text-[9px] uppercase tracking-[0.4em] mb-10 font-semibold">
               The Wedding Celebration
@@ -588,7 +588,7 @@ export default function WeddingPage() {
                   <FadeInSection>
                     <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">The Sunset Proposal</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:ml-0 md:mr-auto">
-                      Surrounded by golden sand dunes and the soothing melody of ocean waves, Arthur dropped on one knee. With tears, laughter, and an absolute whisper of certainty, Sophie said "Yes!"
+                      Surrounded by golden sand dunes and the soothing melody of ocean waves, William dropped on one knee. With tears, laughter, and an absolute whisper of certainty, Jessica said "Yes!"
                     </p>
                   </FadeInSection>
                 </div>
