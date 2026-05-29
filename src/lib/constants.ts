@@ -10,6 +10,8 @@ export const COUPLE_PHOTOS = {
   envelope_couple: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&q=80&w=600",
   pre_map: "https://images.unsplash.com/photo-1532712938310-34cb3982ef74?auto=format&fit=crop&q=80&w=800",
   pre_dress: "https://images.unsplash.com/photo-1507504038482-762efc8a3321?auto=format&fit=crop&q=80&w=800",
-  pre_rsvp: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800",
-  vinyl_center: "https://images.unsplash.com/photo-1519225495810-7512c696505a?auto=format&fit=crop&q=80&w=300",
+  pre_rsvp: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200",
+  vinyl_center: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200",
+  couple_pic: "https://i.ibb.co/n8jZk2s9/Stock-Cake-Elegant-wedding-couple-1149721-medium.webp",
+  couple_pic1: "https://ibb.co/3YcGhXy2",
 };
