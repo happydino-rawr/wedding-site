@@ -38,3 +38,12 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 >>>>>>> 56762e8 (Initial commit)
+
+## Supabase
+- Uses this as the database
+- Handles text-based information and structured data
+- i.e. Guest list, song requests etc
+- Photo Gallery Tracking: Supabase doesn't store the actual heavy photo files, it acts as the ledger. It remembers the file names and URLs of the photos so your website knows exactly which images to display on your screen.
+
+## Cloudflare R2 (The Storage Vault)
+- Handles heavy photo file and holds onto it in the vault
