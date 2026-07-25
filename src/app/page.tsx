@@ -248,6 +248,48 @@ export default function WeddingPage() {
     window.addEventListener('touchstart', startMusic);
   }, []);
 
+  const handleAddToCalendar = () => {
+    // Wedding details
+    const title = "Jessica & William's Wedding (Remember to bring your ID)";
+    const description = "Come and share this wonderful day with us! Please RSVP and check the details on our wedding website. Remeber to bring your ID for entry into the Reception Venue.";
+    const location = "Wedding Venue Name & Address Here"; // Update with actual venue address
+    
+    // Event times (UTC ISO string format required for .ics standard)
+    // Date: March 6, 2027 at 6:08 PM (Local)
+    const startTime = "20270306T180800"; 
+    const endTime = "20270603T220000";
+
+    // Generate .ics file structure
+    const icsContent = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Jessica and William Wedding//EN",
+      "BEGIN:VEVENT",
+      `SUMMARY:${title}`,
+      `DESCRIPTION:${description}`,
+      `LOCATION:${location}`,
+      `DTSTART:${startTime}`,
+      `DTEND:${endTime}`,
+      "STATUS:CONFIRMED",
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+
+    // Create a blob link and trigger browser download
+    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+    const url = window.URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Jessica-and-William-Wedding.ics");
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -548,16 +590,20 @@ export default function WeddingPage() {
           </button>
         </div>
 
-        <div className="relative z-10 flex flex-col items-center mt-32 px-4">
+        <div className="relative z-10 flex flex-col items-center text-center mt-32 px-4">
           <span className="text-white/80 uppercase tracking-[0.5em] text-[9px] sm:text-[10px] mb-8 font-light">
-            The Wedding Celebration Of
+            Together with their families
           </span>
-          <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-[0.25em] leading-tight uppercase">
+          <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-[0.25em] leading-tight uppercase mb-12 sm:mb-16">
             JESSICA
             <br />
             <span className="text-2xl sm:text-3xl text-[#EADCC9] italic mx-2 font-thin lowercase block my-3">&</span>
             WILLIAM
           </h1>
+
+          <p className="text-white/80 uppercase tracking-[0.5em] text-[9px] sm:text-[10px] mb-8 font-light">
+            invite you to celebrate <br /> their wedding day
+          </p>
         </div>
 
         <div 
@@ -570,47 +616,9 @@ export default function WeddingPage() {
       </section>
 
       {/* ============================================================================
-          BLOCK 2: TIMELINE EVENT COUNTDOWN CLOCK
+          BLOCK 3: THE RELATIONSHIP CHRONICLE (COMMENTED OUT FOR NOW - TO BE REMOVED)
           ============================================================================ */}
-      <section id="countdown-anchor" className="py-20 px-4 bg-[#FDFBF7] relative overflow-hidden flex flex-col items-center justify-center border-b border-[#EADCC9]/30">
-        <div className="text-center space-y-8 relative z-10 max-w-2xl w-full">
-          
-          <div className="space-y-3">
-            <span className="text-[9px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Promise</span>
-            <p className="font-serif italic text-base sm:text-lg text-[#7D7261] tracking-wide">
-              "Counting down to our forever..."
-            </p>
-          </div>
-          <div className="flex items-center justify-center gap-5 sm:gap-10">
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.days}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Days</span>
-            </div>
-            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
-            
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.hours}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Hours</span>
-            </div>
-            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
-            
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.minutes}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Mins</span>
-            </div>
-            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
-            
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.seconds}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Secs</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================================
-          BLOCK 3: THE RELATIONSHIP CHRONICLE
-          ============================================================================ */}
+      {false && (
       <section id="story" className="py-24 px-4 bg-[#FAF6F0]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center space-y-3 mb-24">
@@ -692,11 +700,11 @@ export default function WeddingPage() {
           </div>
         </div>
       </section>
-
+      )}
       {/* ============================================================================
           BLOCK 4: THE EXACT SCROLL-TRIGGERED ENVELOPE
           ============================================================================ */}
-      <section className="py-24 px-4 bg-[#FDFBF7] flex flex-col items-center min-h-[700px] justify-center overflow-visible">
+      <section className="py-34 px-4 bg-[#FDFBF7] flex flex-col items-center min-h-[700px] justify-center overflow-visible">
         <div className="max-w-xl w-full text-center">
 
           {/* Interactive Envelope Container - Clean, borderless on the background */}
@@ -841,16 +849,70 @@ export default function WeddingPage() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center pt-8 space-y-4 relative z-20">
+          {/* 📍 ADD TO CALENDAR BUTTON */}
+          <button 
+            onClick={handleAddToCalendar}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2 mt-6 mb-4 rounded-full border border-[#C5A880] text-[#7D7261] hover:bg-[#C5A880] hover:text-white transition-all text-xs tracking-widest uppercase font-light shadow-sm"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Add to Calendar
+          </button>
+
+          <div className="flex flex-col items-center pt-2 pb-0 relative z-20">
             <p className="text-[10px] text-[#D5CBA7] italic tracking-wider max-w-xs mx-auto">
               Sincerely invite you. Come and share this wonderful day with us.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="flex justify-center bg-[#FDFBF7] py-6">
+        <div className="w-8 h-[1px] bg-[#EADCC9]" />
+      </div>
+
+      {/* ============================================================================
+          BLOCK 2: TIMELINE EVENT COUNTDOWN CLOCK
+          ============================================================================ */}
+      <section id="countdown-anchor" className="pt-0 pb-16 px-4 bg-[#FDFBF7] relative overflow-hidden flex flex-col items-center justify-center border-b border-[#EADCC9]/30">
+        <div className="text-center space-y-4 relative z-10 max-w-2xl w-full">
+          
+          <div className="space-y-3">
+            <span className="text-[9px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Promise</span>
+            <p className="font-serif italic text-base sm:text-lg text-[#7D7261] tracking-wide">
+              "Counting down to our forever..."
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-5 sm:gap-10">
+            <div className="flex flex-col items-center">
+              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.days}</span>
+              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Days</span>
+            </div>
+            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
             
-            <div className="pt-4 flex justify-center">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8E1C24] via-[#751117] to-[#45090C] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),0_4px_10px_rgba(117,17,23,0.4)] border border-[#3E090B] flex items-center justify-center relative select-none cursor-pointer transform hover:scale-110 active:scale-95 transition-all duration-300">
-                <Heart className="w-4 h-4 text-[#FDEAEA] fill-current opacity-85 filter drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]" />
+            <div className="flex flex-col items-center">
+              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.hours}</span>
+              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Hours</span>
+            </div>
+            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
+            
+            <div className="flex flex-col items-center">
+              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.minutes}</span>
+              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Mins</span>
+            </div>
+            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
+            
+            <div className="flex flex-col items-center">
+              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.seconds}</span>
+              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Secs</span>
+            </div>
+          </div>
+
+          <div className="pt-8 flex justify-center">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8E1C24] via-[#751117] to-[#45090C] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),0_4px_10px_rgba(117,17,23,0.4)] border border-[#3E090B] flex items-center justify-center relative select-none cursor-pointer transform hover:scale-110 active:scale-95 transition-all duration-300">
+              <Heart className="w-4 h-4 text-[#FDEAEA] fill-current opacity-85 filter drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]" />
                 <div className="absolute inset-[3px] rounded-full border border-[#FDEAEA]/10 pointer-events-none" />
-              </div>
             </div>
           </div>
         </div>
@@ -862,14 +924,14 @@ export default function WeddingPage() {
       </div>
 
       {/* ============================================================================
-          BLOCK 5: INTERACTIVE TRANSIT MAP & NAVIGATION ROUTING
+          BLOCK 5A: INTERACTIVE TRANSIT MAP & NAVIGATION ROUTING (CEREMONY LOCATION)
           ============================================================================ */}
       <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
         <div className="max-w-2xl mx-auto space-y-12 text-center">
           <div className="space-y-3">
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Location Sanctuary</span>
-            <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Grand Manor Pavilion</h2>
-            <p className="text-sm text-[#7D7261]">14 Heritage Boulevard, Bowral NSW 2576</p>
+            <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Ceremony</span>
+            <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Harbour View Lawn</h2>
+            <p className="text-sm text-[#7D7261]">Royal Botanical Gardens, Sydney NSW 2000</p>
           </div>
 
           <div className="rounded-sm overflow-hidden shadow-md border border-[#EADCC9] aspect-video relative">
@@ -883,7 +945,81 @@ export default function WeddingPage() {
           </div>
 
           <a 
-            href="http://googleusercontent.com/maps.google.com/dir/?api=1&destination=Bowral+NSW+2576" 
+            href="https://www.google.com/maps/search/?api=1&query=Harbour+View+Lawn+Royal+Botanic+Garden+Sydney" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-3 border border-[#BE123C] text-[#BE123C] font-semibold text-xs tracking-widest uppercase hover:bg-[#C5A880] hover:text-white transition-all active:scale-95"
+          >
+            <Navigation className="w-3.5 h-3.5" />
+            <span>Route Directions</span>
+          </a>
+        </div>
+      </section>
+
+        {/* ============================================================================
+          BLOCK 6: TRANSPORTATION STEP-BY-STEP GUIDE  (CEREMONY LOCATION)
+        ============================================================================ */}
+      <section className="py-12 px-4 bg-[#FAF6F0] border-y border-[#EADCC9]/40">
+        <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* <div className="text-center space-y-3">
+            <Car className="w-6 h-6 text-[#C5A880] mx-auto" />
+            <h4 className="font-serif font-light text-xl text-[#4A433A]">Driving Route</h4>
+            <p className="text-xs text-[#7D7261] leading-relaxed">
+              Take the Southern Freeway (M31) heading South from Sydney. Exit toward Bowral/Mitagong.
+            </p>
+          </div> */}
+
+          <div className="text-center space-y-3">
+            <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
+            <h4 className="font-serif font-light text-xl text-[#4A433A]">Metered Parking</h4>
+            <p className="text-xs text-[#7D7261] leading-relaxed">
+              Metered street parking is available on Mrs Macquaries Road and Hospital Road. 
+              <br />
+Please note that parking is limited and may require a short walk to the venue.
+            </p>
+          </div>
+
+          <div className="text-center space-y-3">
+            <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
+            <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
+            <p className="text-xs text-[#7D7261] leading-relaxed">
+              St James, Martin Place and Circular Quay Stations are all a 10-minute walk from the venue.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="w-full max-w-4xl mx-auto px-4 mt-20">
+        <img 
+          src={COUPLE_PHOTOS.couple_pic} 
+          alt="Elegance dress code prelude" 
+          className="w-full h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
+        />
+      </div>
+
+      {/* ============================================================================
+          BLOCK 5B: INTERACTIVE TRANSIT MAP & NAVIGATION ROUTING (RECEPTION LOCATION)
+          ============================================================================ */}
+      <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
+        <div className="max-w-2xl mx-auto space-y-12 text-center">
+          <div className="space-y-3">
+            <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception</span>
+            <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Cabravale Club Resort</h2>
+            <p className="text-sm text-[#7D7261]">1 Bartley Street, Canley Vale NSW 2166</p>
+          </div>
+
+          <div className="rounded-sm overflow-hidden shadow-md border border-[#EADCC9] aspect-video relative">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.2743516518776!2d150.8524456762391!3d-33.88262701977755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12946be48baab3%3A0x6b57904e287fffc2!2sSydney%2C%20NSW!5e0!3m2!1sen!2sau!4v1711234567890!5m2!1sen!2sau" 
+              className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
+              allowFullScreen={true}
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+
+          <a 
+            href="https://www.google.com/maps/search/?api=1&query=Cabravale+Club+Resort+1+Bartley+St+Canley+Vale+NSW+2166" 
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-3 border border-[#BE123C] text-[#BE123C] font-semibold text-xs tracking-widest uppercase hover:bg-[#C5A880] hover:text-white transition-all active:scale-95"
@@ -895,23 +1031,23 @@ export default function WeddingPage() {
       </section>
 
       {/* ============================================================================
-          BLOCK 6: TRANSPORTATION STEP-BY-STEP GUIDE
+          BLOCK 6: TRANSPORTATION STEP-BY-STEP GUIDE (RECEPTION LOCATION)
           ============================================================================ */}
       <section className="py-12 px-4 bg-[#FAF6F0] border-y border-[#EADCC9]/40">
         <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center space-y-3">
+          {/* <div className="text-center space-y-3">
             <Car className="w-6 h-6 text-[#C5A880] mx-auto" />
             <h4 className="font-serif font-light text-xl text-[#4A433A]">Driving Route</h4>
             <p className="text-xs text-[#7D7261] leading-relaxed">
               Take the Southern Freeway (M31) heading South from Sydney. Exit toward Bowral/Mitagong.
             </p>
-          </div>
+          </div> */}
 
           <div className="text-center space-y-3">
             <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
             <h4 className="font-serif font-light text-xl text-[#4A433A]">Free Parking</h4>
             <p className="text-xs text-[#7D7261] leading-relaxed">
-              Private gated parking is entirely complimentary inside the Grand Manor Estate.
+              Complimentary onsite parking is available.
             </p>
           </div>
 
@@ -919,7 +1055,7 @@ export default function WeddingPage() {
             <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
             <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
             <p className="text-xs text-[#7D7261] leading-relaxed">
-              Arrive at Bowral Station. A private wedding shuttle bus will cycle to pick up guests at 2:15 PM.
+              10 minute walk from Canley Vale Station.
             </p>
           </div>
         </div>
