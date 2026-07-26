@@ -704,13 +704,13 @@ export default function WeddingPage() {
       {/* ============================================================================
           BLOCK 4: THE EXACT SCROLL-TRIGGERED ENVELOPE
           ============================================================================ */}
-      <section className="py-34 px-4 bg-[#FDFBF7] flex flex-col items-center min-h-[700px] justify-center overflow-visible">
-        <div className="max-w-xl w-full text-center">
+      <section className="py-20 md:py-32 px-4 bg-[#FDFBF7] flex flex-col items-center min-h-[700px] justify-center overflow-visible">
+        <div className="max-w-xl md:max-w-2xl w-full text-center">
 
-          {/* Interactive Envelope Container - Clean, borderless on the background */}
+          {/* Interactive Envelope Container - Responsive dimensions */}
           <div 
             ref={envelopeRef} 
-            className="relative w-[280px] sm:w-[340px] h-[200px] sm:h-[240px] mx-auto mb-20 select-none overflow-visible animate-pulse-subtle"
+            className="relative w-[280px] sm:w-[340px] md:w-[480px] h-[200px] sm:h-[240px] md:h-[340px] mx-auto mb-20 md:mb-32 select-none overflow-visible animate-pulse-subtle"
             style={{ perspective: '1200px' }}
           >
             {/* Back Plate */}
@@ -718,11 +718,13 @@ export default function WeddingPage() {
               <div className="absolute inset-1 bg-[#EBE5DA] rounded-sm" />
             </div>
 
-            {/* Polaroid photo inside - slides upwards out of sleeve, layered with z-10 */}
+            {/* Polaroid Photo - Slides upwards out of sleeve */}
             <div 
-              className="absolute left-4 right-4 bottom-[-60px] h-[210px] sm:h-[255px] bg-white p-2 sm:p-3 pb-6 sm:pb-8 rounded-sm shadow-xl border border-slate-200/60 transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)] z-10"
+              className="absolute left-4 right-4 bottom-[-60px] h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)] z-10"
               style={{
-                transform: envelopeVisible ? 'translateY(-160px) rotate(1deg) scale(1.02)' : 'translateY(10px) rotate(0deg) scale(0.95)',
+                transform: envelopeVisible 
+                  ? 'translateY(-160px) md:translateY(-230px) rotate(1deg) scale(1.02)' 
+                  : 'translateY(10px) rotate(0deg) scale(0.95)',
                 opacity: envelopeVisible ? 1 : 0,
                 pointerEvents: envelopeVisible ? 'auto' : 'none'
               }}
@@ -730,20 +732,20 @@ export default function WeddingPage() {
               <img 
                 src={COUPLE_PHOTOS.envelope_couple} 
                 alt="Envelope portrait" 
-                className="w-full h-[175px] sm:h-[210px] object-cover rounded-sm border border-slate-100" 
+                className="w-full h-[175px] sm:h-[210px] md:h-[300px] object-cover rounded-sm border border-slate-100" 
               />
             </div>
 
-            {/* Front Pouch Layer with V-cut, layered with z-20 */}
+            {/* Front Pouch Layer with V-cut */}
             <svg viewBox="0 0 400 280" preserveAspectRatio="none" className="absolute inset-0 w-full h-full drop-shadow-xl z-20 pointer-events-none">
               <polygon points="0,280 0,0 200,160" fill="#F4EFE8" stroke="#E3D8C8" strokeWidth="1" />
               <polygon points="400,280 400,0 200,160" fill="#F0EBE3" stroke="#E3D8C8" strokeWidth="1" />
               <polygon points="0,280 400,280 200,158" fill="#F7F3ED" stroke="#E3D8C8" strokeWidth="1" />
             </svg>
 
-            {/* Opening top triangular flap - Dynamically sets zIndex lower when open so picture slides OVER the flap */}
+            {/* Opening top triangular flap */}
             <div 
-              className="absolute top-0 inset-x-0 h-[115px] sm:h-[138px] origin-top transition-all duration-[1200ms] ease-in-out pointer-events-none"
+              className="absolute top-0 inset-x-0 h-[115px] sm:h-[138px] md:h-[195px] origin-top transition-all duration-[1200ms] ease-in-out pointer-events-none"
               style={{ 
                 transform: envelopeVisible ? 'rotateX(180deg)' : 'rotateX(0deg)',
                 zIndex: envelopeVisible ? 5 : 30,
@@ -754,32 +756,22 @@ export default function WeddingPage() {
               </svg>
             </div>
 
-            {/* Precise Calligraphy & Red Cord ribbon elements on Front Pouch - Opacity always stays fully 100% */}
+            {/* Ribbon & Calligraphy on Front Pouch */}
             <div className="absolute top-[52%] sm:top-[54%] inset-x-0 flex flex-col items-center z-40 pointer-events-none">
-              {/* Adjusted Hand-Drawn Bow Tie */}
-              <div className="w-[80px] sm:w-24 h-auto -mt-3">
+              {/* Bow Tie SVG */}
+              <div className="w-[80px] sm:w-24 md:w-32 h-auto -mt-3">
                 <svg viewBox="0 0 100 50" fill="none" className="w-full h-full">
-                  {/* Left Loop (Wide but balanced) */}
                   <path d="M50,25 C25,5 5,10 15,30 C20,40 45,35 50,25" stroke="#BE123C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  
-                  {/* Right Loop (Made Bigger/Wider) */}
                   <path d="M50,25 C85,5 105,15 90,30 C80,35 60,30 50,25" stroke="#BE123C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  
-                  {/* Center knot */}
                   <circle cx="50" cy="26" r="3" fill="#BE123C" />
-                  
-                  {/* Hanging ends - Left is significantly longer */}
                   <path d="M48,27 C30,45 25,55 35,55" stroke="#BE123C" strokeWidth="2" strokeLinecap="round" />
                   <path d="M52,27 C60,40 65,42 60,42" stroke="#BE123C" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
               
-              {/* Debossed Heart */}
+              {/* Heart Icon */}
               <div className="mt-0 mb-3">
-                <svg 
-                  viewBox="0 0 24 24" 
-                  className="w-4 h-4 sm:w-5 sm:h-5"
-                >
+                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
                   <path 
                     d="M12 21.3C12 21.3 2 14.5 2 8.5C2 5 4.8 2 8 2C10 2 11.5 3.5 12 5C12.5 3.5 14 2 16 2C19.2 2 22 5 22 8.5C22 14.5 12 21.3 12 21.3Z" 
                     fill="#FDFBF7" 
@@ -790,44 +782,45 @@ export default function WeddingPage() {
                 </svg>
               </div>
 
-              {/* "Our wedding" elegant calligraphic cursive script (Always Visible) */}
+              {/* Calligraphy Text */}
               <div className="mt-2 text-center select-none">
                 <span 
-                  className="block text-[#BE123C] text-[37px] sm:text-3xl md:text-4xl leading-none tracking-wide -mt-4 mb-6"
+                  className="block text-[#BE123C] text-[37px] sm:text-3xl md:text-5xl leading-none tracking-wide -mt-4 mb-6"
                   style={{ fontFamily: "'Alex Brush', 'Brush Script MT', cursive", transform: "rotate(-2deg)" }}
                 >
                   Our Wedding
                 </span>
-                {/* <span className="block text-[6px] sm:text-[7px] text-[#5C5346] tracking-[0.4em] uppercase mt-1">WEDDING</span> */}
               </div>
             </div>
 
           </div>
 
+          {/* Invitation Text Section */}
           <div className="space-y-6 pt-6 text-center relative z-20">
-            <h3 className="font-serif text-lg tracking-[0.2em] text-[#5C5346]">Inviting You To Our Wedding</h3>
-            <div className="flex justify-center items-center gap-4 text-2xl font-serif text-[#4A433A]">
+            <h3 className="font-serif text-lg md:text-2xl tracking-[0.2em] text-[#5C5346]">Inviting You To Our Wedding</h3>
+            <div className="flex justify-center items-center gap-4 text-2xl md:text-4xl font-serif text-[#4A433A]">
               <span>Jessica</span>
               <span className="text-rose-700 font-thin">∞</span>
               <span>William</span>
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
-              <div className="w-8 h-[1px] bg-[#EADCC9] mx-auto my-2" />
+              <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
+              <div className="w-8 md:w-12 h-[1px] bg-[#EADCC9] mx-auto my-2" />
             </div>
           </div>
 
-          <div className="max-w-sm mx-auto px-4 py-2 mt-4 relative z-20">
-            <div className="grid grid-cols-7 gap-3 text-center text-[10px] font-serif text-[#9C8F7E] lowercase border-b border-[#EADCC9]/40 pb-2 mb-3">
+          {/* Responsive Calendar */}
+          <div className="max-w-sm md:max-w-md mx-auto px-4 py-2 mt-4 relative z-20">
+            <div className="grid grid-cols-7 gap-3 text-center text-[10px] md:text-xs font-serif text-[#9C8F7E] lowercase border-b border-[#EADCC9]/40 pb-2 mb-3">
               <span>sun</span><span>mon</span><span>tues</span><span>wed</span><span>thu</span><span>fri</span><span>sat</span>
             </div>
-            <div className="grid grid-cols-7 gap-y-4 gap-x-2 text-xs text-[#7D7261] font-serif">
+            <div className="grid grid-cols-7 gap-y-4 md:gap-y-6 gap-x-2 text-xs md:text-sm text-[#7D7261] font-serif">
               <span className="text-[#D5CBA7]">28</span>
               <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
               <div className="relative flex items-center justify-center font-bold text-rose-700">
                 <span className="relative z-10">6</span>
                 <div className="absolute inset-0 flex items-center justify-center text-rose-700/80 scale-125">
-                  <Heart className="w-6 h-6 stroke-[1px] fill-transparent" />
+                  <Heart className="w-6 h-6 md:w-7 md:h-7 stroke-[1px] fill-transparent" />
                 </div>
               </div>
               <span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span>
@@ -838,39 +831,35 @@ export default function WeddingPage() {
             </div>
 
             <div className="mt-8 space-y-2 text-center text-[#5C5346]">
-              <span className="text-[10px] uppercase tracking-widest text-[#9C8F7E] block italic">Date</span>
+              <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Date</span>
               <div className="space-y-0.5">
-                <p className="font-serif text-lg tracking-wider text-[#4A433A]">06·03·2027</p>
-                <p className="text-xs text-[#7D7261]">农历正月廿九 周六</p>
+                <p className="font-serif text-lg md:text-xl tracking-wider text-[#4A433A]">06·03·2027</p>
+                <p className="text-xs md:text-sm text-[#7D7261]">农历正月廿九 周六</p>
               </div>
               <div className="w-12 h-[1px] bg-[#EADCC9]/40 mx-auto my-3" />
-              <span className="text-[10px] uppercase tracking-widest text-[#9C8F7E] block italic">Reception</span>
-              <p className="font-serif text-xl text-[#4A433A]">12:08</p>
+              <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Reception</span>
+              <p className="font-serif text-xl md:text-2xl text-[#4A433A]">12:08</p>
             </div>
           </div>
 
-          {/* 📍 ADD TO CALENDAR BUTTON */}
+          {/* Button */}
           <button 
             onClick={handleAddToCalendar}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2 mt-6 mb-4 rounded-full border border-[#C5A880] text-[#7D7261] hover:bg-[#C5A880] hover:text-white transition-all text-xs tracking-widest uppercase font-light shadow-sm"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 mt-6 mb-4 rounded-full border border-[#C5A880] text-[#7D7261] hover:bg-[#C5A880] hover:text-white transition-all text-xs md:text-sm tracking-widest uppercase font-light shadow-sm"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             Add to Calendar
           </button>
 
           <div className="flex flex-col items-center pt-2 pb-0 relative z-20">
-            <p className="text-[10px] text-[#D5CBA7] italic tracking-wider max-w-xs mx-auto">
+            <p className="text-[14px] md:text-xs text-[#D5CBA7] italic tracking-wider max-w-xs md:max-w-sm mx-auto">
               Sincerely invite you. Come and share this wonderful day with us.
             </p>
           </div>
         </div>
       </section>
-
-      <div className="flex justify-center bg-[#FDFBF7] py-6">
-        <div className="w-8 h-[1px] bg-[#EADCC9]" />
-      </div>
 
       {/* ============================================================================
           BLOCK 2: TIMELINE EVENT COUNTDOWN CLOCK
@@ -919,8 +908,12 @@ export default function WeddingPage() {
       </section>
 
       {/* Pre-Map Photo Frame */}
-      <div className="w-full max-w-4xl mx-auto px-4 mt-12">
-        <img src={COUPLE_PHOTOS.pre_map} alt="Pre-map presentation" className="w-full h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" />
+      <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
+        <img 
+          src={COUPLE_PHOTOS.pre_map} 
+          alt="Couple photo" 
+          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
+        />
       </div>
 
       {/* ============================================================================
@@ -1006,11 +999,11 @@ export default function WeddingPage() {
         </div>
       </section>
 
-      <div className="w-full max-w-4xl mx-auto px-4 mt-20">
+      <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
         <img 
           src={COUPLE_PHOTOS.couple_pic} 
-          alt="Elegance dress code prelude" 
-          className="w-full h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
+          alt="Couple photo" 
+          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
         />
       </div>
 
@@ -1057,52 +1050,45 @@ export default function WeddingPage() {
           BLOCK 6: TRANSPORTATION STEP-BY-STEP GUIDE (RECEPTION LOCATION)
           ============================================================================ */}
       <section className="py-12 px-4 bg-[#FAF6F0] border-y border-[#EADCC9]/40">
-        <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* <div className="text-center space-y-3">
-            <Car className="w-6 h-6 text-[#C5A880] mx-auto" />
-            <h4 className="font-serif font-light text-xl text-[#4A433A]">Driving Route</h4>
-            <p className="text-xs text-[#7D7261] leading-relaxed">
-              Take the Southern Freeway (M31) heading South from Sydney. Exit toward Bowral/Mitagong.
-            </p>
-          </div> */}
+              {/* Changed grid-cols-3 to grid-cols-2 max-w-xl so 2 items center perfectly */}
+              <div className="max-w-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Free Parking Block */}
+                <div className="text-center space-y-3">
+                  <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
+                  <h4 className="font-serif font-light text-xl text-[#4A433A]">Free Parking</h4>
+                  <p className="text-xs text-[#7D7261] leading-relaxed">
+                    Complimentary onsite parking is available.
+                  </p>
+                </div>
 
-          {/* Free Parking Block */}
-          <div className="text-center space-y-3">
-            <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
-            <h4 className="font-serif font-light text-xl text-[#4A433A]">Free Parking</h4>
-            <p className="text-xs text-[#7D7261] leading-relaxed">
-              Complimentary onsite parking is available.
-            </p>
-          </div>
+                {/* Rail Transit Block */}
+                <div className="text-center space-y-3">
+                  <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
+                  <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
+                  <p className="text-xs text-[#7D7261] leading-relaxed">
+                    10 minute walk from Canley Vale Station.
+                  </p>
+                </div>
+              </div>
 
-          {/* Rail Transit Block */}
-          <div className="text-center space-y-3">
-            <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
-            <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
-            <p className="text-xs text-[#7D7261] leading-relaxed">
-              10 minute walk from Canley Vale Station.
-            </p>
-          </div>
-        </div>
+              {/* Important Photo ID Notice */}
+              <div className="max-w-md mx-auto mt-10 p-4 rounded-xl bg-[#F4EFE6]/50 border border-[#EADCC9]/60 space-y-1.5 text-center sm:text-left">
+                <p className="text-[10px] uppercase tracking-widest text-[#C5A880] font-bold">
+                  Please Note
+                </p>
+                <p className="text-xs text-[#7D7261] leading-relaxed">
+                  All guests must present a <strong className="font-semibold text-[#BE123C]">valid form of photo ID</strong> upon arrival to sign into the venue (e.g., Passport, Driver's Licence, or Proof of Age Card).                </p>
+              </div>
+            </section>
 
-        {/* Important Photo ID Notice */}
-        <div className="max-w-md mx-auto mt-14 p-4 rounded-xl bg-[#F4EFE6]/50 border border-[#EADCC9]/60 space-y-1.5">
-          <p className="text-[10px] uppercase tracking-widest text-[#C5A880] font-bold">
-            Please Note
-          </p>
-          <p className="text-xs text-[#7D7261] leading-relaxed">
-            All guests must present a valid form of photo ID upon arrival to sign into the venue (e.g., Passport, Driver's Licence, or Proof of Age Card).
-          </p>
-        </div>
-      </section>
-
-      <div className="w-full max-w-4xl mx-auto px-4 mt-20">
-        <img 
-          src={COUPLE_PHOTOS.couple_pic} 
-          alt="Elegance dress code prelude" 
-          className="w-full h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
-        />
-      </div>
+            {/* Couple Photo Divider - Normalized margins */}
+            <div className="w-full max-w-4xl mx-auto px-4 my-8 sm:my-12">
+              <img 
+                src={COUPLE_PHOTOS.couple_pic} 
+                alt="Couple photo" 
+                className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
+              />
+            </div>
 
       {/* ============================================================================
           BLOCK 7: Wedding Itinerary & Dress Code Guide
@@ -1121,11 +1107,11 @@ export default function WeddingPage() {
 
             <div className="space-y-12 relative z-10">
               {[
-                { time: "2:00 PM", title: "Tea Ceremony", desc: "Traditional morning family\nheritage blessing." },
-                { time: "3:00 PM", title: "Guest Arrival", desc: "Champagne welcoming, serene\nviolin prelude." },
-                { time: "3:30 PM", title: "The Sacred Vows", desc: "Outdoors in the sunken garden\ncourtyard." },
-                { time: "4:30 PM", title: "Cocktail Hour", desc: "Sip custom botanical gin tonics\n& meet other guests." },
-                { time: "6:00 PM", title: "Grand Banquet", desc: "A four-course culinary journey,\nheartfelt speeches." },
+                { time: "12:00 PM", title: "Tea Ceremony", desc: "Family blessings & tea." },
+                { time: "1:30 PM", title: "Guest Arrival", desc: "At the Harbour View Lawn." },
+                { time: "2:00 PM", title: "The Ceremony", desc: "Exchanging our vows." },
+                { time: "3:30 PM (How long?)", title: "Travel & Rest", desc: "Commute & freshen up for dinner." },
+                { time: "6:30 PM", title: "Grand Banquet", desc: "Dinner, speeches & party." },
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-row items-center w-full relative">
                   <div className="w-1/2 pr-6 sm:pr-12 text-right">
