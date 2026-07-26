@@ -5,7 +5,7 @@ import { COUPLE_PHOTOS, ACCESS_PASSCODE, WEDDING_DATE, RSVP_CUTOFF_DATE } from '
 import { 
   Heart, Calendar, MapPin, Navigation, Car, Info, Music, Image as ImageIcon, Camera, Plus, Edit2, Volume2, 
   VolumeX, X, Users, BookOpen, Check, Play, Pause, ArrowLeft,
-  Lock, Trash2, Menu
+  Lock, Trash2, Menu, Clock
 } from 'lucide-react';
 import { audio, initAudio, getAudio } from '../utils/audio'; // Adjust path as needed
 
@@ -929,14 +929,14 @@ export default function WeddingPage() {
       <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
         <div className="max-w-2xl mx-auto space-y-12 text-center">
           <div className="space-y-3">
-            <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Ceremony</span>
+            <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Ceremony Location</span>
             <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Harbour View Lawn</h2>
             <p className="text-sm text-[#7D7261]">Royal Botanical Gardens, Sydney NSW 2000</p>
           </div>
 
           <div className="rounded-sm overflow-hidden shadow-md border border-[#EADCC9] aspect-video relative">
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.2743516518776!2d150.8524456762391!3d-33.88262701977755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12946be48baab3%3A0x6b57904e287fffc2!2sSydney%2C%20NSW!5e0!3m2!1sen!2sau!4v1711234567890!5m2!1sen!2sau" 
+              src="https://maps.google.com/maps?q=Harbour+View+Lawn,+Royal+Botanic+Garden+Sydney&t=&z=16&ie=UTF8&iwloc=&output=embed" 
               className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
               allowFullScreen={true}
               loading="lazy" 
@@ -968,17 +968,34 @@ export default function WeddingPage() {
               Take the Southern Freeway (M31) heading South from Sydney. Exit toward Bowral/Mitagong.
             </p>
           </div> */}
+          {/* Arrival Block */}
+          <div className="text-center space-y-3">
+            {/* Stacked Centered Clock Icon (Matching MapPin styling) */}
+            <Clock className="w-6 h-6 text-[#C5A880] mx-auto" />
+            
+            {/* Matching Serif Header */}
+            <h4 className="font-serif font-light text-xl text-[#4A433A]">Arrival</h4>
+            
+            {/* Description Text */}
+            <p className="text-xs text-[#7D7261] leading-relaxed">
+              Please arrive <span className="font-medium text-[#4A433A]">30 minutes early</span> to allow time for parking
+              <br />
+              and the walk to Harbour Lawn for the ceremony.
+            </p>
+          </div>
 
+          {/* Parking Block */}
           <div className="text-center space-y-3">
             <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
             <h4 className="font-serif font-light text-xl text-[#4A433A]">Metered Parking</h4>
             <p className="text-xs text-[#7D7261] leading-relaxed">
               Metered street parking is available on Mrs Macquaries Road and Hospital Road. 
               <br />
-Please note that parking is limited and may require a short walk to the venue.
+              Please note that parking is limited and may require a short walk to the venue.
             </p>
           </div>
 
+          {/* Rail Transit Block */}
           <div className="text-center space-y-3">
             <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
             <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
@@ -1002,15 +1019,21 @@ Please note that parking is limited and may require a short walk to the venue.
           ============================================================================ */}
       <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
         <div className="max-w-2xl mx-auto space-y-12 text-center">
+          {/* Header & Location */}
           <div className="space-y-3">
-            <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception</span>
+            <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception Location</span>
             <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Cabravale Club Resort</h2>
             <p className="text-sm text-[#7D7261]">1 Bartley Street, Canley Vale NSW 2166</p>
+
+          {/* Invitation Subtext */}
+          <p className="font-serif italic text-sm text-[#7D7261] pt-2">
+            Following the ceremony, please join us for our wedding reception.
+          </p>
           </div>
 
           <div className="rounded-sm overflow-hidden shadow-md border border-[#EADCC9] aspect-video relative">
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.2743516518776!2d150.8524456762391!3d-33.88262701977755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12946be48baab3%3A0x6b57904e287fffc2!2sSydney%2C%20NSW!5e0!3m2!1sen!2sau!4v1711234567890!5m2!1sen!2sau" 
+              src="https://maps.google.com/maps?q=Cabravale+Club+Resort,+1+Bartley+St,+Canley+Vale+NSW+2166&t=&z=16&ie=UTF8&iwloc=&output=embed" 
               className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
               allowFullScreen={true}
               loading="lazy" 
@@ -1043,6 +1066,7 @@ Please note that parking is limited and may require a short walk to the venue.
             </p>
           </div> */}
 
+          {/* Free Parking Block */}
           <div className="text-center space-y-3">
             <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
             <h4 className="font-serif font-light text-xl text-[#4A433A]">Free Parking</h4>
@@ -1051,6 +1075,7 @@ Please note that parking is limited and may require a short walk to the venue.
             </p>
           </div>
 
+          {/* Rail Transit Block */}
           <div className="text-center space-y-3">
             <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
             <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
@@ -1058,6 +1083,16 @@ Please note that parking is limited and may require a short walk to the venue.
               10 minute walk from Canley Vale Station.
             </p>
           </div>
+        </div>
+
+        {/* Important Photo ID Notice */}
+        <div className="max-w-md mx-auto mt-14 p-4 rounded-xl bg-[#F4EFE6]/50 border border-[#EADCC9]/60 space-y-1.5">
+          <p className="text-[10px] uppercase tracking-widest text-[#C5A880] font-bold">
+            Please Note
+          </p>
+          <p className="text-xs text-[#7D7261] leading-relaxed">
+            All guests must present a valid form of photo ID upon arrival to sign into the venue (e.g., Passport, Driver's Licence, or Proof of Age Card).
+          </p>
         </div>
       </section>
 
