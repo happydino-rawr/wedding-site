@@ -1132,18 +1132,30 @@ export default function WeddingPage() {
             </div>
           </div>
 
+          {/* Dress Code Guide */}
           <div className="space-y-8 pt-20 mt-10 text-center border-t border-[#EADCC9]/50">
             <div className="space-y-2">
               <span className="text-[10px] uppercase tracking-[0.3em] text-[#C5A880] font-bold">Attire Etiquette</span>
               <h2 className="text-2xl font-serif font-light text-[#4A433A] tracking-wide">Dress Code Guide</h2>
               <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-2" />
+              <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
+                There is no strict dress code. We just want you here to celebrate with us! If you're looking for outfit ideas, here are some colors you can use as inspiration:
+              </p>
+              <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
+                Please feel free to wear whatever makes you feel comfortable and confident! For those who would like a little inspiration, here are a few soft, earthy tones that complement our wedding palette:
+              </p>
+              <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
+                Semi-formal attire is welcomed, but please wear whatever you feel best in! If you'd like color inspiration, feel free to use our suggested palette below:
+              </p>
             </div>
-            <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">We respectfully invite our elegant family and friends to match our theme and blend into our story with soft, sophisticated earthy tones. Please wear semi-formal attire:</p>
             <div className="flex flex-wrap justify-center gap-6 pt-4 max-w-2xl mx-auto">
               {[
-                { hex: "bg-[#F3EFE0]", name: "Warm Champagne" }, { hex: "bg-[#D8C3A5]", name: "Soft Sand" },
-                { hex: "bg-[#8E8D8A]", name: "Earthy Taupe" }, { hex: "bg-[#EAE7DC]", name: "Natural Linen" },
-                { hex: "bg-[#D9B08C]", name: "Warm Gold" }, { hex: "bg-[#116466]", name: "Deep Sage" },
+                { hex: "bg-[#F7F3E9]", name: "Warm Champagne" },
+                { hex: "bg-[#F5E6E8]", name: "Dusty Rose" },
+                { hex: "bg-[#F9ECE5]", name: "Blush Pink" },
+                { hex: "bg-[#E2E8DD]", name: "Soft Sage" },
+                { hex: "bg-[#C3D0C0]", name: "Earthy Sage" },
+                { hex: "bg-[#EFE6DC]", name: "Soft Oat" },
               ].map((color, idx) => (
                 <div key={idx} className="flex flex-col items-center space-y-3 group cursor-pointer w-20">
                   <div className={`w-12 h-12 rounded-full ${color.hex} shadow-sm border border-white/50 ring-1 ring-[#EADCC9] group-hover:ring-[#C5A880] transition-all duration-300 transform group-hover:scale-105`} />
@@ -1156,42 +1168,60 @@ export default function WeddingPage() {
       </section>
 
       {/* Pre-RSVP Backdrop Photo */}
-      <div className="w-full max-w-4xl mx-auto px-4 mt-8">
-        <img src={COUPLE_PHOTOS.pre_rsvp} alt="RSVP transition layout" className="w-full h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" />
+      <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
+        <img 
+          src={COUPLE_PHOTOS.pre_rsvp} 
+          alt="RSVP transition layout"
+          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" />
       </div>
+
       {/* ============================================================================
           BLOCK 8: THE RSVP
           ============================================================================ */}
       <section className="py-24 px-4 bg-[#FAF6F0] flex justify-center">
-        <div className="bg-white border border-[#EADCC9] shadow-2xl p-8 sm:p-12 rounded-sm max-w-2xl w-full text-center relative overflow-hidden">
+        {/* Restored max-w-2xl and generous padding (p-10 sm:p-16) for a roomier desktop feel */}
+        <div className="bg-white border border-[#EADCC9] shadow-xl p-10 sm:p-16 rounded-sm max-w-2xl w-full text-center relative overflow-hidden">
           
-          <div className="absolute inset-3 border border-[#EADCC9]/60 border-dashed pointer-events-none" />
+          {/* Inner Dashed Border Frame */}
+          <div className="absolute inset-4 sm:inset-5 border border-[#EADCC9]/80 border-dashed pointer-events-none" />
           
-          <div className="relative z-10 flex flex-col items-center space-y-6">
-            <Heart className="w-6 h-6 text-[#C5A880] fill-current opacity-80" />
+          <div className="relative z-10 flex flex-col items-center space-y-8 sm:space-y-10">
+            {/* Heart Icon */}
+            <Heart className="w-6 h-6 text-[#C5A880] fill-current opacity-90" />
             
-            <div className="space-y-2">
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#4A433A] tracking-wide">Répondez S'il Vous Plaît</h2>
-              <div className="w-16 h-[1px] bg-[#C5A880] mx-auto" />
+            {/* Header Section */}
+            <div className="space-y-3">
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#4A433A] tracking-wide">
+                Répondez s'il vous plaît
+              </h2>
+              <div className="w-12 sm:w-16 h-[1px] bg-[#C5A880] mx-auto" />
             </div>
 
-            <div className="py-4">
-              <p className="text-[10px] sm:text-xs text-[#9C8F7E] tracking-[0.3em] uppercase mb-1">Kindly reply by</p>
-              <br></br>
-              <p className="font-serif text-xl sm:text-2xl text-[#BE123C] italic">February 15, 2027</p>
+            {/* Subtitle & Date - Spaced out for prominence */}
+            <div className="space-y-2 py-2">
+              <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] text-[#C5A880] font-bold block">
+                Kindly Reply By
+              </span>
+              <p className="font-serif italic text-2xl sm:text-3xl text-[#BE123C] pt-1">
+                November 30, 2026
+              </p>
             </div>
 
-            <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-md mx-auto px-4 pb-6 border-b border-[#FAF6F0]">
-              We eagerly await your response to finalize our preparations for this magical day. Please register your attendance status and note any strict dietary requirements.
+            {/* Body Copy - Wider max-w and relaxed padding */}
+            <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-md mx-auto px-2">
+              We eagerly await your response to help us finalize our celebration. Please let us know if you can attend and note any dietary requirements.
             </p>
 
-            <button
-              onClick={triggerOpenRsvp}
-              className="inline-flex items-center gap-3 px-10 py-4 bg-[#C5A880] text-white font-serif font-semibold text-sm tracking-[0.2em] rounded-sm shadow-lg hover:bg-[#B3966E] transition-all transform hover:-translate-y-0.5 active:scale-95 uppercase"
-            >
-              <Users className="w-4 h-4" />
-              <span>Please RSVP Here</span>
-            </button>
+            {/* CTA Section with top border separator */}
+            <div className="w-full pt-4 border-t border-[#FAF6F0]">
+              <button
+                onClick={triggerOpenRsvp}
+                className="inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] rounded-sm shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
+              >
+                <Users className="w-4 h-4" />
+                <span>Please RSVP Here</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -1272,173 +1302,6 @@ export default function WeddingPage() {
               className={`w-full h-full object-cover ${isMusicPlaying ? "animate-[spin_4s_linear_infinite]" : ""}`} 
             />
             <div className="absolute w-3 h-3 rounded-full bg-[#FDFBF7] shadow-inner" />
-          </div>
-
-        </div>
-      </section>
-      {/* ============================================================================
-          BLOCK 10 & 11: SONG REQUESTS & LEDGER
-          ============================================================================ */}
-      <section id="song-requests" className="py-24 px-4 bg-[#FAF6F0]">
-        <div className="max-w-3xl mx-auto flex flex-col space-y-24">
-          
-          {/* Song Requests Section (On Top) */}
-          <div className="space-y-8 bg-white p-8 sm:p-12 border border-[#EADCC9] shadow-sm rounded-sm">
-            <div className="text-center space-y-2 border-b border-[#EADCC9]/50 pb-6">
-              <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Soundtrack</span>
-              <h3 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Request a Song</h3>
-              <p className="text-xs text-[#7D7261] max-w-md mx-auto pt-2">
-                Help our DJ shape the dance floor! Recommend your ultimate favorite celebratory or romantic song.
-              </p>
-            </div>
-            <form onSubmit={handleAddSong} className="space-y-6 pt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <input
-                  type="text"
-                  placeholder="Song Title"
-                  value={songTitle}
-                  onChange={(e) => setSongTitle(e.target.value)}
-                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EADCC9] text-sm focus:outline-none focus:border-[#C5A880] placeholder-[#9C8F7E]"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Artist"
-                  value={songArtist}
-                  onChange={(e) => setSongArtist(e.target.value)}
-                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EADCC9] text-sm focus:outline-none focus:border-[#C5A880] placeholder-[#9C8F7E]"
-                  required
-                />
-              </div>
-              <input
-                type="text"
-                placeholder="Your Name (Optional)"
-                value={songRequester}
-                onChange={(e) => setSongRequester(e.target.value)}
-                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EADCC9] text-sm focus:outline-none focus:border-[#C5A880] placeholder-[#9C8F7E]"
-              />
-              <div className="flex justify-center pt-4">
-                <button type="submit" className="px-10 py-4 bg-[#C5A880] text-white text-xs tracking-widest uppercase hover:bg-[#B3966E] transition-all rounded-sm shadow-sm">
-                  Submit Request
-                </button>
-              </div>
-            </form>
-
-            {playlistRequests.length > 0 && (
-              <div className="pt-8 border-t border-[#FAF6F0]">
-                <h4 className="font-serif text-lg mb-4 text-[#4A433A] text-center">Playlist Queue</h4>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {playlistRequests.map((s) => (
-                    <span key={s.id} className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#FAF6F0] text-[#7D7261] text-xs border border-[#EADCC9]/50 shadow-sm gap-2">
-                      <Music className="w-3 h-3 text-[#C5A880]" />
-                      <span className="font-semibold text-[#4A433A]">{s.title}</span> by {s.artist}
-                      
-                      {/* Delete icon visible only if song was added in current browser session */}
-                      {mySongIds.includes(s.id) && (
-                        <button 
-                          onClick={() => handleDeleteSong(s.id)}
-                          className="ml-1 text-red-500 hover:text-red-700 p-0.5 rounded-full hover:bg-red-50 transition-colors"
-                          title="Delete Request"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Journal Ledger Section (On Bottom with Edit Management) */}
-          <div className="space-y-8 bg-white p-8 sm:p-12 border border-[#EADCC9] shadow-sm rounded-sm">
-            <div className="text-center space-y-2 border-b border-[#EADCC9]/50 pb-6">
-              <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Guestbook</span>
-              <h3 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Journal Ledger</h3>
-              <p className="text-xs text-[#7D7261] max-w-md mx-auto pt-2">
-                Leave a beautiful digital note of congratulations, love, or life-long marriage advice.
-              </p>
-            </div>
-            <form onSubmit={handleAddMessage} className="space-y-6 pt-4">
-              <input
-                type="text"
-                placeholder="Your Name"
-                value={tempGuestName}
-                onChange={(e) => setTempGuestName(e.target.value)}
-                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EADCC9] text-sm focus:outline-none focus:border-[#C5A880] placeholder-[#9C8F7E]"
-                required
-              />
-              <textarea
-                placeholder="Write your note..."
-                rows={3}
-                value={tempMessage}
-                onChange={(e) => setTempMessage(e.target.value)}
-                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EADCC9] text-sm focus:outline-none focus:border-[#C5A880] placeholder-[#9C8F7E]"
-                required
-              />
-              <div className="flex justify-center pt-4">
-                <button type="submit" className="px-10 py-4 bg-[#C5A880] text-white text-xs tracking-widest uppercase hover:bg-[#B3966E] transition-all rounded-sm shadow-sm">
-                  Publish Note
-                </button>
-              </div>
-            </form>
-
-            <div className="pt-8 border-t border-[#FAF6F0]">
-              <h4 className="font-serif text-lg mb-6 text-[#4A433A] text-center flex items-center justify-center gap-2">
-                <BookOpen className="w-4 h-4 text-[#C5A880]" /> Message Board
-              </h4>
-              <div className="space-y-8">
-                {ledgerMessages.slice(0, 5).map((msg) => (
-                  <div key={msg.id} className="text-center space-y-2 border-b border-dashed border-[#EADCC9]/30 pb-4 last:border-b-0 last:pb-0">
-                    {editingMessageId === msg.id ? (
-                      <div className="space-y-3 max-w-md mx-auto bg-[#FAF6F0] p-4 rounded-sm border border-[#EADCC9]">
-                        <textarea
-                          value={editingMessageText}
-                          onChange={(e) => setEditingMessageText(e.target.value)}
-                          className="w-full p-2 text-xs border border-[#EADCC9] bg-white focus:outline-none"
-                        />
-                        <div className="flex justify-end gap-2 text-[10px] tracking-wider uppercase font-semibold">
-                          <button onClick={() => setEditingMessageId(null)} className="px-3 py-1.5 border border-[#EADCC9] bg-white">Cancel</button>
-                          <button onClick={() => handleSaveEditMessage(msg.id)} className="px-3 py-1.5 bg-[#C5A880] text-white">Save</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <p className="text-sm text-[#7D7261] italic leading-relaxed">"{msg.message}"</p>
-                        <div className="flex items-center justify-center gap-2">
-                          <p className="text-[10px] uppercase tracking-widest text-[#9C8F7E] font-semibold">— {msg.name}</p>
-                          
-                          {/* Edit button visible only if comment was added in current browser session */}
-                          {myMessageIds.includes(msg.id) && (
-                            <button 
-                              onClick={() => {
-                                setEditingMessageId(msg.id);
-                                setEditingMessageText(msg.message);
-                              }}
-                              className="text-xs text-[#C5A880] hover:text-[#B3966E] flex items-center gap-1 ml-2 border border-[#EADCC9]/50 px-2 py-0.5 bg-[#FAF6F0] hover:bg-[#F5ECE1] rounded-sm transition-all"
-                              title="Edit Message"
-                            >
-                              <Edit2 className="w-3 h-3" />
-                              <span>Edit</span>
-                            </button>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Button to view all ledger messages inside Archive Overlay */}
-              <div className="flex justify-center pt-8">
-                <button
-                  onClick={() => setShowAllMessages(true)}
-                  className="px-6 py-2 border border-[#C5A880] text-[#C5A880] hover:bg-[#C5A880]/10 text-[10px] tracking-widest uppercase rounded-sm transition-colors"
-                >
-                  Browse Ledger Archives ({ledgerMessages.length})
-                </button>
-              </div>
-            </div>
           </div>
 
         </div>
@@ -1722,42 +1585,6 @@ export default function WeddingPage() {
           </div>
         </div>
       )}
-
-      {/* ============================================================================
-          BLOCK 13: WISHING WELL REGISTRY
-          ============================================================================ */}
-      <section className="py-24 px-4 bg-[#FAF6F0]">
-        <div className="max-w-xl mx-auto text-center space-y-8">
-          <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold block">Blessings & Gifts</span>
-          <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Wishing Well</h2>
-          <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
-          <p className="text-xs text-[#7D7261] leading-relaxed max-w-md mx-auto">
-            Your attendance is the ultimate treasure to us. If you feel inclined to bless our new home, travel adventures, and marital savings, we have made a convenient registry and bank well.
-          </p>
-
-          <div className="bg-white p-8 sm:p-10 rounded-sm border border-[#EADCC9] shadow-sm space-y-8 text-left max-w-sm mx-auto">
-            <h4 className="font-serif font-light text-2xl text-[#4A433A] border-b border-[#FAF6F0] pb-4 text-center">Transfer Details</h4>
-            <div className="space-y-5 text-sm text-[#7D7261]">
-              <div className="flex flex-col space-y-1">
-                <span className="text-[10px] uppercase tracking-widest text-[#C5A880] font-semibold">Account Name</span>
-                <span className="text-[#4A433A]">JESSICA & WILLIAM Trust</span>
-              </div>
-              <div className="flex flex-col space-y-1">
-                <span className="text-[10px] uppercase tracking-widest text-[#C5A880] font-semibold">BSB</span>
-                <span className="text-[#4A433A] font-mono">062-900</span>
-              </div>
-              <div className="flex flex-col space-y-1">
-                <span className="text-[10px] uppercase tracking-widest text-[#C5A880] font-semibold">Account Number</span>
-                <span className="text-[#4A433A] font-mono tracking-wider">1048 2901 3902</span>
-              </div>
-              <div className="flex flex-col space-y-1 pt-4 border-t border-dashed border-[#EADCC9]">
-                <span className="text-[10px] uppercase tracking-widest text-[#C5A880] font-semibold">Reference Note</span>
-                <span className="text-[#4A433A] italic text-xs">WishingWell [Your Name]</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <footer className="py-16 bg-[#FDFBF7] text-center border-t border-[#EADCC9]/50 text-xs text-[#9C8F7E] tracking-widest space-y-4">
         <Heart className="w-5 h-5 mx-auto text-[#C5A880] fill-current opacity-70" />
