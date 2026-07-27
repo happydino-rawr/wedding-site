@@ -39,41 +39,6 @@ export default function WeddingPage() {
   const envelopeRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Playlist state & Deletion tracking
-  const [songTitle, setSongTitle] = useState("");
-  const [songArtist, setSongArtist] = useState("");
-  const [songRequester, setSongRequester] = useState("");
-  // const [playlistRequests, setPlaylistRequests] = useState<any[]>([]);
-
-    // Playlist state & Deletion tracking
-  const [playlistRequests, setPlaylistRequests] = useState([
-    { id: 'song-1', title: "At Last", artist: "Etta James", requester: "Jane Doe" },
-    { id: 'song-2', title: "Perfect Duet", artist: "Ed Sheeran & Beyonce", requester: "Mark" },
-    { id: 'song-3', title: "L-O-V-E", artist: "Nat King Cole", requester: "Sophia" }
-  ]);
-  const [mySongIds, setMySongIds] = useState(() => {
-    try {
-      const saved = localStorage.getItem("my_song_requests");
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
-  });
-
-  const [myMessageIds, setMyMessageIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("my_ledger_messages");
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
-  });
-
-  // Guestbook
-  const [editingMessageId, setEditingMessageId] = useState(null);
-  const [editingMessageText, setEditingMessageText] = useState("");
-
-  const [ledgerMessages, setLedgerMessages] = useState<any[]>([]);
-  const [tempGuestName, setTempGuestName] = useState("");
-  const [tempMessage, setTempMessage] = useState("");
-  const [showAllMessages, setShowAllMessages] = useState(false);
-
   const [showGalleryGrid, setShowGalleryGrid] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [_myUploadedKeys, setMyUploadedKeys] = useState<string[]>([]);
@@ -417,14 +382,6 @@ export default function WeddingPage() {
       window.removeEventListener('touchstart', handleInteraction);
     };
   }, []);
-
-
-  // Save edited message details
-  const handleSaveEditMessage = (id: string) => {
-    setLedgerMessages(prev => prev.map(msg => msg.id === id ? { ...msg, message: editingMessageText } : msg));
-    setEditingMessageId(null);
-    setEditingMessageText("");
-  };
 
   // Navigation Toggle helpers
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -1897,7 +1854,7 @@ export default function WeddingPage() {
       )}
 
       {/* ============================================================================
-          FULL GRID GALLERY MODAL & LEDGER ARCHIVES OVERLAY MODAL
+          FULL GALLERY GRID OVERLAY MODAL
           ============================================================================ */}
       {showGalleryGrid && (
         <div className="fixed inset-0 z-50 bg-[#FDFBF7] overflow-y-auto">
@@ -1912,48 +1869,6 @@ export default function WeddingPage() {
               {mediaGallery.map((media, idx) => (
                 <div key={idx} onClick={() => setLightboxIndex(idx)} className="aspect-square bg-[#EADCC9] overflow-hidden cursor-pointer group rounded-sm shadow-sm">
                   <img src={media.url} alt={`Gallery ${idx}`} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showAllMessages && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-xl rounded-sm p-8 shadow-2xl space-y-6 max-h-[85vh] flex flex-col border border-[#EADCC9]">
-            <div className="flex justify-between items-center pb-4 border-b border-[#EADCC9]">
-              <h3 className="font-serif font-light text-3xl text-[#4A433A]">Ledger Archives</h3>
-              <button onClick={() => { setShowAllMessages(false); setEditingMessageId(null); }} className="text-[#7D7261] hover:text-[#4A433A] transition-colors">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="overflow-y-auto space-y-6 pr-2 flex-1">
-              {ledgerMessages.map((msg) => (
-                <div key={msg.id} className="relative pl-6 border-l border-[#C5A880]/30 pb-4 border-b border-dashed border-[#FAF6F0] last:border-b-0">
-                  <span className="absolute top-1 left-[-4px] w-2 h-2 rounded-full bg-[#C5A880]" />
-                  <div className="flex justify-between items-baseline mb-2">
-                    <h5 className="font-serif text-lg text-[#4A433A]">{msg.name}</h5>
-                    <span className="text-[9px] uppercase tracking-widest text-[#9C8F7E]">{msg.date}</span>
-                  </div>
-                  {editingMessageId === msg.id ? (
-                    <div className="space-y-3 mt-2 bg-[#FAF6F0] p-4 rounded-sm border border-[#EADCC9]">
-                      <textarea value={editingMessageText} onChange={(e) => setEditingMessageText(e.target.value)} className="w-full p-2 text-xs border border-[#EADCC9] bg-white focus:outline-none" />
-                      <div className="flex justify-end gap-2 text-[10px] tracking-wider uppercase font-semibold">
-                        <button onClick={() => setEditingMessageId(null)} className="px-3 py-1.5 border border-[#EADCC9] bg-white">Cancel</button>
-                        <button onClick={() => handleSaveEditMessage(msg.id)} className="px-3 py-1.5 bg-[#C5A880] text-white">Save Changes</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-sm text-[#7D7261] italic leading-relaxed">"{msg.message}"</p>
-                      {myMessageIds.includes(msg.id) && (
-                        <button onClick={() => { setEditingMessageId(msg.id); setEditingMessageText(msg.message); }} className="text-xs text-[#C5A880] hover:text-[#B3966E] flex items-center gap-1 mt-2 border border-[#EADCC9]/50 px-2 py-0.5 bg-[#FAF6F0] rounded-sm transition-all">
-                          <Edit2 className="w-3 h-3" /> <span>Edit Comment</span>
-                        </button>
-                      )}
-                    </>
-                  )}
                 </div>
               ))}
             </div>
