@@ -3,9 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import FadeInSection from '../components/FadeInSection';
 import { COUPLE_PHOTOS, ACCESS_PASSCODE, WEDDING_DATE, RSVP_CUTOFF_DATE } from '../lib/constants';
 import { 
-  Heart, Calendar, MapPin, Navigation, Car, Info, Music, Image as ImageIcon, Camera, Plus, Edit2, Volume2, 
-  VolumeX, X, Users, BookOpen, Check, Play, Pause, ArrowLeft,
-  Lock, Trash2, Menu, Clock, LayoutGrid
+  Heart, Calendar, MapPin, Navigation, Info, Music, Image as ImageIcon, Camera, Plus, Edit2, Volume2, 
+  VolumeX, X, Users, Check, Play, Pause, ArrowLeft,
+  Lock, Trash2, Menu, Clock,
 } from 'lucide-react';
 import { audio, initAudio, getAudio } from '../utils/audio'; // Adjust path as needed
 
