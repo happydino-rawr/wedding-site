@@ -398,29 +398,6 @@ export default function WeddingPage() {
     setIsEditing(false);
   };
 
-  const handleAddSong = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!songTitle || !songArtist) return;
-    const songId = `song-${Date.now()}`;
-    const newSong = { id: songId, title: songTitle, artist: songArtist, requester: songRequester || "Anonymous Guest" };
-    setPlaylistRequests([newSong, ...playlistRequests]);
-    
-    const updatedMySongs = [...mySongIds, songId];
-    setMySongIds(updatedMySongs);
-    localStorage.setItem("my_song_requests", JSON.stringify(updatedMySongs));
-
-    setSongTitle("");
-    setSongArtist("");
-    setSongRequester("");
-  };
-
-  const handleDeleteSong = (id: string) => {
-    setPlaylistRequests(prev => prev.filter(song => song.id !== id));
-    const updated = mySongIds.filter((songId: string) => songId !== id);
-    setMySongIds(updated);
-    localStorage.setItem("my_song_requests", JSON.stringify(updated));
-  };
-
   const handleInteraction = () => {
     const audioInstance = getAudio('/wedding_song.mp3');
     if (audioInstance) {
@@ -441,21 +418,6 @@ export default function WeddingPage() {
     };
   }, []);
 
-  // Add Message & Track Session IDs
-  const handleAddMessage = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!tempGuestName || !tempMessage) return;
-    const messageId = `msg-${Date.now()}`;
-    const newMsg = { id: messageId, name: tempGuestName, message: tempMessage, date: "Just now" };
-    setLedgerMessages([newMsg, ...ledgerMessages]);
-
-    const updatedMyMsgs = [...myMessageIds, messageId];
-    setMyMessageIds(updatedMyMsgs);
-    localStorage.setItem("my_ledger_messages", JSON.stringify(updatedMyMsgs));
-
-    setTempGuestName("");
-    setTempMessage("");
-  };
 
   // Save edited message details
   const handleSaveEditMessage = (id: string) => {
