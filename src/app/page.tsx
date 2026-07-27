@@ -5,7 +5,7 @@ import { COUPLE_PHOTOS, ACCESS_PASSCODE, WEDDING_DATE, RSVP_CUTOFF_DATE } from '
 import { 
   Heart, Calendar, MapPin, Navigation, Car, Info, Music, Image as ImageIcon, Camera, Plus, Edit2, Volume2, 
   VolumeX, X, Users, BookOpen, Check, Play, Pause, ArrowLeft,
-  Lock, Trash2, Menu, Clock
+  Lock, Trash2, Menu, Clock, LayoutGrid
 } from 'lucide-react';
 import { audio, initAudio, getAudio } from '../utils/audio'; // Adjust path as needed
 
@@ -21,6 +21,7 @@ interface MediaItem {
   type?: string;
   url: string;
   key: string;
+  isVideo?: boolean;
 }
 
 export default function WeddingPage() {
@@ -291,47 +292,61 @@ export default function WeddingPage() {
   };
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
 
-    const newOptimisticFiles = Array.from(files).map(file => ({
-      url: URL.createObjectURL(file),
-      type: file.type,
-      key: `temp-${Date.now()}-${file.name}`
-    }));
-
-    setMediaGallery(prev => [...newOptimisticFiles, ...prev]);
-
-    const uploadPromises = Array.from(files).map(async (file) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!res.ok) throw new Error(`Failed to upload ${file.name}`);
-
-        const data = await res.json(); 
+      // 1. Determine media type and generate robust optimistic objects
+      const newOptimisticFiles = Array.from(files).map((file) => {
+        const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|m4v|webm|avi|mkv)$/i.test(file.name);
         
-        if (data.key) {
-          setMyUploadedKeys(prev => {
-            const updated = [...prev, data.key];
-            localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
-            return updated;
-          });
-        }
-      } catch (err) {
-        console.error("Error during upload:", err);
-      }
-    });
+        return {
+          url: URL.createObjectURL(file),
+          type: file.type || (isVideo ? 'video/mp4' : 'image/jpeg'),
+          isVideo,
+          key: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+        };
+      });
 
-    await Promise.all(uploadPromises);
-    await refreshGallery();
-    alert("Uploads complete!");
-  };
+      // 2. Add optimistic items to gallery state immediately
+      setMediaGallery((prev) => [...newOptimisticFiles, ...prev]);
+
+      // 3. Upload files to server
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!res.ok) throw new Error(`Failed to upload ${file.name}`);
+
+          const data = await res.json(); 
+          
+          if (data.key) {
+            setMyUploadedKeys((prev) => {
+              const updated = [...prev, data.key];
+              localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
+              return updated;
+            });
+          }
+        } catch (err) {
+          console.error("Error during upload:", err);
+        }
+      });
+
+      await Promise.all(uploadPromises);
+      
+      // 4. Fetch updated list from server
+      await refreshGallery();
+      
+      // Optional: Reset file input so users can re-upload the same file if needed
+      e.target.value = "";
+      
+      alert("Uploads complete!");
+    };
 
   const handleBatchDelete = async () => {
     try {
@@ -465,34 +480,48 @@ export default function WeddingPage() {
   };
 
   const refreshGallery = async () => {
-    const res = await fetch('/api/gallery'); 
-    const data = await res.json();
-    
-    const publicBaseUrl = "https://pub-24a198c3bcd44e7ab19fd37353cb5c07.r2.dev";
-    
-    const itemsWithUrls = data.images.map((key: string) => {
-      const lowerKey = key.toLowerCase();
-      const isVideoFile = 
-        lowerKey.endsWith('.mp4') || 
-        lowerKey.endsWith('.mov') || 
-        lowerKey.endsWith('.m4v') || 
-        lowerKey.endsWith('.webm') ||
-        lowerKey.includes('.mp4') || 
-        lowerKey.includes('.mov');
+      try {
+        const res = await fetch('/api/gallery'); 
+        const data = await res.json();
+        
+        const publicBaseUrl = "https://pub-24a198c3bcd44e7ab19fd37353cb5c07.r2.dev";
+        
+        // Safety check if data.images isn't an array
+        const rawImages = Array.isArray(data.images) ? data.images : [];
 
-      return {
-        key,
-        url: `${publicBaseUrl}/${key}`,
-        type: isVideoFile ? 'video' : 'image'
-      };
-    });
-    
-    setMediaGallery(itemsWithUrls);
-  };
+        const itemsWithUrls = rawImages.map((key: string) => {
+          const lowerKey = key.toLowerCase();
+          
+          // Extended video extension & pattern matching
+          const isVideoFile = 
+            /\.(mp4|mov|m4v|webm|avi|mkv|3gp|flv|ogv|qt)(\?.*)?$/i.test(lowerKey) ||
+            lowerKey.includes('video') ||
+            lowerKey.includes('.mp4') || 
+            lowerKey.includes('.mov') ||
+            lowerKey.includes('.m4v') ||
+            lowerKey.includes('.webm');
 
-  useEffect(() => {
-    refreshGallery();
-  }, []);
+          return {
+            key,
+            url: `${publicBaseUrl}/${key}`,
+            type: isVideoFile ? 'video/mp4' : 'image/jpeg',
+            isVideo: isVideoFile // Added explicitly so media.isVideo works everywhere
+          };
+        });
+        
+        setMediaGallery(itemsWithUrls);
+      } catch (err) {
+        console.error("Failed to refresh gallery:", err);
+      }
+    };
+
+    useEffect(() => {
+      refreshGallery();
+    }, []);
+
+    if (showGalleryGrid) {
+      console.log("FULL GRID DATA:", mediaGallery);
+    }
   
   // ============================================================================
   // REDESIGNED AUTHENTICATION PORTAL (Luxury Minimalist Card Entrance)
@@ -1311,19 +1340,22 @@ export default function WeddingPage() {
           BLOCK 12: SHARED GALLERY PREVIEW & UPLOAD (MAIN PAGE FEED)
           ============================================================================ */}
       <section id="gallery-header" className="py-24 px-4 bg-[#FDFBF7] overflow-hidden">
-        <div className="max-w-4xl mx-auto space-y-16">
+        <div className="max-w-4xl mx-auto space-y-12">
           
           <div className="text-center space-y-3">
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Capture the Day</span>
             <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Our Shared Gallery</h2>
             <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
-            <p className="text-xs text-[#7D7261] max-w-md mx-auto pt-4 leading-relaxed">
-              Welcome to our live collective album. Please click the camera upload button below to instantly broadcast your photos from the wedding evening!
-            </p>
+            <p className="text-[13px] text-[#7D7261] max-w-md mx-auto pt-4 leading-relaxed">
+              Our story, seen through your eyes. Please upload your photos below to help us preserve every single moment of our special day.            </p>
+              <p className="text-[13px] text-[#7D7261] max-w-md mx-auto pt-2 leading-relaxed">
+                用您的视角，记录我们的故事。请点击下方按钮上传照片，与我们一同珍藏这一天的美好瞬间。(Leaving a translation here for now)
+              </p>
           </div>
 
+          {/* Elevated Solid Gold Upload Button */}
           <div className="flex justify-center">
-            <label className="flex items-center gap-3 px-10 py-4 bg-white border border-[#BE123C] text-[#BE123C] font-semibold text-xs tracking-[0.2em] uppercase rounded-sm shadow-sm hover:bg-[#FAF6F0] transition-all cursor-pointer">
+            <label className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer">
               <Camera className="w-4 h-4" />
               <span>Upload Moments</span>
               <input type="file" multiple accept="image/*,video/mp4,video/quicktime,video/x-m4v" onChange={handleMediaUpload} className="hidden" />
@@ -1341,7 +1373,7 @@ export default function WeddingPage() {
                 <div 
                   key={idx} 
                   onClick={() => setLightboxIndex(idx)}
-                  className="aspect-square bg-[#EADCC9] overflow-hidden relative group rounded-sm cursor-pointer"
+                  className="aspect-square bg-[#EADCC9] overflow-hidden relative group rounded-sm cursor-pointer border border-[#EADCC9]/50 shadow-xs"
                 >
                   {isVideo ? (
                     <video src={media.url} className="w-full h-full object-cover" muted autoPlay loop playsInline />
@@ -1358,24 +1390,54 @@ export default function WeddingPage() {
             })}
           </div>
 
-          {/* This button triggers the Full Grid Modal we just finished! */}
+          {/* Fixed Buttons with Inline SVG Grid Icons */}
           {mediaGallery.length > 6 ? (
-            <div className="flex justify-center mt-8">
+            <div className="flex justify-center pt-2">
               <button
                 onClick={() => setShowGalleryGrid(true)}
-                className="px-8 py-3 bg-transparent border border-[#C5A880] text-[#C5A880] text-xs font-semibold tracking-widest uppercase rounded-sm hover:bg-[#C5A880] hover:text-white transition-all"
+                className="inline-flex items-center gap-2.5 px-8 py-3 bg-[#FAF8F5] hover:bg-[#C5A880] text-[#7D7261] hover:text-white border border-[#C5A880]/60 text-xs font-semibold uppercase tracking-[0.2em] rounded-sm shadow-xs hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
               >
-                View Full Grid
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="w-3.5 h-3.5"
+                >
+                  <rect width="7" height="7" x="3" y="3" rx="1" />
+                  <rect width="7" height="7" x="14" y="3" rx="1" />
+                  <rect width="7" height="7" x="14" y="14" rx="1" />
+                  <rect width="7" height="7" x="3" y="14" rx="1" />
+                </svg>
+                <span>View Full Grid</span>
               </button>
             </div>
           ) : (
             mediaGallery.length > 0 && (
-              <div className="flex justify-center mt-8">
+              <div className="flex justify-center pt-2">
                 <button
                   onClick={() => setShowGalleryGrid(true)}
-                  className="px-8 py-3 bg-transparent border border-[#C5A880] text-[#C5A880] text-xs font-semibold tracking-widest uppercase rounded-sm hover:bg-[#C5A880] hover:text-white transition-all"
+                  className="inline-flex items-center gap-2.5 px-8 py-3 bg-[#FAF8F5] hover:bg-[#C5A880] text-[#7D7261] hover:text-white border border-[#C5A880]/60 text-xs font-semibold uppercase tracking-[0.2em] rounded-sm shadow-xs hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
                 >
-                  Manage Gallery
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="w-3.5 h-3.5"
+                  >
+                    <rect width="7" height="7" x="3" y="3" rx="1" />
+                    <rect width="7" height="7" x="14" y="3" rx="1" />
+                    <rect width="7" height="7" x="14" y="14" rx="1" />
+                    <rect width="7" height="7" x="3" y="14" rx="1" />
+                  </svg>
+                  <span>Manage Gallery</span>
                 </button>
               </div>
             )
@@ -1387,70 +1449,75 @@ export default function WeddingPage() {
       {/* ============================================================================
           BLOCK 12: FULL GALLERY GRID INTERACTIVE OVERLAY MODAL
           ============================================================================ */}
+      {/* ============================================================================
+          FULL GALLERY GRID OVERLAY MODAL
+          ============================================================================ */}
       {showGalleryGrid && (
-        <div className="fixed inset-0 z-50 bg-[#FDFBF7] flex flex-col animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-[#FDFBF7] flex flex-col animate-fade-in overflow-hidden">
           
-          <div className="sticky top-0 z-40 bg-[#FDFBF7] border-b border-[#EADCC9] shadow-sm px-4 sm:px-10 py-4 sm:py-6 flex justify-between items-center">
-            <div>
-              <h2 className="font-serif text-2xl sm:text-3xl text-[#4A433A]">Full Gallery</h2>
-              <p className="text-xs text-[#7D7261] mt-1 hidden sm:block">Select photos to manage your uploads.</p>
-            </div>
+          {/* Modal Header */}
+          <div className="flex items-center justify-between p-6 border-b border-[#EADCC9] bg-[#FDFBF7] z-30">
+            <h2 className="font-serif text-2xl text-[#4A433A] font-light">Full Gallery Grid</h2>
             
-            <div className="flex items-center gap-2 sm:gap-3">
-              {!isDeleteMode ? (
-                <button
-                  onClick={() => setIsDeleteMode(true)}
-                  className="text-[11px] font-sans tracking-wider uppercase border border-[#EADCC9] text-[#7D7261] px-4 py-2 rounded-sm hover:bg-[#FAF6F0] transition-all bg-white shadow-sm"
+            <div className="flex items-center gap-4">
+              {/* Delete Mode Toggle Button */}
+              <button 
+                onClick={() => {
+                  setIsDeleteMode(!isDeleteMode);
+                  setSelectedKeys([]);
+                }}
+                className={`px-4 py-2 text-xs uppercase tracking-widest transition-all rounded-sm ${
+                  isDeleteMode 
+                    ? 'bg-red-600 text-white' 
+                    : 'border border-[#C5A880] text-[#C5A880] hover:bg-[#C5A880] hover:text-white'
+                }`}
+              >
+                {isDeleteMode ? 'Cancel Selection' : 'Select / Delete'}
+              </button>
+
+              {/* Delete Confirm Button (Only visible in Delete Mode) */}
+              {isDeleteMode && selectedKeys.length > 0 && (
+                <button 
+                  onClick={() => {
+                    setKeysToDelete(selectedKeys);
+                    setShowDeleteModal(true);
+                  }}
+                  className="px-4 py-2 bg-red-700 text-white text-xs uppercase tracking-widest flex items-center gap-1.5 rounded-sm hover:bg-red-800 transition-all shadow-md"
                 >
-                  Manage My Files
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete ({selectedKeys.length})
                 </button>
-              ) : (
-                <div className="flex items-center gap-2 sm:gap-3">
-                  {selectedKeys.length > 0 && (
-                    <button
-                      onClick={() => setShowDeleteModal(true)}
-                      // Swapped failing hex color for standard Tailwind rose-800 so it always renders
-                      className="text-[11px] font-sans tracking-wider uppercase bg-rose-800 text-white px-4 py-2 rounded-sm hover:bg-rose-900 transition-all shadow-md animate-fade-in"
-                    >
-                      Delete Selected ({selectedKeys.length})
-                    </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      setIsDeleteMode(false);
-                      setSelectedKeys([]);
-                    }}
-                    className="text-[11px] font-sans tracking-wider uppercase border border-[#EADCC9] text-[#7D7261] px-4 py-2 rounded-sm hover:bg-[#FAF6F0] transition-all bg-white shadow-sm"
-                  >
-                    Cancel
-                  </button>
-                </div>
               )}
 
+              {/* Close Modal Button */}
               <button 
                 onClick={() => {
                   setShowGalleryGrid(false);
                   setIsDeleteMode(false);
                   setSelectedKeys([]);
                 }}
-                className="text-xs font-sans tracking-widest uppercase px-4 py-2 border border-[#EADCC9] text-[#7D7261] rounded-sm hover:bg-[#FAF6F0] transition-all bg-white ml-2 shadow-sm"
+                className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#7D7261] hover:text-[#4A433A] transition-colors"
               >
-                ← Back
+                <ArrowLeft className="w-4 h-4" /> Back to Invite
               </button>
             </div>
           </div>
 
+          {/* Gallery Grid Body */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-10">
             <div className="max-w-6xl mx-auto">
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3 relative z-20">
-                {mediaGallery.map((media, idx) => {
-                  const isVideo = 
-                    media.type?.startsWith?.('video') || 
-                    media.type === 'video' || 
-                    /\.(mp4|mov|m4v|webm|avi|mkv)/i.test(media.url);
-                    
-                  const safeKey = media.key || `fallback-${idx}`;
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                
+                {mediaGallery.map((media: MediaItem, idx: number) => {
+                  const rawUrl = media.url;
+                  const safeKey = media.key || `gallery-item-${idx}`;
                   const isSelected = selectedKeys.includes(safeKey);
+
+                  // Strict video evaluation check
+                  const isVideo = 
+                    media.isVideo === true || 
+                    media.type?.startsWith('video') === true ||
+                    /\.(mp4|mov|m4v|webm|avi|mkv)(\?.*)?$/i.test(rawUrl || '');
 
                   return (
                     <div 
@@ -1460,100 +1527,133 @@ export default function WeddingPage() {
                         e.stopPropagation();
 
                         if (isDeleteMode) {
-                          setSelectedKeys((current) => {
-                            if (current.includes(safeKey)) {
-                              return current.filter(k => k !== safeKey);
-                            } else {
-                              return [...current, safeKey];
-                            }
-                          });
+                          setSelectedKeys((current) => 
+                            current.includes(safeKey) 
+                              ? current.filter(k => k !== safeKey) 
+                              : [...current, safeKey]
+                          );
                         } else {
                           setLightboxIndex(idx);
                         }
                       }}
-                      // Using ring-[#C5A880] (gold) so the selected picture outline is visible against the white background
                       className={`aspect-square bg-[#EADCC9] overflow-hidden relative group rounded-sm transition-all duration-200 cursor-pointer ${
-                        isDeleteMode ? 'z-30' : 'z-10'
-                      } ${isDeleteMode && isSelected ? 'ring-[3px] ring-[#C5A880] scale-[0.96] shadow-lg' : 'hover:opacity-95'}`}
+                        isDeleteMode && isSelected ? 'ring-[3px] ring-red-500 scale-[0.96] shadow-lg' : 'hover:opacity-95'
+                      }`}
                     >
-                      {/* STRONG WHITE OUTLINE SELECTION INDICATOR ON TOP LEFT */}
+                      {/* Delete Mode Checkmark */}
                       {isDeleteMode && (
-                        <div className="absolute top-2 left-2 z-40 flex items-center justify-center w-6 h-6 rounded-full border-2 border-white bg-black/30 shadow-md transition-all duration-200">
-                          {isSelected && <div className="w-3 h-3 bg-white rounded-full animate-scale-up" />}
+                        <div className={`absolute top-2 left-2 z-40 flex items-center justify-center w-6 h-6 rounded-full border-2 border-white shadow-md transition-all ${
+                          isSelected ? 'bg-red-600 border-red-600' : 'bg-black/40 border-white'
+                        }`}>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                         </div>
                       )}
 
+                      {/* Video vs Image Rendering Switch */}
                       {isVideo ? (
                         <video 
-                          src={media.url} 
-                          className={`w-full h-full object-cover pointer-events-none transition-all duration-300 ${isDeleteMode && !isSelected ? 'opacity-40 saturate-50' : ''}`} 
+                          key={rawUrl}
+                          src={rawUrl} 
+                          className={`w-full h-full object-cover pointer-events-none transition-all duration-300 ${
+                            isDeleteMode && !isSelected ? 'opacity-50 saturate-50' : ''
+                          }`} 
                           muted 
                           autoPlay 
                           loop 
                           playsInline 
+                          preload="auto"
                         />
                       ) : (
                         <img 
-                          src={media.url} 
-                          alt="Wedding snapshot" 
-                          className={`w-full h-full object-cover pointer-events-none transition-all duration-300 ${isDeleteMode && !isSelected ? 'opacity-40 saturate-50' : 'group-hover:scale-105'}`}
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          src={rawUrl} 
+                          alt={`Gallery item ${idx}`} 
+                          className={`w-full h-full object-cover pointer-events-none transition-all duration-300 ${
+                            isDeleteMode && !isSelected ? 'opacity-50 saturate-50' : 'group-hover:scale-105'
+                          }`}
                         />
                       )}
                     </div>
                   );
                 })}
+
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ============================================================================
-          LIGHTBOX MODAL FOR IMAGES
-          ============================================================================ */}
-      {lightboxIndex !== null && (
-        <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-6">
-          <div className="flex justify-end pt-2">
+      {/* INSIDE YOUR LIGHTBOX MODAL */}
+      {lightboxIndex !== null && mediaGallery[lightboxIndex] && (() => {
+        const currentItem = mediaGallery[lightboxIndex];
+        
+        // Robust check for video on current item
+        const isVideo = 
+          currentItem.isVideo || 
+          currentItem.type?.startsWith('video') || 
+          (typeof currentItem.url === 'string' && /\.(mp4|mov|m4v|webm|avi|mkv)(\?.*)?$/i.test(currentItem.url));
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
+            {/* Close Button */}
             <button 
               onClick={() => setLightboxIndex(null)}
-              className="w-12 h-12 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors"
+              className="absolute top-6 right-6 text-white text-2xl z-50 hover:opacity-75 p-2"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              ✕
             </button>
-          </div>
 
-          <div className="flex-1 flex items-center justify-center overflow-hidden py-4">
-            <img 
-              src={mediaGallery[lightboxIndex].url} 
-              alt={`Expanded item ${lightboxIndex}`} 
-              className="max-h-full max-w-full object-contain rounded-sm border border-white/10 shadow-2xl" 
-            />
-          </div>
+            {/* Main Content Area */}
+            <div className="max-w-4xl max-h-[85vh] w-full h-full flex items-center justify-center p-4">
+              {isVideo ? (
+                <video 
+                  src={currentItem.url} 
+                  controls 
+                  autoPlay 
+                  playsInline
+                  className="max-w-full max-h-[80vh] object-contain"
+                />
+              ) : (
+                <img 
+                  src={currentItem.url} 
+                  alt={`Expanded item ${lightboxIndex}`} 
+                  className="max-w-full max-h-[80vh] object-contain"
+                  onError={(e) => {
+                    // If an image fails, attempt to render as a video fallback
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      const video = document.createElement('video');
+                      video.src = currentItem.url;
+                      video.controls = true;
+                      video.autoplay = true;
+                      video.className = 'max-w-full max-h-[80vh] object-contain';
+                      parent.replaceChild(video, e.currentTarget);
+                    }
+                  }}
+                />
+              )}
+            </div>
 
-          <div className="flex justify-center items-center gap-6 pb-4">
-            <button
-              disabled={lightboxIndex === 0}
-              onClick={() => setLightboxIndex(lightboxIndex - 1)}
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold tracking-widest uppercase disabled:opacity-30 transition-colors"
-            >
-              Prev
-            </button>
-            <span className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-mono">
-              {lightboxIndex + 1} / {mediaGallery.length}
-            </span>
-            <button
-              disabled={lightboxIndex === mediaGallery.length - 1}
-              onClick={() => setLightboxIndex(lightboxIndex + 1)}
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold tracking-widest uppercase disabled:opacity-30 transition-colors"
-            >
-              Next
-            </button>
+            {/* Navigation Controls */}
+            <div className="absolute bottom-6 flex items-center gap-4 text-white text-xs">
+              <button 
+                disabled={lightboxIndex === 0}
+                onClick={() => setLightboxIndex(prev => (prev !== null ? prev - 1 : 0))}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-30 rounded-sm uppercase tracking-wider"
+              >
+                Prev
+              </button>
+              <span>{lightboxIndex + 1} / {mediaGallery.length}</span>
+              <button 
+                disabled={lightboxIndex === mediaGallery.length - 1}
+                onClick={() => setLightboxIndex(prev => (prev !== null ? prev + 1 : 0))}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-30 rounded-sm uppercase tracking-wider"
+              >
+                Next
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ============================================================================
           SINGLE ELEGANT DIALOG OVERLAY CONSOLE FOR DELETION VERIFICATION
