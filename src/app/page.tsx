@@ -14,6 +14,7 @@ interface Guest {
   firstName: string;
   lastName: string;
   attending: string;
+  email: string;
   dietary: string;
 }
 
@@ -378,9 +379,11 @@ export default function WeddingPage() {
   };
 
   const handleAddFamilyMember = () => {
+    // ensure we're in edit mode so the user can fill in details immediately
+    setIsEditing(true);
     setGuestsList([
       ...guestsList,
-      { id: Date.now() + Math.random(), firstName: "", lastName: "", attending: "Attending", dietary: "" }
+      { id: Date.now() + Math.random(), firstName: "", lastName: "", email: "", attending: "Attending", dietary: "" }
     ]);
   };
 
@@ -394,6 +397,18 @@ export default function WeddingPage() {
 
   const handleSaveRsvp = (e: React.FormEvent) => {
     e.preventDefault();
+    // Prevent saving unnamed guests — require first, last name and a valid email
+    const invalid = guestsList.some(g => {
+      const fn = !g.firstName || !g.firstName.trim();
+      const ln = !g.lastName || !g.lastName.trim();
+      const em = !g.email || !/^\S+@\S+\.\S+$/.test(g.email);
+      return fn || ln || em;
+    });
+    if (invalid) {
+      alert("Please fill first name, last name, and a valid email for all guests, or remove the empty entry.");
+      return;
+    }
+
     setIsEditing(false);
   };
 
@@ -1674,14 +1689,6 @@ export default function WeddingPage() {
               </button>
 
               <button 
-                onClick={() => scrollToAnchor('song-requests')}
-                className="bg-white hover:bg-[#C5A880] text-[#5C5346] hover:text-white text-xs font-semibold px-4 py-2 rounded-full border border-[#EADCC9] shadow-md flex items-center gap-2 transform transition-all"
-              >
-                <Music className="w-3.5 h-3.5" />
-                <span>Interactive Hub</span>
-              </button>
-
-              <button 
                 onClick={() => scrollToAnchor('gallery-header')}
                 className="bg-white hover:bg-[#C5A880] text-[#5C5346] hover:text-white text-xs font-semibold px-4 py-2 rounded-full border border-[#EADCC9] shadow-md flex items-center gap-2 transform transition-all"
               >
@@ -1725,7 +1732,7 @@ export default function WeddingPage() {
             <div className="p-6 bg-[#FAF6F0] border-b border-[#EADCC9] flex justify-between items-center">
               <div>
                 <h3 className="text-2xl font-serif font-light text-[#4A433A]">RSVP Portal</h3>
-                <p className="text-[10px] text-[#C5A880] uppercase tracking-widest mt-1 font-semibold">DEADLINE: FEB 15, 2027</p>
+                <p className="text-[10px] text-[#C5A880] uppercase tracking-widest mt-1 font-semibold">DEADLINE: NOV 30, 2026</p>
               </div>
               <button 
                 onClick={() => setIsRsvpOpen(false)}
@@ -1799,7 +1806,7 @@ export default function WeddingPage() {
                             <span className="text-xs font-serif font-semibold text-[#4A433A]">
                               Guest {index + 1}
                             </span>
-                            {index > 0 && (
+                            {guestsList.length > 1 && (
                               <button 
                                 type="button"
                                 onClick={() => handleRemoveGuest(guest.id)}
@@ -1813,7 +1820,7 @@ export default function WeddingPage() {
                           {/* Minimalist Bottom Border Inputs */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">First Name</label>
+                              <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">First Name <span className="text-[#BE123C]">*</span></label>
                               <input
                                 type="text"
                                 placeholder=""
@@ -1824,7 +1831,7 @@ export default function WeddingPage() {
                               />
                             </div>
                             <div className="space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">Last Name</label>
+                              <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">Last Name <span className="text-[#BE123C]">*</span></label>
                               <input
                                 type="text"
                                 placeholder=""
@@ -1834,6 +1841,18 @@ export default function WeddingPage() {
                                 required
                               />
                             </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">Email <span className="text-[#BE123C]">*</span> <span title="We'll send a friendly reminder one month and one day before the special day."><Info className="w-3 h-3 inline ml-2 text-[#7D7261]" /></span></label>
+                            <input
+                              type="email"
+                              placeholder=""
+                              value={guest.email}
+                              onChange={(e) => handleUpdateGuest(guest.id, "email", e.target.value)}
+                              className="w-full px-1 py-2 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:ring-0 focus:border-[#C5A880] placeholder-[#9C8F7E]/50"
+                              required
+                            />
                           </div>
 
                           <div className="space-y-1">
