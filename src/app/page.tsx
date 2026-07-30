@@ -1030,7 +1030,7 @@ export default function WeddingPage() {
             href="https://www.google.com/maps/search/?api=1&query=Harbour+View+Lawn+Royal+Botanic+Garden+Sydney" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3 border border-[#BE123C] text-[#BE123C] font-semibold text-xs tracking-widest uppercase hover:bg-[#C5A880] hover:text-white transition-all active:scale-95"
+            className="inline-flex items-center gap-2.5 px-4 py-2 text-[10px] sm:px-8 sm:py-3 sm:text-xs rounded-sm border border-[#BE123C] text-[#BE123C] font-semibold uppercase tracking-[0.2em] hover:bg-[#BE123C] hover:text-white transition-all duration-300 active:scale-95"
           >
             <Navigation className="w-3.5 h-3.5" />
             <span>Route Directions</span>
@@ -1127,7 +1127,7 @@ export default function WeddingPage() {
             href="https://www.google.com/maps/search/?api=1&query=Cabravale+Club+Resort+1+Bartley+St+Canley+Vale+NSW+2166" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3 border border-[#BE123C] text-[#BE123C] font-semibold text-xs tracking-widest uppercase hover:bg-[#C5A880] hover:text-white transition-all active:scale-95"
+            className="inline-flex items-center gap-2.5 px-4 py-2 text-[10px] sm:px-8 sm:py-3 sm:text-xs rounded-sm border border-[#BE123C] text-[#BE123C] font-semibold uppercase tracking-[0.2em] hover:bg-[#BE123C] hover:text-white transition-all duration-300 active:scale-95"
           >
             <Navigation className="w-3.5 h-3.5" />
             <span>Route Directions</span>
@@ -1596,11 +1596,6 @@ export default function WeddingPage() {
                 <ArrowLeft className="w-4 h-4" /> Back to Invite
               </button>
             </div>
-            {isDeleteMode && (
-              <div className="mt-2 text-xs text-[#7D7261]">
-                Tap tiles to select or unselect items for delete.
-              </div>
-            )}
           </div>
 
           {/* Gallery Grid Body */}
@@ -1793,7 +1788,7 @@ export default function WeddingPage() {
               {deleteStatus === 'deleting' && (
                 <button
                   disabled
-                  className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full border border-[#9E1D3D] bg-transparent text-[#9E1D3D] shadow-sm opacity-70 cursor-wait"
+                  className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full border border-[#BE123C] bg-[#FAF6F0] text-[#BE123C] shadow-sm opacity-70 cursor-wait"
                 >
                   Deleting…
                 </button>
@@ -1802,7 +1797,7 @@ export default function WeddingPage() {
               {deleteStatus === 'success' && (
                 <button
                   onClick={closeDeleteModal}
-                  className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full border border-[#9E1D3D] bg-transparent text-[#9E1D3D] hover:bg-[#FAF6F0] transition-colors shadow-sm"
+                  className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full border border-[#BE123C] bg-[#FAF6F0] text-[#BE123C] hover:bg-[#F5ECE6] transition-all duration-200 shadow-sm"
                 >
                   Done
                 </button>
@@ -1982,7 +1977,7 @@ export default function WeddingPage() {
                               <button 
                                 type="button"
                                 onClick={() => handleRemoveGuest(guest.id)}
-                                className="text-[10px] text-red-600 uppercase tracking-widest font-semibold hover:text-red-800"
+                                className="text-[10px] text-[#BE123C] uppercase tracking-widest font-semibold hover:text-[#9E1D3D]"
                               >
                                 Remove
                               </button>
