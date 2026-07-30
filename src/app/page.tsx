@@ -885,14 +885,14 @@ export default function WeddingPage() {
           </div>
 
           {/* Invitation Text Section */}
-          <div className="space-y-6 pt-6 text-center relative z-20">
+          <div className="space-y-7 pt-6 text-center relative z-20">
             <h3 className="font-serif text-lg md:text-2xl tracking-[0.2em] text-[#5C5346]">Inviting You To Our Wedding</h3>
             <div className="flex justify-center items-center gap-4 text-2xl md:text-4xl font-serif text-[#4A433A]">
               <span>Jessica</span>
               <span className="text-rose-700 font-thin">∞</span>
               <span>William</span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-6">
               <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
               <div className="w-8 md:w-12 h-[1px] bg-[#EADCC9] mx-auto my-2" />
             </div>
@@ -916,12 +916,12 @@ export default function WeddingPage() {
               <span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span>
               <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span>
               <span>28</span><span>29</span><span>30</span><span>31</span>
-              <span className="text-[#D5CBA7]">1</span><span>2</span><span>3</span>
+              <span className="text-[#D5CBA7]">1</span><span className="text-[#D5CBA7]">2</span><span className="text-[#D5CBA7]">3</span>
             </div>
 
-            <div className="mt-8 space-y-2 text-center text-[#5C5346]">
+            <div className="mt-12 space-y-1 text-center text-[#5C5346]">
               <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Date</span>
-              <div className="space-y-0.5">
+              <div className="space-y-3">
                 <p className="font-serif text-lg md:text-xl tracking-wider text-[#4A433A]">06·03·2027</p>
                 <p className="text-xs md:text-sm text-[#7D7261]">农历正月廿九 周六</p>
               </div>
