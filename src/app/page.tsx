@@ -38,6 +38,8 @@ export default function WeddingPage() {
   const [envelopeVisible, setEnvelopeVisible] = useState(false);
   const envelopeRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [openTranslateY, setOpenTranslateY] = useState<number>(-160);
+  const [closedTranslateY, setClosedTranslateY] = useState<number>(10);
 
   const [showGalleryGrid, setShowGalleryGrid] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -108,6 +110,38 @@ export default function WeddingPage() {
     return () => {
       if (envelopeRef.current) observer.unobserve(envelopeRef.current);
     };
+  }, []);
+
+  // Responsive translateY for the polaroid when the envelope opens
+  useEffect(() => {
+    const calculate = () => {
+      const w = window.innerWidth;
+      if (w >= 1280) return setOpenTranslateY(-110);
+      if (w >= 1024) return setOpenTranslateY(-100);
+      if (w >= 768) return setOpenTranslateY(-90);
+      if (w >= 640) return setOpenTranslateY(-70);
+      return setOpenTranslateY(-60);
+    };
+
+    calculate();
+    window.addEventListener('resize', calculate);
+    return () => window.removeEventListener('resize', calculate);
+  }, []);
+
+  // Responsive closed translate so the photo stays tucked inside the envelope
+  useEffect(() => {
+    const calcClosed = () => {
+      const w = window.innerWidth;
+      if (w >= 1280) return setClosedTranslateY(8);
+      if (w >= 1024) return setClosedTranslateY(8);
+      if (w >= 768) return setClosedTranslateY(6);
+      if (w >= 640) return setClosedTranslateY(4);
+      return setClosedTranslateY(2);
+    };
+
+    calcClosed();
+    window.addEventListener('resize', calcClosed);
+    return () => window.removeEventListener('resize', calcClosed);
   }, []);
 
   const lastScrollY = useRef(0);
@@ -658,7 +692,7 @@ export default function WeddingPage() {
           {/* Interactive Envelope Container - Responsive dimensions */}
           <div 
             ref={envelopeRef} 
-            className="relative w-[280px] sm:w-[340px] md:w-[480px] h-[200px] sm:h-[240px] md:h-[340px] mx-auto mb-20 md:mb-32 select-none overflow-visible animate-pulse-subtle"
+            className="relative w-[280px] sm:w-[340px] md:w-[480px] h-[200px] sm:h-[240px] md:h-[340px] mx-auto mb-20 md:mb-32 mt-8 md:mt-12 lg:mt-20 xl:mt-24 select-none overflow-visible animate-pulse-subtle"
             style={{ perspective: '1200px' }}
           >
             {/* Back Plate */}
@@ -668,11 +702,11 @@ export default function WeddingPage() {
 
             {/* Polaroid Photo - Slides upwards out of sleeve */}
             <div 
-              className="absolute left-4 right-4 bottom-[-60px] h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)] z-10"
+              className="absolute left-4 right-4 bottom-0 h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
               style={{
-                transform: envelopeVisible 
-                  ? 'translateY(-160px) md:translateY(-230px) rotate(1deg) scale(1.02)' 
-                  : 'translateY(10px) rotate(0deg) scale(0.95)',
+                transform: envelopeVisible
+                  ? `translateY(${openTranslateY}px) rotate(1deg) scale(1.02)`
+                  : `translateY(${closedTranslateY}px) rotate(0deg) scale(0.95)`,
                 opacity: envelopeVisible ? 1 : 0,
                 pointerEvents: envelopeVisible ? 'auto' : 'none'
               }}
@@ -697,6 +731,9 @@ export default function WeddingPage() {
               style={{ 
                 transform: envelopeVisible ? 'rotateX(180deg)' : 'rotateX(0deg)',
                 zIndex: envelopeVisible ? 5 : 30,
+                transformStyle: 'preserve-3d',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden'
               }}
             >
               <svg viewBox="0 0 400 160" preserveAspectRatio="none" className="w-full h-full drop-shadow-md">
