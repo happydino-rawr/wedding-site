@@ -1552,7 +1552,7 @@ export default function WeddingPage() {
           
           {/* Modal Header */}
           <div className="flex items-center justify-between p-6 border-b border-[#EADCC9] bg-[#FDFBF7] z-30">
-            <h2 className="font-serif text-2xl text-[#4A433A] font-light">Full Gallery Grid</h2>
+            <h2 className="font-serif text-xl text-[#4A433A] font-light">Full Gallery Grid</h2>
             
             <div className="flex items-center gap-4">
               {/* Delete Mode Toggle Button */}
@@ -1591,7 +1591,7 @@ export default function WeddingPage() {
                   setIsDeleteMode(false);
                   setSelectedKeys([]);
                 }}
-                className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#7D7261] hover:text-[#4A433A] transition-colors"
+                className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-[#7D7261] hover:text-[#4A433A] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to Invite
               </button>
