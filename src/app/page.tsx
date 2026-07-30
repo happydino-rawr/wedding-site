@@ -590,23 +590,6 @@ export default function WeddingPage() {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${COUPLE_PHOTOS.pre_map})`, filter: 'blur(12px) brightness(0.5)' }}
         />
-
-        <button
-          onClick={() => setIsMusicPlaying(!isMusicPlaying)}
-          className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[9px] font-medium tracking-widest text-white border border-white/20 hover:bg-white/20 transition-all active:scale-95"
-        >
-          {isMusicPlaying ? (
-            <>
-              <Volume2 className="w-3 h-3 text-[#C5A880] animate-bounce" />
-              <span>CHIMES: ON</span>
-            </>
-          ) : (
-            <>
-              <VolumeX className="w-3 h-3 text-white/70" />
-              <span className="text-white/70">MUTED</span>
-            </>
-          )}
-        </button>
         
         {/* Fine-art luxury monoline entrance card */}
         <div className="relative z-10 w-full max-w-sm bg-[#FDFBF7] rounded-sm p-10 sm:p-14 shadow-2xl text-center flex flex-col items-center">
@@ -823,14 +806,13 @@ export default function WeddingPage() {
 
             {/* Polaroid Photo - Slides upwards out of sleeve */}
             <div 
-              className="absolute left-4 right-4 bottom-0 h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)] z-30"
+              className="absolute left-4 right-4 bottom-0 h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
               style={{
                 transform: envelopeVisible
                   ? `translateY(${openTranslateY}px) rotate(1deg) scale(1.02)`
                   : `translateY(${closedTranslateY}px) rotate(0deg) scale(0.95)`,
                 opacity: envelopeVisible ? 1 : 0,
-                pointerEvents: envelopeVisible ? 'auto' : 'none',
-                willChange: 'transform, opacity'
+                pointerEvents: envelopeVisible ? 'auto' : 'none'
               }}
             >
               <img 
@@ -849,16 +831,13 @@ export default function WeddingPage() {
 
             {/* Opening top triangular flap */}
             <div 
-              className="absolute top-0 inset-x-0 h-[115px] sm:h-[138px] md:h-[195px] origin-top transition-[transform,opacity] duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)] pointer-events-none"
+              className="absolute top-0 inset-x-0 h-[115px] sm:h-[138px] md:h-[195px] origin-top transition-all duration-[1200ms] ease-in-out pointer-events-none"
               style={{ 
                 transform: envelopeVisible ? 'rotateX(180deg)' : 'rotateX(0deg)',
-                transformOrigin: 'center top',
-                zIndex: envelopeVisible ? 10 : 30,
-                opacity: envelopeVisible ? 0.25 : 1,
+                zIndex: envelopeVisible ? 5 : 30,
                 transformStyle: 'preserve-3d',
                 backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden',
-                willChange: 'transform, opacity'
+                WebkitBackfaceVisibility: 'hidden'
               }}
             >
               <svg viewBox="0 0 400 160" preserveAspectRatio="none" className="w-full h-full drop-shadow-md">
@@ -1573,7 +1552,7 @@ export default function WeddingPage() {
           
           {/* Modal Header */}
           <div className="flex items-center justify-between p-6 border-b border-[#EADCC9] bg-[#FDFBF7] z-30">
-            <h2 className="font-serif text-xl text-[#4A433A] font-light">Full Gallery Grid</h2>
+            <h2 className="font-serif text-2xl text-[#4A433A] font-light">Full Gallery Grid</h2>
             
             <div className="flex items-center gap-4">
               {/* Delete Mode Toggle Button */}
