@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import FadeInSection from '../components/FadeInSection';
 import { COUPLE_PHOTOS, ACCESS_PASSCODE, WEDDING_DATE, RSVP_CUTOFF_DATE } from '../lib/constants';
 import { 
-  Heart, Calendar, MapPin, Navigation, Info, Music, Image as ImageIcon, Camera, Plus, Edit2, Volume2, 
+  Heart, Calendar, MapPin, Navigation, Info, Image as ImageIcon, Camera, Plus, Edit2, Volume2, 
   VolumeX, X, Users, Check, Play, Pause, ArrowLeft,
   Lock, Trash2, Menu, Clock,
 } from 'lucide-react';
@@ -45,12 +45,19 @@ export default function WeddingPage() {
   const [showGalleryGrid, setShowGalleryGrid] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [_myUploadedKeys, setMyUploadedKeys] = useState<string[]>([]);
+  const [uploadToast, setUploadToast] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadError, setUploadError] = useState<string>("");
+  const galleryGridRef = useRef<HTMLDivElement>(null);
 
   // States for multi-select delete mode
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [keysToDelete, setKeysToDelete] = useState<string[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteStatus, setDeleteStatus] = useState<'idle' | 'deleting' | 'success' | 'error'>('idle');
 
   const isCutoffPassed = new Date() > RSVP_CUTOFF_DATE;
 
@@ -61,6 +68,12 @@ export default function WeddingPage() {
     }
     refreshGallery();
   }, []);
+
+  useEffect(() => {
+    if (!uploadToast) return;
+    const timer = window.setTimeout(() => setUploadToast(""), 4200);
+    return () => window.clearTimeout(timer);
+  }, [uploadToast]);
 
   useEffect(() => {
     const session = localStorage.getItem("wedding_session_token");
@@ -295,10 +308,23 @@ export default function WeddingPage() {
       const files = e.target.files;
       if (!files || files.length === 0) return;
 
+      const filesArray = Array.from(files);
+      const totalBytes = filesArray.reduce((sum, file) => sum + file.size, 0);
+      let uploadedBytes = 0;
+      setUploadError("");
+      setIsUploading(true);
+      setUploadProgress(0);
+      setUploadToast("");
+
+      const beforeUnload = (event: BeforeUnloadEvent) => {
+        event.preventDefault();
+        event.returnValue = "";
+      };
+      window.addEventListener('beforeunload', beforeUnload);
+
       // 1. Determine media type and generate robust optimistic objects
-      const newOptimisticFiles = Array.from(files).map((file) => {
+      const newOptimisticFiles = filesArray.map((file) => {
         const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|m4v|webm|avi|mkv)$/i.test(file.name);
-        
         return {
           url: URL.createObjectURL(file),
           type: file.type || (isVideo ? 'video/mp4' : 'image/jpeg'),
@@ -310,45 +336,85 @@ export default function WeddingPage() {
       // 2. Add optimistic items to gallery state immediately
       setMediaGallery((prev) => [...newOptimisticFiles, ...prev]);
 
-      // 3. Upload files to server
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const formData = new FormData();
-        formData.append("file", file);
+      const uploadSingleFile = (file: File) => {
+        return new Promise<string | null>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          const formData = new FormData();
+          formData.append("file", file);
 
-        try {
-          const res = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
+          xhr.open('POST', '/api/upload');
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const progress = Math.round(((uploadedBytes + event.loaded) / totalBytes) * 100);
+              setUploadProgress(Math.min(100, progress));
+            }
+          };
 
-          if (!res.ok) throw new Error(`Failed to upload ${file.name}`);
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                resolve(data.key ?? null);
+              } catch (parseError) {
+                console.error('Upload parse error:', parseError);
+                resolve(null);
+              }
+            } else {
+              reject(new Error(`Upload failed for ${file.name} with status ${xhr.status}`));
+            }
+          };
 
-          const data = await res.json(); 
-          
-          if (data.key) {
-            setMyUploadedKeys((prev) => {
-              const updated = [...prev, data.key];
-              localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
-              return updated;
-            });
+          xhr.onerror = () => reject(new Error(`Upload network error for ${file.name}`));
+          xhr.send(formData);
+        });
+      };
+
+      try {
+        let hasUploadError = false;
+
+        for (const file of filesArray) {
+          try {
+            const key = await uploadSingleFile(file);
+            if (key) {
+              setMyUploadedKeys((prev) => {
+                const updated = [...prev, key];
+                localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
+                return updated;
+              });
+            }
+          } catch (uploadErr) {
+            console.error('Error during upload:', uploadErr);
+            hasUploadError = true;
+            setUploadError((prev) => prev || `Upload failed for ${file.name}. Please try again.`);
+          } finally {
+            uploadedBytes += file.size;
+            setUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)));
           }
-        } catch (err) {
-          console.error("Error during upload:", err);
         }
-      });
 
-      await Promise.all(uploadPromises);
-      
-      // 4. Fetch updated list from server
-      await refreshGallery();
-      
-      // Optional: Reset file input so users can re-upload the same file if needed
-      e.target.value = "";
-      
-      alert("Uploads complete!");
+        await refreshGallery();
+
+        if (!hasUploadError) {
+          setUploadToast("Uploads complete! Your new photos are now in the gallery.");
+        } else {
+          setUploadToast("Upload finished. Some items may not have uploaded successfully.");
+        }
+      } catch (error) {
+        console.error('Upload sequence failed:', error);
+        setUploadError("Upload interrupted. Please try again.");
+      } finally {
+        window.removeEventListener('beforeunload', beforeUnload);
+        setIsUploading(false);
+        setUploadProgress(0);
+        e.target.value = "";
+      }
     };
 
   const handleBatchDelete = async () => {
+    if (isDeleting) return;
+
+    setIsDeleting(true);
+    setDeleteStatus('deleting');
     try {
       const deletePromises = keysToDelete.map(async (key) => {
         const res = await fetch('/api/delete', {
@@ -371,11 +437,22 @@ export default function WeddingPage() {
 
       setSelectedKeys([]);
       setKeysToDelete([]);
-      setShowDeleteModal(false);
+      setDeleteStatus('success');
       setIsDeleteMode(false);
     } catch (err) {
       console.error("Failed to delete items:", err);
+      setDeleteStatus('error');
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setIsDeleteMode(false);
+    setSelectedKeys([]);
+    setKeysToDelete([]);
+    setDeleteStatus('idle');
   };
 
   const handleAddFamilyMember = () => {
@@ -423,6 +500,11 @@ export default function WeddingPage() {
     window.removeEventListener('touchstart', handleInteraction);
   };
 
+  const toggleSelection = (key: string) => {
+    setSelectedKeys((prev) => (prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]));
+  };
+
+
   useEffect(() => {
     window.addEventListener('click', handleInteraction);
     window.addEventListener('touchstart', handleInteraction);
@@ -457,7 +539,14 @@ export default function WeddingPage() {
         // Safety check if data.images isn't an array
         const rawImages = Array.isArray(data.images) ? data.images : [];
 
-        const itemsWithUrls = rawImages.map((key: string) => {
+        const parseKeyTimestamp = (key: string) => {
+          const match = key.match(/^(\d{13})_/);
+          return match ? parseInt(match[1], 10) : 0;
+        };
+
+        const sortedImages = [...rawImages].sort((a, b) => parseKeyTimestamp(b) - parseKeyTimestamp(a));
+
+        const itemsWithUrls = sortedImages.map((key: string) => {
           const lowerKey = key.toLowerCase();
           
           // Extended video extension & pattern matching
@@ -838,7 +927,7 @@ export default function WeddingPage() {
               </div>
               <div className="w-12 h-[1px] bg-[#EADCC9]/40 mx-auto my-3" />
               <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Reception</span>
-              <p className="font-serif text-xl md:text-2xl text-[#4A433A]">12:08</p>
+              <p className="font-serif text-xl md:text-2xl text-[#4A433A]">12:00</p>
             </div>
           </div>
 
@@ -1110,7 +1199,7 @@ export default function WeddingPage() {
                 { time: "12:00 PM", title: "Tea Ceremony", desc: "Family blessings & tea." },
                 { time: "1:30 PM", title: "Guest Arrival", desc: "At the Harbour View Lawn." },
                 { time: "2:00 PM", title: "The Ceremony", desc: "Exchanging our vows." },
-                { time: "3:30 PM (How long?)", title: "Travel & Rest", desc: "Commute & freshen up for dinner." },
+                { time: "3:00 PM (How long?)", title: "Travel & Rest", desc: "Commute & freshen up for dinner." },
                 { time: "6:30 PM", title: "Grand Banquet", desc: "Dinner, speeches & party." },
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-row items-center w-full relative">
@@ -1209,7 +1298,7 @@ export default function WeddingPage() {
 
             {/* Body Copy - Wider max-w and relaxed padding */}
             <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-md mx-auto px-2">
-              We eagerly await your response to help us finalize our celebration. Please let us know if you can attend and note any dietary requirements.
+              We eagerly await your response to help us finalise our celebration. Please let us know if you can attend and note any dietary requirements.
             </p>
 
             {/* CTA Section with top border separator */}
@@ -1326,12 +1415,47 @@ export default function WeddingPage() {
 
           {/* Elevated Solid Gold Upload Button */}
           <div className="flex justify-center">
-            <label className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer">
+            <label className={`inline-flex items-center gap-2.5 px-8 py-3.5 ${isUploading ? 'bg-[#BFB69A] cursor-not-allowed' : 'bg-[#C5A880] hover:bg-[#B3956D]'} text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm shadow-sm ${isUploading ? '' : 'hover:shadow-md'} transition-all duration-300 transform ${isUploading ? '' : 'hover:-translate-y-0.5'} active:scale-95`}>
               <Camera className="w-4 h-4" />
-              <span>Upload Moments</span>
-              <input type="file" multiple accept="image/*,video/mp4,video/quicktime,video/x-m4v" onChange={handleMediaUpload} className="hidden" />
+              <span>{isUploading ? 'Uploading...' : 'Upload Moments'}</span>
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/mp4,video/quicktime,video/x-m4v"
+                onChange={handleMediaUpload}
+                className="hidden"
+                disabled={isUploading}
+              />
             </label>
           </div>
+
+          {isUploading && (
+            <div className="mt-6 max-w-xl mx-auto">
+              <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-[#5C5346] mb-2">
+                <span>Uploading your memories</span>
+                <span>{Math.round(uploadProgress)}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-[#EDE7DC] overflow-hidden border border-[#EADCC9]">
+                <div className="h-full bg-[#C5A880] transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+              </div>
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="mt-4 flex justify-center">
+              <div className="rounded-sm bg-[#FDF2F8] border border-[#F9A8D4] px-4 py-2 text-sm text-[#BE185D] shadow-sm">
+                {uploadError}
+              </div>
+            </div>
+          )}
+
+          {uploadToast && !isUploading && (
+            <div className="mt-6 flex justify-center">
+              <div className="rounded-sm bg-[#FDF2F8] border border-[#F9A8D4] px-4 py-2 text-sm text-[#BE185D] shadow-sm">
+                {uploadToast}
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
             {mediaGallery.slice(0, 6).map((media, idx) => {
@@ -1437,13 +1561,13 @@ export default function WeddingPage() {
                   setIsDeleteMode(!isDeleteMode);
                   setSelectedKeys([]);
                 }}
-                className={`px-4 py-2 text-xs uppercase tracking-widest transition-all rounded-sm ${
+                className={`inline-flex items-center gap-2.5 px-4 py-2 text-[10px] sm:px-8 sm:py-3 sm:text-xs uppercase tracking-[0.2em] transition-all rounded-sm border shadow-sm ${
                   isDeleteMode 
-                    ? 'bg-red-600 text-white' 
-                    : 'border border-[#C5A880] text-[#C5A880] hover:bg-[#C5A880] hover:text-white'
+                    ? 'bg-[#FAF8F5] border-[#C5A880]/60 text-[#5C5346] hover:bg-[#C5A880] hover:text-white' 
+                    : 'bg-[#FAF8F5] border-[#C5A880]/60 text-[#5C5346] hover:bg-[#C5A880] hover:text-white'
                 }`}
               >
-                {isDeleteMode ? 'Cancel Selection' : 'Select / Delete'}
+                {isDeleteMode ? 'Cancel Selection' : 'Select for Delete'}
               </button>
 
               {/* Delete Confirm Button (Only visible in Delete Mode) */}
@@ -1453,9 +1577,9 @@ export default function WeddingPage() {
                     setKeysToDelete(selectedKeys);
                     setShowDeleteModal(true);
                   }}
-                  className="px-4 py-2 bg-red-700 text-white text-xs uppercase tracking-widest flex items-center gap-1.5 rounded-sm hover:bg-red-800 transition-all shadow-md"
+                  className="inline-flex items-center gap-2.5 px-4 py-2 text-[10px] sm:px-8 sm:py-3 sm:text-xs rounded-sm border border-[#BE123C] text-[#BE123C] font-semibold uppercase tracking-[0.2em] hover:bg-[#BE123C] hover:text-white transition-all duration-300 active:scale-95"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-4 h-4" />
                   Delete ({selectedKeys.length})
                 </button>
               )}
@@ -1472,12 +1596,20 @@ export default function WeddingPage() {
                 <ArrowLeft className="w-4 h-4" /> Back to Invite
               </button>
             </div>
+            {isDeleteMode && (
+              <div className="mt-2 text-xs text-[#7D7261]">
+                Tap tiles to select or unselect items for delete.
+              </div>
+            )}
           </div>
 
           {/* Gallery Grid Body */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-10">
             <div className="max-w-6xl mx-auto">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              <div
+                ref={galleryGridRef}
+                className="relative grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
+              >
                 
                 {mediaGallery.map((media: MediaItem, idx: number) => {
                   const rawUrl = media.url;
@@ -1493,28 +1625,25 @@ export default function WeddingPage() {
                   return (
                     <div 
                       key={safeKey} 
+                      data-gallery-key={safeKey}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
 
                         if (isDeleteMode) {
-                          setSelectedKeys((current) => 
-                            current.includes(safeKey) 
-                              ? current.filter(k => k !== safeKey) 
-                              : [...current, safeKey]
-                          );
+                          toggleSelection(safeKey);
                         } else {
                           setLightboxIndex(idx);
                         }
                       }}
                       className={`aspect-square bg-[#EADCC9] overflow-hidden relative group rounded-sm transition-all duration-200 cursor-pointer ${
-                        isDeleteMode && isSelected ? 'ring-[3px] ring-red-500 scale-[0.96] shadow-lg' : 'hover:opacity-95'
+                        isDeleteMode && isSelected ? 'ring-[2px] ring-[#BE123C] scale-[0.96] shadow-lg' : 'hover:opacity-95'
                       }`}
                     >
                       {/* Delete Mode Checkmark */}
                       {isDeleteMode && (
                         <div className={`absolute top-2 left-2 z-40 flex items-center justify-center w-6 h-6 rounded-full border-2 border-white shadow-md transition-all ${
-                          isSelected ? 'bg-red-600 border-red-600' : 'bg-black/40 border-white'
+                          isSelected ? 'bg-[#BE123C] border-[#BE123C]' : 'bg-black/40 border-white'
                         }`}>
                           {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                         </div>
@@ -1526,7 +1655,7 @@ export default function WeddingPage() {
                           key={rawUrl}
                           src={rawUrl} 
                           className={`w-full h-full object-cover pointer-events-none transition-all duration-300 ${
-                            isDeleteMode && !isSelected ? 'opacity-50 saturate-50' : ''
+                            isDeleteMode && selectedKeys.length > 0 && !isSelected ? 'opacity-50 saturate-50' : 'group-hover:scale-105'
                           }`} 
                           muted 
                           autoPlay 
@@ -1539,14 +1668,13 @@ export default function WeddingPage() {
                           src={rawUrl} 
                           alt={`Gallery item ${idx}`} 
                           className={`w-full h-full object-cover pointer-events-none transition-all duration-300 ${
-                            isDeleteMode && !isSelected ? 'opacity-50 saturate-50' : 'group-hover:scale-105'
+                            isDeleteMode && selectedKeys.length > 0 && !isSelected ? 'opacity-50 saturate-50' : 'group-hover:scale-105'
                           }`}
                         />
                       )}
                     </div>
                   );
                 })}
-
               </div>
             </div>
           </div>
@@ -1633,25 +1761,69 @@ export default function WeddingPage() {
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-[#FDFBF7] border border-[#EADCC9] max-w-md w-full rounded-sm p-8 text-center shadow-2xl transform transition-all animate-scale-up">
             <h3 className="font-serif text-2xl text-[#4A433A] mb-3 tracking-wide">
-              Remove from Gallery?
+              {deleteStatus === 'success' ? 'Deleted Successfully' : deleteStatus === 'error' ? 'Delete Failed' : 'Remove from Gallery?'}
             </h3>
             <p className="text-xs text-[#7D7261] font-sans px-4 mb-6 leading-relaxed">
-              Are you sure you want to permanently delete {keysToDelete.length} of your uploaded {keysToDelete.length === 1 ? 'moment' : 'moments'}? This action cannot be reversed.
+              {deleteStatus === 'deleting' && 'Deleting your selected moments…'}
+              {deleteStatus === 'success' && 'Your selected moments have been removed from the gallery.'}
+              {deleteStatus === 'error' && 'Something went wrong while deleting. Please try again.'}
+              {deleteStatus === 'idle' && `Are you sure you want to permanently delete ${keysToDelete.length} of your uploaded ${keysToDelete.length === 1 ? 'moment' : 'moments'}? This action cannot be reversed.`}
             </p>
             
             <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-6 py-2.5 text-xs font-semibold uppercase tracking-wider border border-[#EADCC9] text-[#7D7261] rounded-sm hover:bg-[#FAF6F0] transition-colors bg-white shadow-sm"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleBatchDelete}
-                className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider bg-rose-800 text-white rounded-sm hover:bg-rose-900 transition-colors shadow-md"
-              >
-                Yes, Delete
-              </button>
+              {deleteStatus === 'idle' && (
+                <>
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    disabled={isDeleting}
+                    className="px-6 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full border border-[#EADCC9] text-[#5C5346] bg-white hover:bg-[#FAF6F0] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Keep Selection
+                  </button>
+                  <button
+                    onClick={handleBatchDelete}
+                    disabled={isDeleting}
+                    className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full bg-[#9E1D3D] text-white hover:bg-[#7A122C] transition-colors shadow-lg disabled:opacity-70 disabled:cursor-wait"
+                  >
+                    {isDeleting ? 'Deleting…' : 'Confirm Delete'}
+                  </button>
+                </>
+              )}
+
+              {deleteStatus === 'deleting' && (
+                <button
+                  disabled
+                  className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full border border-[#9E1D3D] bg-transparent text-[#9E1D3D] shadow-sm opacity-70 cursor-wait"
+                >
+                  Deleting…
+                </button>
+              )}
+
+              {deleteStatus === 'success' && (
+                <button
+                  onClick={closeDeleteModal}
+                  className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full border border-[#9E1D3D] bg-transparent text-[#9E1D3D] hover:bg-[#FAF6F0] transition-colors shadow-sm"
+                >
+                  Done
+                </button>
+              )}
+
+              {deleteStatus === 'error' && (
+                <>
+                  <button
+                    onClick={closeDeleteModal}
+                    className="px-6 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full border border-[#EADCC9] text-[#5C5346] bg-white hover:bg-[#FAF6F0] transition-colors shadow-sm"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={handleBatchDelete}
+                    className="px-7 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full bg-[#9E1D3D] text-white hover:bg-[#7A122C] transition-colors shadow-lg"
+                  >
+                    Try Again
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1685,7 +1857,7 @@ export default function WeddingPage() {
                 className="bg-white hover:bg-[#C5A880] text-[#5C5346] hover:text-white text-xs font-semibold px-4 py-2 rounded-full border border-[#EADCC9] shadow-md flex items-center gap-2 transform transition-all"
               >
                 <Calendar className="w-3.5 h-3.5" />
-                <span>Schedule Details</span>
+                <span>Wedding Itinerary</span>
               </button>
 
               <button 
@@ -1909,53 +2081,6 @@ export default function WeddingPage() {
         </div>
       )}
 
-      {/* ============================================================================
-          FULL GALLERY GRID OVERLAY MODAL
-          ============================================================================ */}
-      {showGalleryGrid && (
-        <div className="fixed inset-0 z-50 bg-[#FDFBF7] overflow-y-auto">
-          <div className="sticky top-0 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EADCC9] z-20 px-6 py-4 flex justify-between items-center">
-            <h3 className="font-serif text-2xl text-[#4A433A]">Full Gallery Grid</h3>
-            <button onClick={() => setShowGalleryGrid(false)} className="flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#7D7261] hover:text-[#C5A880] transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Back to Invite
-            </button>
-          </div>
-          <div className="p-4 sm:p-8 max-w-6xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
-              {mediaGallery.map((media, idx) => (
-                <div key={idx} onClick={() => setLightboxIndex(idx)} className="aspect-square bg-[#EADCC9] overflow-hidden cursor-pointer group rounded-sm shadow-sm">
-                  <img src={media.url} alt={`Gallery ${idx}`} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================================
-          LIGHTBOX SINGLE MEDIA VIEW MODAL
-          ============================================================================ */}
-      {lightboxIndex !== null && (
-        <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-6">
-          <div className="flex justify-end pt-2">
-            <button onClick={() => setLightboxIndex(null)} className="w-12 h-12 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors">
-              <X className="w-8 h-8" />
-            </button>
-          </div>
-          <div className="flex-1 flex items-center justify-center overflow-hidden py-4">
-            <img src={mediaGallery[lightboxIndex].url} alt={`Expanded item ${lightboxIndex}`} className="max-h-full max-w-full object-contain rounded-sm border border-white/10 shadow-2xl" />
-          </div>
-          <div className="flex justify-center items-center gap-6 pb-4">
-            <button disabled={lightboxIndex === 0} onClick={() => setLightboxIndex(lightboxIndex - 1)} className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold tracking-widest uppercase disabled:opacity-30 transition-colors">
-              Prev
-            </button>
-            <span className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-mono">{lightboxIndex + 1} / {mediaGallery.length}</span>
-            <button disabled={lightboxIndex === mediaGallery.length - 1} onClick={() => setLightboxIndex(lightboxIndex + 1)} className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold tracking-widest uppercase disabled:opacity-30 transition-colors">
-              Next
-            </button>
-          </div>
-        </div>
-      )}
 
     </div>
   );
