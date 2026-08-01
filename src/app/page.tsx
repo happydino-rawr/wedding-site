@@ -61,6 +61,10 @@ export default function WeddingPage() {
 
   const isCutoffPassed = new Date() > RSVP_CUTOFF_DATE;
 
+  // Day-Of Mode State
+  const [isWeddingDay, setIsWeddingDay] = useState(false);
+  const [currentEventIndex, setCurrentEventIndex] = useState(-1);
+
   useEffect(() => {
     const saved = localStorage.getItem("my_wedding_uploads");
     if (saved) {
@@ -260,6 +264,65 @@ export default function WeddingPage() {
 
     window.addEventListener('click', startMusic);
     window.addEventListener('touchstart', startMusic);
+  }, [])
+
+// --- Day-Of Mode State ---
+  useEffect(() => {
+    // 1. Define the timeframe for the wedding day
+    // Using explicit ISO strings for your specific date
+    const weddingDayStart = new Date('2027-03-06T00:00:00').getTime();
+    const weddingDayEnd = new Date('2027-03-07T00:00:00').getTime();
+
+    // 2. Map your itinerary to actual timestamps for tracking
+    const itineraryTimings = [
+      { time: new Date('2027-03-06T12:00:00').getTime(), title: "Tea Ceremony" },
+      { time: new Date('2027-03-06T13:30:00').getTime(), title: "Guest Arrival" },
+      { time: new Date('2027-03-06T14:00:00').getTime(), title: "The Ceremony" },
+      { time: new Date('2027-03-06T15:00:00').getTime(), title: "Travel & Rest" },
+      { time: new Date('2027-03-06T18:30:00').getTime(), title: "Grand Banquet" },
+    ];
+
+    const handleTimeCheck = () => {
+      const now = Date.now();
+      
+      // Toggle layout if it is the wedding day
+      setIsWeddingDay(now >= weddingDayStart && now < weddingDayEnd);
+
+      // Find which event is currently happening
+      let activeIdx = -1;
+      for (let i = 0; i < itineraryTimings.length; i++) {
+        const eventTime = itineraryTimings[i].time;
+        const nextEventTime = itineraryTimings[i + 1]?.time || weddingDayEnd;
+        
+        if (now >= eventTime && now < nextEventTime) {
+          activeIdx = i;
+          break;
+        }
+      }
+      setCurrentEventIndex(activeIdx);
+    };
+
+    // Run immediately on mount
+    handleTimeCheck();
+
+    // Catch users returning to an open background tab
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        handleTimeCheck();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleTimeCheck);
+    
+    // Optional: Auto-refresh the state every 5 minutes while they have it open
+    const timer = setInterval(handleTimeCheck, 5 * 60 * 1000);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleTimeCheck);
+      clearInterval(timer);
+    };
   }, []);
 
   const handleAddToCalendar = () => {
@@ -636,160 +699,8 @@ export default function WeddingPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#5C5346] font-sans selection:bg-[#C5A880] selection:text-white pb-20 relative overflow-x-hidden">
-      
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Fascinate&family=Fascinate+Inline&display=swap');
-        .script-font {
-          font-family: 'Alex Brush', cursive !important;
-          transform: rotate(-2deg);
-        }
-      `}</style>
-
-      {/* ============================================================================
-          BLOCK 1: THE WELCOME ARENA (Vogue-Editorial Cover Redesign)
-          ============================================================================ */}
-      <section id="hero" className="relative h-screen flex flex-col items-center justify-between text-center overflow-hidden pt-12 pb-16">
-        <div 
-          className="absolute inset-0 bg-cover bg-center transition-all duration-[2000ms] scale-105"
-          style={{ backgroundImage: `url(${COUPLE_PHOTOS.hero})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
-
-        <div className="absolute top-6 right-6 z-30">
-          <button 
-            onClick={() => setIsMusicPlaying(!isMusicPlaying)}
-            className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[9px] font-medium tracking-widest text-white border border-white/20 hover:bg-white/20 transition-all active:scale-95"
-          >
-            {isMusicPlaying ? (
-              <>
-                <Volume2 className="w-3 h-3 text-[#C5A880] animate-bounce" />
-                <span>CHIMES: ON</span>
-              </>
-            ) : (
-              <>
-                <VolumeX className="w-3 h-3 text-white/70" />
-                <span className="text-white/70">MUTED</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        <div className="relative z-10 flex flex-col items-center text-center mt-32 px-4">
-          <span className="text-white/80 uppercase tracking-[0.5em] text-[9px] sm:text-[10px] mb-8 font-light">
-            Together with their families
-          </span>
-          <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-[0.25em] leading-tight uppercase mb-12 sm:mb-16">
-            JESSICA
-            <br />
-            <span className="text-2xl sm:text-3xl text-[#EADCC9] italic mx-2 font-thin lowercase block my-3">&</span>
-            WILLIAM
-          </h1>
-
-          <p className="text-white/80 uppercase tracking-[0.5em] text-[9px] sm:text-[10px] mb-8 font-light">
-            invite you to celebrate <br /> their wedding day
-          </p>
-        </div>
-
-        <div 
-          className="relative z-10 flex flex-col items-center text-white/90 animate-bounce cursor-pointer opacity-80 hover:opacity-100 transition-opacity" 
-          onClick={() => scrollToAnchor('countdown-anchor')}
-        >
-          <span className="text-[9px] uppercase tracking-[0.4em] mb-4 font-serif font-light">Begin</span>
-          <div className="w-[1px] h-16 bg-gradient-to-b from-white to-transparent" />
-        </div>
-      </section>
-
-      {/* ============================================================================
-          BLOCK 3: THE RELATIONSHIP CHRONICLE (COMMENTED OUT FOR NOW - TO BE REMOVED)
-          ============================================================================ */}
-      {false && (
-      <section id="story" className="py-24 px-4 bg-[#FAF6F0]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center space-y-3 mb-24">
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Chronology of Us</span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Our Story</h2>
-            <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
-          </div>
-
-          <div className="relative">
-            {/* Center Timeline Line (Visible on Mobile & Desktop) */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-[#EBE3D0]" />
-
-            <div className="space-y-16 md:space-y-24 relative z-10">
-              
-              {/* Story Event 1 (Desktop: Text L, Image R. Mobile: Text B, Image T) */}
-              <div className="flex flex-col md:flex-row items-center w-full relative">
-                {/* Center Floating Date Pill */}
-                <div className="flex md:absolute md:left-1/2 md:transform md:-translate-x-1/2 bg-white px-4 py-1.5 rounded-full border border-[#C5A880] shadow-sm items-center justify-center z-20 mb-6 md:mb-0 order-1 md:order-none">
-                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Nov 14, 2021</span>
-                </div>
-
-                <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
-                  <FadeInSection>
-                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">First Coffee Sparks</h4>
-                    <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
-                      Fate collided in a corner café in Melbourne on a rainy afternoon. What was supposed to be a ten-minute coffee turned into a four-hour deep dialogue about music, art, and lifetime philosophies.
-                    </p>
-                  </FadeInSection>
-                </div>
-                
-                <div className="w-full md:w-1/2 md:pl-16 flex justify-center md:justify-start order-2 md:order-2 z-10">
-                  <img src={COUPLE_PHOTOS.story1} alt="First sparks" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
-                </div>
-              </div>
-
-              {/* Story Event 2 (Desktop: Image L, Text R. Mobile: Text B, Image T) */}
-              <div className="flex flex-col md:flex-row items-center w-full relative">
-                {/* Center Floating Date Pill */}
-                <div className="flex md:absolute md:left-1/2 md:transform md:-translate-x-1/2 bg-white px-4 py-1.5 rounded-full border border-[#C5A880] shadow-sm items-center justify-center z-20 mb-6 md:mb-0 order-1 md:order-none">
-                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Aug 18, 2024</span>
-                </div>
-
-                <div className="w-full md:w-1/2 md:pr-16 flex justify-center md:justify-end order-2 md:order-1 z-10">
-                  <img src={COUPLE_PHOTOS.story2} alt="Proposal" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
-                </div>
-
-                <div className="w-full md:w-1/2 md:pl-16 flex flex-col items-center md:items-start text-center md:text-left order-3 md:order-2 mt-6 md:mt-0 px-4 md:px-0">
-                  <FadeInSection>
-                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">The Sunset Proposal</h4>
-                    <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:ml-0 md:mr-auto">
-                      Surrounded by golden sand dunes and the soothing melody of ocean waves, William dropped on one knee. With tears, laughter, and an absolute whisper of certainty, Jessica said "Yes!"
-                    </p>
-                  </FadeInSection>
-                </div>
-              </div>
-
-              {/* Story Event 3 (Desktop: Text L, Image R. Mobile: Text B, Image T) */}
-              <div className="flex flex-col md:flex-row items-center w-full relative">
-                {/* Center Floating Date Pill */}
-                <div className="flex md:absolute md:left-1/2 md:transform md:-translate-x-1/2 bg-white px-4 py-1.5 rounded-full border border-[#C5A880] shadow-sm items-center justify-center z-20 mb-6 md:mb-0 order-1 md:order-none">
-                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Looking Ahead</span>
-                </div>
-
-                <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
-                  <FadeInSection>
-                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">The Golden Future</h4>
-                    <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
-                      Now we are carving our path toward a lifetime of mutual laughter, shared dreams, growing our small home sanctuary, and traveling to wild untamed horizons.
-                    </p>
-                  </FadeInSection>
-                </div>
-                
-                <div className="w-full md:w-1/2 md:pl-16 flex justify-center md:justify-start order-2 md:order-2 z-10">
-                  <img src={COUPLE_PHOTOS.story3} alt="Future plans" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-      )}
-      {/* ============================================================================
-          BLOCK 4: THE EXACT SCROLL-TRIGGERED ENVELOPE
-          ============================================================================ */}
+  const renderSections = () => {
+    const envelopeSection = (
       <section className="py-20 md:py-32 px-4 bg-[#FDFBF7] flex flex-col items-center min-h-[700px] justify-center overflow-visible">
         <div className="max-w-xl md:max-w-2xl w-full text-center">
 
@@ -949,65 +860,65 @@ export default function WeddingPage() {
           </div>
         </div>
       </section>
+    );
 
-      {/* ============================================================================
-          BLOCK 2: TIMELINE EVENT COUNTDOWN CLOCK
-          ============================================================================ */}
-      <section id="countdown-anchor" className="pt-0 pb-16 px-4 bg-[#FDFBF7] relative overflow-hidden flex flex-col items-center justify-center border-b border-[#EADCC9]/30">
-        <div className="text-center space-y-4 relative z-10 max-w-2xl w-full">
-          
-          <div className="space-y-3">
-            <span className="text-[9px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Promise</span>
-            <p className="font-serif italic text-base sm:text-lg text-[#7D7261] tracking-wide">
-              "Counting down to our forever..."
-            </p>
-          </div>
-          <div className="flex items-center justify-center gap-5 sm:gap-10">
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.days}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Days</span>
-            </div>
-            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
+    const countdownSection = (
+      <>
+        <section id="countdown-anchor" className="pt-0 pb-16 px-4 bg-[#FDFBF7] relative overflow-hidden flex flex-col items-center justify-center border-b border-[#EADCC9]/30">
+          <div className="text-center space-y-4 relative z-10 max-w-2xl w-full">
             
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.hours}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Hours</span>
+            <div className="space-y-3">
+              <span className="text-[9px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Promise</span>
+              <p className="font-serif italic text-base sm:text-lg text-[#7D7261] tracking-wide">
+                "Counting down to our forever..."
+              </p>
             </div>
-            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
-            
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.minutes}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Mins</span>
+            <div className="flex items-center justify-center gap-5 sm:gap-10">
+              <div className="flex flex-col items-center">
+                <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.days}</span>
+                <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Days</span>
+              </div>
+              <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
+              
+              <div className="flex flex-col items-center">
+                <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.hours}</span>
+                <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Hours</span>
+              </div>
+              <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
+              
+              <div className="flex flex-col items-center">
+                <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.minutes}</span>
+                <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Mins</span>
+              </div>
+              <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
+              
+              <div className="flex flex-col items-center">
+                <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.seconds}</span>
+                <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Secs</span>
+              </div>
             </div>
-            <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
-            
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.seconds}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Secs</span>
-            </div>
-          </div>
 
-          <div className="pt-8 flex justify-center">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8E1C24] via-[#751117] to-[#45090C] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),0_4px_10px_rgba(117,17,23,0.4)] border border-[#3E090B] flex items-center justify-center relative select-none cursor-pointer transform hover:scale-110 active:scale-95 transition-all duration-300">
-              <Heart className="w-4 h-4 text-[#FDEAEA] fill-current opacity-85 filter drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]" />
-                <div className="absolute inset-[3px] rounded-full border border-[#FDEAEA]/10 pointer-events-none" />
+            <div className="pt-8 flex justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8E1C24] via-[#751117] to-[#45090C] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),0_4px_10px_rgba(117,17,23,0.4)] border border-[#3E090B] flex items-center justify-center relative select-none cursor-pointer transform hover:scale-110 active:scale-95 transition-all duration-300">
+                <Heart className="w-4 h-4 text-[#FDEAEA] fill-current opacity-85 filter drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]" />
+                  <div className="absolute inset-[3px] rounded-full border border-[#FDEAEA]/10 pointer-events-none" />
+              </div>
             </div>
           </div>
+        </section>
+
+        {/* Pre-Map Photo Frame */}
+        <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
+          <img 
+            src={COUPLE_PHOTOS.pre_map} 
+            alt="Couple photo" 
+            className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
+          />
         </div>
-      </section>
+      </>
+    );
 
-      {/* Pre-Map Photo Frame */}
-      <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
-        <img 
-          src={COUPLE_PHOTOS.pre_map} 
-          alt="Couple photo" 
-          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
-        />
-      </div>
-
-      {/* ============================================================================
-          BLOCK 5A: INTERACTIVE TRANSIT MAP & NAVIGATION ROUTING (CEREMONY LOCATION)
-          ============================================================================ */}
+    const ceremonyMapSection = (
       <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
         <div className="max-w-2xl mx-auto space-y-12 text-center">
           <div className="space-y-3">
@@ -1037,248 +948,223 @@ export default function WeddingPage() {
           </a>
         </div>
       </section>
+    );
 
-        {/* ============================================================================
-          BLOCK 6: TRANSPORTATION STEP-BY-STEP GUIDE  (CEREMONY LOCATION)
-        ============================================================================ */}
-      <section className="py-12 px-4 bg-[#FAF6F0] border-y border-[#EADCC9]/40">
-        <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* <div className="text-center space-y-3">
-            <Car className="w-6 h-6 text-[#C5A880] mx-auto" />
-            <h4 className="font-serif font-light text-xl text-[#4A433A]">Driving Route</h4>
-            <p className="text-xs text-[#7D7261] leading-relaxed">
-              Take the Southern Freeway (M31) heading South from Sydney. Exit toward Bowral/Mitagong.
-            </p>
-          </div> */}
-          {/* Arrival Block */}
-          <div className="text-center space-y-3">
-            {/* Stacked Centered Clock Icon (Matching MapPin styling) */}
-            <Clock className="w-6 h-6 text-[#C5A880] mx-auto" />
-            
-            {/* Matching Serif Header */}
-            <h4 className="font-serif font-light text-xl text-[#4A433A]">Arrival</h4>
-            
-            {/* Description Text */}
-            <p className="text-xs text-[#7D7261] leading-relaxed">
-              Please arrive <span className="font-medium text-[#4A433A]">30 minutes early</span> to allow time for parking
-              <br />
-              and the walk to Harbour Lawn for the ceremony.
-            </p>
-          </div>
+    const receptionMapSection = (
+      <>
+        <section className="py-12 px-4 bg-[#FAF6F0] border-y border-[#EADCC9]/40">
+          <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center space-y-3">
+              <Clock className="w-6 h-6 text-[#C5A880] mx-auto" />
+              <h4 className="font-serif font-light text-xl text-[#4A433A]">Arrival</h4>
+              <p className="text-xs text-[#7D7261] leading-relaxed">
+                Please arrive <span className="font-medium text-[#4A433A]">30 minutes early</span> to allow time for parking
+                <br />
+                and the walk to Harbour Lawn for the ceremony.
+              </p>
+            </div>
 
-          {/* Parking Block */}
-          <div className="text-center space-y-3">
-            <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
-            <h4 className="font-serif font-light text-xl text-[#4A433A]">Metered Parking</h4>
-            <p className="text-xs text-[#7D7261] leading-relaxed">
-              Metered street parking is available on Mrs Macquaries Road and Hospital Road. 
-              <br />
-              Please note that parking is limited and may require a short walk to the venue.
-            </p>
-          </div>
+            <div className="text-center space-y-3">
+              <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
+              <h4 className="font-serif font-light text-xl text-[#4A433A]">Metered Parking</h4>
+              <p className="text-xs text-[#7D7261] leading-relaxed">
+                Metered street parking is available on Mrs Macquaries Road and Hospital Road. 
+                <br />
+                Please note that parking is limited and may require a short walk to the venue.
+              </p>
+            </div>
 
-          {/* Rail Transit Block */}
-          <div className="text-center space-y-3">
-            <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
-            <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
-            <p className="text-xs text-[#7D7261] leading-relaxed">
-              St James, Martin Place and Circular Quay Stations are all a 10-minute walk from the venue.
-            </p>
+            <div className="text-center space-y-3">
+              <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
+              <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
+              <p className="text-xs text-[#7D7261] leading-relaxed">
+                St James, Martin Place and Circular Quay Stations are all a 10-minute walk from the venue.
+              </p>
+            </div>
           </div>
+        </section>
+
+        <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
+          <img 
+            src={COUPLE_PHOTOS.couple_pic} 
+            alt="Couple photo" 
+            className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
+          />
         </div>
-      </section>
 
-      <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
-        <img 
-          src={COUPLE_PHOTOS.couple_pic} 
-          alt="Couple photo" 
-          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
-        />
-      </div>
+        <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
+          <div className="max-w-2xl mx-auto space-y-12 text-center">
+            <div className="space-y-3">
+              <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception Location</span>
+              <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Cabravale Club Resort</h2>
+              <p className="text-sm text-[#7D7261]">1 Bartley Street, Canley Vale NSW 2166</p>
+              <p className="font-serif italic text-sm text-[#7D7261] pt-2">
+                Following the ceremony, please join us for our wedding reception.
+              </p>
+            </div>
 
-      {/* ============================================================================
-          BLOCK 5B: INTERACTIVE TRANSIT MAP & NAVIGATION ROUTING (RECEPTION LOCATION)
-          ============================================================================ */}
-      <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
-        <div className="max-w-2xl mx-auto space-y-12 text-center">
-          {/* Header & Location */}
-          <div className="space-y-3">
-            <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception Location</span>
-            <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">Cabravale Club Resort</h2>
-            <p className="text-sm text-[#7D7261]">1 Bartley Street, Canley Vale NSW 2166</p>
-
-          {/* Invitation Subtext */}
-          <p className="font-serif italic text-sm text-[#7D7261] pt-2">
-            Following the ceremony, please join us for our wedding reception.
-          </p>
-          </div>
-
-          <div className="rounded-sm overflow-hidden shadow-md border border-[#EADCC9] aspect-video relative">
-            <iframe 
-              src="https://maps.google.com/maps?q=Cabravale+Club+Resort,+1+Bartley+St,+Canley+Vale+NSW+2166&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-              className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
-              allowFullScreen={true}
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-
-          <a 
-            href="https://www.google.com/maps/search/?api=1&query=Cabravale+Club+Resort+1+Bartley+St+Canley+Vale+NSW+2166" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2.5 px-4 py-2 text-[10px] sm:px-8 sm:py-3 sm:text-xs rounded-sm border border-[#BE123C] text-[#BE123C] font-semibold uppercase tracking-[0.2em] hover:bg-[#BE123C] hover:text-white transition-all duration-300 active:scale-95"
-          >
-            <Navigation className="w-3.5 h-3.5" />
-            <span>Route Directions</span>
-          </a>
-        </div>
-      </section>
-
-      {/* ============================================================================
-          BLOCK 6: TRANSPORTATION STEP-BY-STEP GUIDE (RECEPTION LOCATION)
-          ============================================================================ */}
-      <section className="py-12 px-4 bg-[#FAF6F0] border-y border-[#EADCC9]/40">
-              {/* Changed grid-cols-3 to grid-cols-2 max-w-xl so 2 items center perfectly */}
-              <div className="max-w-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Free Parking Block */}
-                <div className="text-center space-y-3">
-                  <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
-                  <h4 className="font-serif font-light text-xl text-[#4A433A]">Free Parking</h4>
-                  <p className="text-xs text-[#7D7261] leading-relaxed">
-                    Complimentary onsite parking is available.
-                  </p>
-                </div>
-
-                {/* Rail Transit Block */}
-                <div className="text-center space-y-3">
-                  <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
-                  <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
-                  <p className="text-xs text-[#7D7261] leading-relaxed">
-                    10 minute walk from Canley Vale Station.
-                  </p>
-                </div>
-              </div>
-
-              {/* Important Photo ID Notice */}
-              <div className="max-w-md mx-auto mt-10 p-4 rounded-xl bg-[#F4EFE6]/50 border border-[#EADCC9]/60 space-y-1.5 text-center sm:text-left">
-                <p className="text-[10px] uppercase tracking-widest text-[#C5A880] font-bold">
-                  Please Note
-                </p>
-                <p className="text-xs text-[#7D7261] leading-relaxed">
-                  All guests must present a <strong className="font-semibold text-[#BE123C]">valid form of photo ID</strong> upon arrival to sign into the venue (e.g., Passport, Driver's Licence, or Proof of Age Card).                </p>
-              </div>
-            </section>
-
-            {/* Couple Photo Divider - Normalized margins */}
-            <div className="w-full max-w-4xl mx-auto px-4 my-8 sm:my-12">
-              <img 
-                src={COUPLE_PHOTOS.couple_pic} 
-                alt="Couple photo" 
-                className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
+            <div className="rounded-sm overflow-hidden shadow-md border border-[#EADCC9] aspect-video relative">
+              <iframe 
+                src="https://maps.google.com/maps?q=Cabravale+Club+Resort,+1+Bartley+St,+Canley+Vale+NSW+2166&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+                className="w-full h-full border-0 grayscale hover:grayscale-0 transition-all duration-700" 
+                allowFullScreen={true}
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
 
-      {/* ============================================================================
-          BLOCK 7: Wedding Itinerary & Dress Code Guide
-          ============================================================================ */}
-      <section id="timings" className="py-24 px-4 bg-[#FDFBF7]">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center space-y-3 mb-16">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#C5A880] font-bold">The Sequence</span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Wedding Itinerary</h2>
-            <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
+            <a 
+              href="https://www.google.com/maps/search/?api=1&query=Cabravale+Club+Resort+1+Bartley+St+Canley+Vale+NSW+2166" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-4 py-2 text-[10px] sm:px-8 sm:py-3 sm:text-xs rounded-sm border border-[#BE123C] text-[#BE123C] font-semibold uppercase tracking-[0.2em] hover:bg-[#BE123C] hover:text-white transition-all duration-300 active:scale-95"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>Route Directions</span>
+            </a>
           </div>
+        </section>
 
-          <div className="relative">
-            {/* Center Axis Line - Standard absolute placement across all viewports */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-[#C5A880]" />
+        <section className="py-12 px-4 bg-[#FAF6F0] border-y border-[#EADCC9]/40">
+          <div className="max-w-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="text-center space-y-3">
+              <MapPin className="w-6 h-6 text-[#C5A880] mx-auto" />
+              <h4 className="font-serif font-light text-xl text-[#4A433A]">Free Parking</h4>
+              <p className="text-xs text-[#7D7261] leading-relaxed">
+                Complimentary onsite parking is available.
+              </p>
+            </div>
 
-            <div className="space-y-12 relative z-10">
-              {[
-                { time: "12:00 PM", title: "Tea Ceremony", desc: "Family blessings & tea." },
-                { time: "1:30 PM", title: "Guest Arrival", desc: "At the Harbour View Lawn." },
-                { time: "2:00 PM", title: "The Ceremony", desc: "Exchanging our vows." },
-                { time: "3:00 PM (How long?)", title: "Travel & Rest", desc: "Commute & freshen up for dinner." },
-                { time: "6:30 PM", title: "Grand Banquet", desc: "Dinner, speeches & party." },
-              ].map((item, idx) => (
-                <div key={idx} className="flex flex-row items-center w-full relative">
-                  <div className="w-1/2 pr-6 sm:pr-12 text-right">
-                    <span className="font-serif italic text-sm sm:text-lg text-[#C5A880] tracking-wide">{item.time}</span>
-                  </div>
-                  
-                  <div className="absolute left-1/2 transform -translate-x-1/2 w-3 h-3 rounded-full bg-[#C5A880] ring-4 ring-[#FDFBF7] z-20" />
-                  
-                  <div className="w-1/2 pl-6 sm:pl-12 text-left">
-                    <h4 className="font-serif font-bold text-sm sm:text-xl text-[#4A433A] mb-1">{item.title}</h4>
-                    {/* Added whitespace-pre-line to respect the \n character */}
-                    <p className="text-[11px] sm:text-sm text-[#7D7261] leading-relaxed max-w-xs whitespace-pre-line">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="text-center space-y-3">
+              <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
+              <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
+              <p className="text-xs text-[#7D7261] leading-relaxed">
+                10 minute walk from Canley Vale Station.
+              </p>
             </div>
           </div>
 
-          {/* Dress Code Guide */}
-          <div className="space-y-8 pt-20 mt-10 text-center border-t border-[#EADCC9]/50">
-            <div className="space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#C5A880] font-bold">Attire Etiquette</span>
-              <h2 className="text-2xl font-serif font-light text-[#4A433A] tracking-wide">Dress Code Guide</h2>
-              <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-2" />
-              <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
-                There is no strict dress code. We just want you here to celebrate with us! If you're looking for outfit ideas, here are some colors you can use as inspiration:
-              </p>
-              <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
-                Please feel free to wear whatever makes you feel comfortable and confident! For those who would like a little inspiration, here are a few soft, earthy tones that complement our wedding palette:
-              </p>
-              <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
-                Semi-formal attire is welcomed, but please wear whatever you feel best in! If you'd like color inspiration, feel free to use our suggested palette below:
-              </p>
-            </div>
-            <div className="flex flex-wrap justify-center gap-6 pt-4 max-w-2xl mx-auto">
-              {[
-                { hex: "bg-[#F7F3E9]", name: "Warm Champagne" },
-                { hex: "bg-[#F5E6E8]", name: "Dusty Rose" },
-                { hex: "bg-[#F9ECE5]", name: "Blush Pink" },
-                { hex: "bg-[#E2E8DD]", name: "Soft Sage" },
-                { hex: "bg-[#C3D0C0]", name: "Earthy Sage" },
-                { hex: "bg-[#EFE6DC]", name: "Soft Oat" },
-              ].map((color, idx) => (
-                <div key={idx} className="flex flex-col items-center space-y-3 group cursor-pointer w-20">
-                  <div className={`w-12 h-12 rounded-full ${color.hex} shadow-sm border border-white/50 ring-1 ring-[#EADCC9] group-hover:ring-[#C5A880] transition-all duration-300 transform group-hover:scale-105`} />
-                  <span className="text-[9px] text-center text-[#7D7261] uppercase tracking-widest leading-tight">{color.name}</span>
-                </div>
-              ))}
-            </div>
+          <div className="max-w-md mx-auto mt-10 p-4 rounded-xl bg-[#F4EFE6]/50 border border-[#EADCC9]/60 space-y-1.5 text-center sm:text-left">
+            <p className="text-[10px] uppercase tracking-widest text-[#C5A880] font-bold">
+              Please Note
+            </p>
+            <p className="text-xs text-[#7D7261] leading-relaxed">
+              All guests must present a <strong className="font-semibold text-[#BE123C]">valid form of photo ID</strong> upon arrival to sign into the venue (e.g., Passport, Driver's Licence, or Proof of Age Card).
+            </p>
           </div>
+        </section>
+
+        <div className="w-full max-w-4xl mx-auto px-4 my-8 sm:my-12">
+          <img 
+            src={COUPLE_PHOTOS.couple_pic} 
+            alt="Couple photo" 
+            className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" 
+          />
         </div>
-      </section>
+      </>
+    );
 
-      {/* Pre-RSVP Backdrop Photo */}
-      <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
-        <img 
-          src={COUPLE_PHOTOS.pre_rsvp} 
-          alt="RSVP transition layout"
-          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" />
-      </div>
+    const timingsSection = (
+      <>
+        <section id="timings" className="py-24 px-4 bg-[#FDFBF7]">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center space-y-3 mb-16">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#C5A880] font-bold">The Sequence</span>
+              <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Wedding Itinerary</h2>
+              <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
+            </div>
 
-      {/* ============================================================================
-          BLOCK 8: THE RSVP
-          ============================================================================ */}
+            <div className="relative">
+              <div className="absolute left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-[#C5A880]" />
+
+              <div className="space-y-12 relative z-10">
+                {[
+                  { time: "12:00 PM", title: "Tea Ceremony", desc: "Family blessings & tea." },
+                  { time: "1:30 PM", title: "Guest Arrival", desc: "At the Harbour View Lawn." },
+                  { time: "2:00 PM", title: "The Ceremony", desc: "Exchanging our vows." },
+                  { time: "3:00 PM", title: "Travel & Rest", desc: "Commute & freshen up for dinner." },
+                  { time: "6:30 PM", title: "Grand Banquet", desc: "Dinner, speeches & party." },
+                ].map((item, idx) => {
+                  const isHappeningNow = isWeddingDay && currentEventIndex === idx;
+
+                  return (
+                    <div key={idx} className={`flex flex-row items-center w-full relative transition-all duration-500 ${isHappeningNow ? 'scale-105' : 'opacity-70'}`}>
+                      <div className="w-1/2 pr-6 sm:pr-12 text-right">
+                        <span className={`font-serif italic text-sm sm:text-lg tracking-wide ${isHappeningNow ? 'text-[#BE123C] font-bold' : 'text-[#C5A880]'}`}>
+                          {item.time}
+                        </span>
+                      </div>
+                      
+                      <div className={`absolute left-1/2 transform -translate-x-1/2 rounded-full z-20 transition-all duration-500 ${isHappeningNow ? 'w-4 h-4 bg-[#BE123C] ring-4 ring-[#FDF2F8] shadow-lg animate-pulse' : 'w-3 h-3 bg-[#C5A880] ring-4 ring-[#FDFBF7]'}`} />
+                      
+                      <div className="w-1/2 pl-6 sm:pl-12 text-left relative">
+                        {isHappeningNow && (
+                          <span className="absolute -top-5 left-6 sm:left-12 text-[8px] uppercase tracking-widest text-[#BE123C] font-bold bg-[#FDF2F8] px-2 py-0.5 rounded-sm">Happening Now</span>
+                        )}
+                        <h4 className={`font-serif text-sm sm:text-xl mb-1 ${isHappeningNow ? 'font-bold text-[#BE123C]' : 'font-bold text-[#4A433A]'}`}>
+                          {item.title}
+                        </h4>
+                        <p className={`text-[11px] sm:text-sm leading-relaxed max-w-xs whitespace-pre-line ${isHappeningNow ? 'text-[#4A433A] font-medium' : 'text-[#7D7261]'}`}>
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-8 pt-20 mt-10 text-center border-t border-[#EADCC9]/50">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-[#C5A880] font-bold">Attire Etiquette</span>
+                <h2 className="text-2xl font-serif font-light text-[#4A433A] tracking-wide">Dress Code Guide</h2>
+                <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-2" />
+                <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
+                  There is no strict dress code. We just want you here to celebrate with us! If you're looking for outfit ideas, here are some colors you can use as inspiration:
+                </p>
+                <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
+                  Please feel free to wear whatever makes you feel comfortable and confident! For those who would like a little inspiration, here are a few soft, earthy tones that complement our wedding palette:
+                </p>
+                <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
+                  Semi-formal attire is welcomed, but please wear whatever you feel best in! If you'd like color inspiration, feel free to use our suggested palette below:
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-6 pt-4 max-w-2xl mx-auto">
+                {[
+                  { hex: "bg-[#F7F3E9]", name: "Warm Champagne" },
+                  { hex: "bg-[#F5E6E8]", name: "Dusty Rose" },
+                  { hex: "bg-[#F9ECE5]", name: "Blush Pink" },
+                  { hex: "bg-[#E2E8DD]", name: "Soft Sage" },
+                  { hex: "bg-[#C3D0C0]", name: "Earthy Sage" },
+                  { hex: "bg-[#EFE6DC]", name: "Soft Oat" },
+                ].map((color, idx) => (
+                  <div key={idx} className="flex flex-col items-center space-y-3 group cursor-pointer w-20">
+                    <div className={`w-12 h-12 rounded-full ${color.hex} shadow-sm border border-white/50 ring-1 ring-[#EADCC9] group-hover:ring-[#C5A880] transition-all duration-300 transform group-hover:scale-105`} />
+                    <span className="text-[9px] text-center text-[#7D7261] uppercase tracking-widest leading-tight">{color.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
+          <img 
+            src={COUPLE_PHOTOS.pre_rsvp} 
+            alt="RSVP transition layout"
+            className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50" />
+        </div>
+      </>
+    );
+
+    const rsvpSection = (
       <section className="py-24 px-4 bg-[#FAF6F0] flex justify-center">
-        {/* Restored max-w-2xl and generous padding (p-10 sm:p-16) for a roomier desktop feel */}
         <div className="bg-white border border-[#EADCC9] shadow-xl p-10 sm:p-16 rounded-sm max-w-2xl w-full text-center relative overflow-hidden">
-          
-          {/* Inner Dashed Border Frame */}
           <div className="absolute inset-4 sm:inset-5 border border-[#EADCC9]/80 border-dashed pointer-events-none" />
           
           <div className="relative z-10 flex flex-col items-center space-y-8 sm:space-y-10">
-            {/* Heart Icon */}
             <Heart className="w-6 h-6 text-[#C5A880] fill-current opacity-90" />
             
-            {/* Header Section */}
             <div className="space-y-3">
               <h2 className="font-serif text-3xl sm:text-4xl text-[#4A433A] tracking-wide">
                 Répondez s'il vous plaît
@@ -1286,7 +1172,6 @@ export default function WeddingPage() {
               <div className="w-12 sm:w-16 h-[1px] bg-[#C5A880] mx-auto" />
             </div>
 
-            {/* Subtitle & Date - Spaced out for prominence */}
             <div className="space-y-2 py-2">
               <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] text-[#C5A880] font-bold block">
                 Kindly Reply By
@@ -1296,12 +1181,10 @@ export default function WeddingPage() {
               </p>
             </div>
 
-            {/* Body Copy - Wider max-w and relaxed padding */}
             <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-md mx-auto px-2">
               We eagerly await your response to help us finalise our celebration. Please let us know if you can attend and note any dietary requirements.
             </p>
 
-            {/* CTA Section with top border separator */}
             <div className="w-full pt-4 border-t border-[#FAF6F0]">
               <button
                 onClick={triggerOpenRsvp}
@@ -1314,6 +1197,96 @@ export default function WeddingPage() {
           </div>
         </div>
       </section>
+    );
+
+    return (
+      <>
+        {isWeddingDay ? (
+          <>
+            {timingsSection}
+            {ceremonyMapSection}
+            {receptionMapSection}
+          </>
+        ) : (
+          <>
+            {envelopeSection}
+            {countdownSection}
+            {ceremonyMapSection}
+            {receptionMapSection}
+            {timingsSection}
+            {rsvpSection}
+          </>
+        )}
+      </>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FDFBF7] text-[#5C5346] font-sans selection:bg-[#C5A880] selection:text-white pb-20 relative overflow-x-hidden">
+      
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Fascinate&family=Fascinate+Inline&display=swap');
+        .script-font {
+          font-family: 'Alex Brush', cursive !important;
+          transform: rotate(-2deg);
+        }
+      `}</style>
+
+      {/* ============================================================================
+          BLOCK 1: THE WELCOME ARENA (Vogue-Editorial Cover Redesign)
+          ============================================================================ */}
+      <section id="hero" className="relative h-screen flex flex-col items-center justify-between text-center overflow-hidden pt-12 pb-16">
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-all duration-[2000ms] scale-105"
+          style={{ backgroundImage: `url(${COUPLE_PHOTOS.hero})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+
+        <div className="absolute top-6 right-6 z-30">
+          <button 
+            onClick={() => setIsMusicPlaying(!isMusicPlaying)}
+            className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[9px] font-medium tracking-widest text-white border border-white/20 hover:bg-white/20 transition-all active:scale-95"
+          >
+            {isMusicPlaying ? (
+              <>
+                <Volume2 className="w-3 h-3 text-[#C5A880] animate-bounce" />
+                <span>CHIMES: ON</span>
+              </>
+            ) : (
+              <>
+                <VolumeX className="w-3 h-3 text-white/70" />
+                <span className="text-white/70">MUTED</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center text-center mt-32 px-4">
+          <span className="text-white/80 uppercase tracking-[0.5em] text-[9px] sm:text-[10px] mb-8 font-light">
+            Together with their families
+          </span>
+          <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-[0.25em] leading-tight uppercase mb-12 sm:mb-16">
+            JESSICA
+            <br />
+            <span className="text-2xl sm:text-3xl text-[#EADCC9] italic mx-2 font-thin lowercase block my-3">&</span>
+            WILLIAM
+          </h1>
+
+          <p className="text-white/80 uppercase tracking-[0.5em] text-[9px] sm:text-[10px] mb-8 font-light">
+            invite you to celebrate <br /> their wedding day
+          </p>
+        </div>
+
+        <div 
+          className="relative z-10 flex flex-col items-center text-white/90 animate-bounce cursor-pointer opacity-80 hover:opacity-100 transition-opacity" 
+          onClick={() => scrollToAnchor('countdown-anchor')}
+        >
+          <span className="text-[9px] uppercase tracking-[0.4em] mb-4 font-serif font-light">Begin</span>
+          <div className="w-[1px] h-16 bg-gradient-to-b from-white to-transparent" />
+        </div>
+      </section>
+
+      {renderSections()}
 
       {/* ============================================================================
           BLOCK 9: LAYERED RECORD VISUALIZER PRE-HUB
@@ -1395,6 +1368,92 @@ export default function WeddingPage() {
 
         </div>
       </section>
+
+      {/* ============================================================================
+          BLOCK 3: THE RELATIONSHIP CHRONICLE (COMMENTED OUT FOR NOW  - SHE MIGHT WANT IT BACK)
+          ============================================================================ */}
+      <section id="story" className="py-24 px-4 bg-[#FAF6F0]">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center space-y-3 mb-24">
+            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Chronology of Us</span>
+            <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Our Story</h2>
+            <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
+          </div>
+
+          <div className="relative">
+            {/* Center Timeline Line (Visible on Mobile & Desktop) */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-[#EBE3D0]" />
+
+            <div className="space-y-16 md:space-y-24 relative z-10">
+              
+              {/* Story Event 1 (Desktop: Text L, Image R. Mobile: Text B, Image T) */}
+              <div className="flex flex-col md:flex-row items-center w-full relative">
+                {/* Center Floating Date Pill */}
+                <div className="flex md:absolute md:left-1/2 md:transform md:-translate-x-1/2 bg-white px-4 py-1.5 rounded-full border border-[#C5A880] shadow-sm items-center justify-center z-20 mb-6 md:mb-0 order-1 md:order-none">
+                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Nov 14, 2021</span>
+                </div>
+
+                <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
+                  <FadeInSection>
+                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">First Coffee Sparks</h4>
+                    <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
+                      Fate collided in a corner café in Melbourne on a rainy afternoon. What was supposed to be a ten-minute coffee turned into a four-hour deep dialogue about music, art, and lifetime philosophies.
+                    </p>
+                  </FadeInSection>
+                </div>
+                
+                <div className="w-full md:w-1/2 md:pl-16 flex justify-center md:justify-start order-2 md:order-2 z-10">
+                  <img src={COUPLE_PHOTOS.story1} alt="First sparks" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
+                </div>
+              </div>
+
+              {/* Story Event 2 (Desktop: Image L, Text R. Mobile: Text B, Image T) */}
+              <div className="flex flex-col md:flex-row items-center w-full relative">
+                {/* Center Floating Date Pill */}
+                <div className="flex md:absolute md:left-1/2 md:transform md:-translate-x-1/2 bg-white px-4 py-1.5 rounded-full border border-[#C5A880] shadow-sm items-center justify-center z-20 mb-6 md:mb-0 order-1 md:order-none">
+                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Aug 18, 2024</span>
+                </div>
+
+                <div className="w-full md:w-1/2 md:pr-16 flex justify-center md:justify-end order-2 md:order-1 z-10">
+                  <img src={COUPLE_PHOTOS.story2} alt="Proposal" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
+                </div>
+
+                <div className="w-full md:w-1/2 md:pl-16 flex flex-col items-center md:items-start text-center md:text-left order-3 md:order-2 mt-6 md:mt-0 px-4 md:px-0">
+                  <FadeInSection>
+                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">The Sunset Proposal</h4>
+                    <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:ml-0 md:mr-auto">
+                      Surrounded by golden sand dunes and the soothing melody of ocean waves, William dropped on one knee. With tears, laughter, and an absolute whisper of certainty, Jessica said "Yes!"
+                    </p>
+                  </FadeInSection>
+                </div>
+              </div>
+
+              {/* Story Event 3 (Desktop: Text L, Image R. Mobile: Text B, Image T) */}
+              <div className="flex flex-col md:flex-row items-center w-full relative">
+                {/* Center Floating Date Pill */}
+                <div className="flex md:absolute md:left-1/2 md:transform md:-translate-x-1/2 bg-white px-4 py-1.5 rounded-full border border-[#C5A880] shadow-sm items-center justify-center z-20 mb-6 md:mb-0 order-1 md:order-none">
+                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Looking Ahead</span>
+                </div>
+
+                <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
+                  <FadeInSection>
+                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">The Golden Future</h4>
+                    <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
+                      Now we are carving our path toward a lifetime of mutual laughter, shared dreams, growing our small home sanctuary, and traveling to wild untamed horizons.
+                    </p>
+                  </FadeInSection>
+                </div>
+                
+                <div className="w-full md:w-1/2 md:pl-16 flex justify-center md:justify-start order-2 md:order-2 z-10">
+                  <img src={COUPLE_PHOTOS.story3} alt="Future plans" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* ============================================================================
           BLOCK 12: SHARED GALLERY PREVIEW & UPLOAD (MAIN PAGE FEED)
