@@ -4,6 +4,7 @@ import { X, Plus, Trash2, Check, Search, ArrowLeft } from 'lucide-react';
 import type { Guest } from '../app/page';
 
 interface RsvpSheetModalProps {
+  isOpen?: boolean;
   onClose: () => void;
   isCutoffPassed: boolean;
   guestsList: Guest[];
@@ -13,6 +14,7 @@ interface RsvpSheetModalProps {
 }
 
 export default function RsvpSheetModal({
+  isOpen = true,
   onClose,
   isCutoffPassed,
   guestsList,
@@ -24,10 +26,16 @@ export default function RsvpSheetModal({
   const [viewMode, setViewMode] = useState<'form' | 'lookup'>('form');
   const [isSearching, setIsSearching] = useState(false);
   const [lookupName, setLookupName] = useState({ firstName: '', lastName: '' });
+  
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isDuplicateError, setIsDuplicateError] = useState(false);
 
+  if (!isOpen) return null;
+  
   const handleLookupRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
+    setErrorMessage('');
 
     try {
       const res = await fetch(`/api/rsvp?firstName=${encodeURIComponent(lookupName.firstName)}&lastName=${encodeURIComponent(lookupName.lastName)}`);
@@ -39,12 +47,12 @@ export default function RsvpSheetModal({
         setIsEditing(false);
         setViewMode('form');
       } else {
-        alert("We couldn't find an RSVP matching that name. Please submit a new RSVP below.");
+        setErrorMessage("We couldn't find an RSVP matching that name. Please submit a new RSVP below.");
         setViewMode('form');
       }
     } catch (err) {
       console.error("Lookup error:", err);
-      alert("An error occurred during lookup. Please try again.");
+      setErrorMessage("An error occurred during lookup. Please try again.");
     } finally {
       setIsSearching(false);
     }
@@ -55,10 +63,14 @@ export default function RsvpSheetModal({
       prev.map((g) => (g.id === id ? { ...g, [field]: value } : g))
     );
     setIsEditing(true);
+    setErrorMessage('');
+    setIsDuplicateError(false);
   };
 
   const handleAddFamilyMember = () => {
     setIsEditing(true);
+    setErrorMessage('');
+    setIsDuplicateError(false);
     setGuestsList((prev) => [
       ...prev,
       {
@@ -75,11 +87,16 @@ export default function RsvpSheetModal({
   const handleRemoveGuest = (id: number) => {
     if (guestsList.length === 1) return;
     setIsEditing(true);
+    setErrorMessage('');
+    setIsDuplicateError(false);
     setGuestsList((prev) => prev.filter((g) => g.id !== id));
   };
 
   const handleSubmitToSupabase = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
+    setIsDuplicateError(false);
+
     try {
       const res = await fetch('/api/rsvp', {
         method: 'POST',
@@ -87,15 +104,23 @@ export default function RsvpSheetModal({
         body: JSON.stringify({ guests: guestsList }),
       });
 
+      const data = await res.json();
+
+      if (res.status === 409 || res.status === 400) {
+        setErrorMessage(data.error);
+        setIsDuplicateError(res.status === 409);
+        return;
+      }
+
       if (res.ok) {
         setIsSubmitted(true);
         setIsEditing(false);
       } else {
-        alert("Failed to save RSVP. Please try again.");
+        setErrorMessage(data.error || "Failed to save RSVP. Please try again.");
       }
     } catch (err) {
       console.error("Save error:", err);
-      alert("An error occurred while saving your RSVP.");
+      setErrorMessage("An error occurred while saving your RSVP.");
     }
   };
 
@@ -147,6 +172,12 @@ export default function RsvpSheetModal({
                 </div>
               </div>
 
+              {errorMessage && (
+                <div className="p-3 bg-[#FAF6F0] border border-[#EADCC9] rounded-sm text-center">
+                  <p className="text-xs text-[#9E1D3D] font-medium leading-relaxed">{errorMessage}</p>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={isSearching}
@@ -158,7 +189,7 @@ export default function RsvpSheetModal({
               <div className="text-center pt-2">
                 <button
                   type="button"
-                  onClick={() => setViewMode('form')}
+                  onClick={() => { setViewMode('form'); setErrorMessage(''); }}
                   className="text-sm font-medium text-[#7D7261] underline hover:text-[#4A433A] flex items-center justify-center gap-1 mx-auto"
                 >
                   <ArrowLeft className="w-3 h-3" /> Back to RSVP Form
@@ -187,6 +218,7 @@ export default function RsvpSheetModal({
                   <p className="font-semibold text-sm text-[#4A433A]">
                     {guest.firstName} {guest.lastName}
                   </p>
+                  <p className="text-xs text-[#7D7261] mt-0.5">{guest.email}</p>
                   <p className="text-xs text-[#C5A880] mt-0.5">{guest.attending}</p>
                   {guest.dietary && (
                     <p className="text-[11px] text-[#7D7261] mt-1">Dietary: {guest.dietary}</p>
@@ -252,7 +284,9 @@ export default function RsvpSheetModal({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">First Name *</label>
+                      <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                        First Name <span className="text-[#BE185D]">*</span>
+                      </label>
                       <input
                         type="text"
                         required
@@ -264,7 +298,9 @@ export default function RsvpSheetModal({
                       />
                     </div>
                     <div>
-                      <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Last Name *</label>
+                      <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                        Last Name <span className="text-[#BE185D]">*</span>
+                      </label>
                       <input
                         type="text"
                         required
@@ -278,7 +314,9 @@ export default function RsvpSheetModal({
                   </div>
 
                   <div>
-                    <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Email Address *</label>
+                    <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                      Email Address <span className="text-[#BE185D]">*</span>
+                    </label>
                     <input
                       type="email"
                       required
@@ -325,6 +363,27 @@ export default function RsvpSheetModal({
               ))}
             </div>
 
+            {/* Error Message & Duplicate Helper Banner */}
+            {errorMessage && (
+              <div className="p-4 bg-[#FAF6F0] border border-[#EADCC9] rounded-sm text-center space-y-3">
+                <p className="text-xs text-[#9E1D3D] font-medium leading-relaxed">
+                  {errorMessage}
+                </p>
+                {isDuplicateError && (
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setViewMode('lookup');
+                      setErrorMessage('');
+                    }}
+                    className="px-5 py-2 text-[10px] uppercase tracking-[0.2em] rounded-full bg-[#C5A880] text-white hover:bg-[#B3956D] transition"
+                  >
+                    Search & Edit Your RSVP
+                  </button>
+                )}
+              </div>
+            )}
+
             {!isCutoffPassed && (
               <button
                 type="button"
@@ -359,7 +418,7 @@ export default function RsvpSheetModal({
                 <div className="text-center pt-3">
                   <button
                     type="button"
-                    onClick={() => setViewMode('lookup')}
+                    onClick={() => { setViewMode('lookup'); setErrorMessage(''); }}
                     className="text-sm font-medium text-[#7D7261] underline hover:text-[#4A433A]"
                   >
                     Need to check or update an existing response? Search here

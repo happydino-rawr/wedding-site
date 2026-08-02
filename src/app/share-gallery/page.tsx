@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Camera } from 'lucide-react';
 import GalleryHeader from '@/components/GalleryHeader';
 import GalleryGrid from '@/components/GalleryGrid';

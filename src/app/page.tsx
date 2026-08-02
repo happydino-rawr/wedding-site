@@ -466,14 +466,15 @@ export default function WeddingPage() {
 
       {/* --- 4. Overlays & Modals --- */}
       {isRsvpOpen && (
-        <RsvpSheetModal 
-          onClose={() => setIsRsvpOpen(false)}
-          isCutoffPassed={isCutoffPassed}
-          guestsList={guestsList}
-          setGuestsList={setGuestsList}
-          isEditing={isEditing}
-          setIsEditing={setIsEditing}
-        />
+			<RsvpSheetModal 
+        isOpen={isRsvpOpen}
+        onClose={() => setIsRsvpOpen(false)}
+        isCutoffPassed={isCutoffPassed}
+        guestsList={guestsList}
+        setGuestsList={setGuestsList}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+      />
       )}
 
       {!showGalleryGrid && !isRsvpOpen && (

@@ -91,3 +91,10 @@ If the build passes completely without errors, your app is safe to deploy. If an
 ### Deploy on Vercel
 The easiest way to deploy your Next.js app is to use the Vercel Platform from the creators of Next.js.
 
+---
+
+## Project Requirements & Documentation
+
+* **Master Blueprint:** For a complete breakdown of how everything in this wedding website and RSVP system works under the hood, refer to the `REQUIREMENTS.md` file.
+* **Core Features Covered:** It details all critical implementations—including the passcode authentication gate, background music toggles, dynamic day-of mode, family/plus-one management, smart conditional dietary fields, and case-insensitive database duplicate protection with inline error handling.
+* **Developer & QA Ready:** It is designed so anyone can easily jump in, understand the strict project rules, run comprehensive edge-case testing, and maintain the application with complete confidence.
