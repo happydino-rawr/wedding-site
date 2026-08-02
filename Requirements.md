@@ -77,6 +77,10 @@ The modal operates inside a single overlay (`fixed inset-0 bg-black/60 backdrop-
 * **Visibility**: The "Dietary Requirements" text input only renders if `guest.attending` is set to *"Attending both ceremony and reception"* OR *"Reception only"*.
 * **State Clearing**: If a guest inputs dietary requirements but later changes their attendance to *"Regretfully declining"*, the dietary state for that specific index must be instantly cleared (`''`) and the input hidden.
 
+### 5.4. Requirement for Detailed User Inputs
+* **Explicit & Thorough Data**: The system expects and encourages users to provide comprehensive, detailed information during submission (e.g., specific allergy details rather than vague terms, accurate contact info, and complete names).
+* **Validation Support**: Form fields must accommodate long-form descriptive text (such as extended dietary notes) gracefully without breaking UI layouts or truncating database storage limits.
+
 ---
 
 ## 6. Backend API & Validation (`/api/rsvp/route.ts`)
@@ -146,3 +150,14 @@ This section outlines critical areas prone to failure, requiring rigorous testin
 * **Mobile Keyboard Overlap**: On a physical mobile device, open the RSVP modal and focus on the "Email" or "Dietary" input of the 3rd or 4th guest. Ensure the virtual keyboard does not permanently hide the input or the "Submit" button (verify `overflow-y-auto` and `max-h-[90vh]` behave correctly).
 * **Select Dropdown Styling**: Ensure the custom chevron (`ChevronDown`) on the Attendance dropdown doesn't overlap long option text on very narrow screens (e.g., iPhone SE). 
 * **Cutoff Banner Rendering**: Force the `isCutoffPassed` state to true. Verify that all inputs are visually locked, disabled, and the red warning banner does not break the modal's padding.
+
+### 8.6. Additional Database & UI Specifications
+* **Strict Cross-User Duplicate Protection (`/api/rsvp`)**: 
+  * The backend API route must iterate through each incoming guest entry and query the `rsvp_list` table using case-insensitive matching (`.ilike`) across first name, last name, and email.
+  * Instead of single-row modifiers, it must evaluate `existingRsvps.length > 0`. If any matching record already sits in the database (regardless of who submitted it), the API must block insertion and return an HTTP **`409 Conflict`** to prevent multiple identical RSVPs.
+* **Custom UI Attendance Dropdown Styling**: 
+  * The attendance `<select>` element must use `appearance-none` to strip native browser styling.
+  * It must feature a custom SVG chevron icon aligned to the right (`text-[#C5A880]`) and have its options explicitly styled with matching background colors (`bg-[#FDFBF7]`) to maintain the clean wedding theme aesthetic.
+* **Modal Visibility Prop Integration**: 
+  * The `RsvpSheetModal` component must properly accept and destructure an optional `isOpen` boolean prop in its interface definition. 
+  * If `isOpen` evaluates to `false`, the component must immediately return `null` to cleanly handle visibility states.
