@@ -103,23 +103,25 @@ export default function RsvpSheetModal({
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-[#FDFBF7] border border-[#EADCC9] max-w-xl w-full rounded-sm p-6 sm:p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
         
-        {/* Close Button */}
+        {/* Absolute High-Positioned Close Button */}
         <button 
+          type="button"
           onClick={onClose} 
-          className="absolute top-5 right-5 z-20 text-[#7D7261] hover:text-[#4A433A] transition-colors"
+          className="absolute top-4 right-4 z-30 text-[#7D7261] hover:text-[#4A433A] transition-colors p-1"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* --- VIEW 1: LOOKUP SCREEN --- */}
         {viewMode === 'lookup' ? (
-          <div className="space-y-6 py-4">
-            <div className="sticky top-0 bg-[#FDFBF7] pt-2 pb-4 z-10 border-b border-[#EADCC9]/40 text-center space-y-2">
+          <div className="space-y-6">
+            <div className="sticky top-0 bg-[#FDFBF7] pt-1 pb-4 z-20 border-b border-[#EADCC9]/40 text-center space-y-1">
               <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Welcome Back</span>
               <h2 className="text-2xl font-serif font-light text-[#4A433A]">Look Up Your RSVP</h2>
               <div className="w-8 h-[1px] bg-[#C5A880] mx-auto" />
-              <p className="text-xs text-[#7D7261] pt-1">Enter your name to view or update your existing response.</p>
             </div>
+
+            <p className="text-xs text-[#7D7261] text-center pt-2">Enter your name to view or update your existing response.</p>
 
             <form onSubmit={handleLookupRsvp} className="space-y-4 max-w-md mx-auto pt-2">
               <div className="grid grid-cols-2 gap-4">
@@ -166,13 +168,15 @@ export default function RsvpSheetModal({
           </div>
         ) : isSubmitted && !isEditing ? (
           /* --- VIEW 2: CONFIRMED RESULTS SCREEN --- */
-          <div className="space-y-6 text-center py-4">
-            <div className="sticky top-0 bg-[#FDFBF7] pt-2 pb-4 z-10 border-b border-[#EADCC9]/40 space-y-2">
-              <div className="w-10 h-10 bg-[#C5A880]/20 rounded-full flex items-center justify-center mx-auto text-[#C5A880]">
-                <Check className="w-5 h-5" />
-              </div>
+          <div className="space-y-6 text-center">
+            <div className="sticky top-0 bg-[#FDFBF7] pt-1 pb-4 z-20 border-b border-[#EADCC9]/40 text-center space-y-1">
               <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Thank You</span>
-              <h2 className="text-2xl font-serif font-light text-[#4A433A] mt-1">Your RSVP is Confirmed</h2>
+              <h2 className="text-2xl font-serif font-light text-[#4A433A]">Your RSVP is Confirmed</h2>
+              <div className="w-8 h-[1px] bg-[#C5A880] mx-auto" />
+            </div>
+
+            <div className="w-10 h-10 bg-[#C5A880]/20 rounded-full flex items-center justify-center mx-auto text-[#C5A880] mt-2">
+              <Check className="w-5 h-5" />
             </div>
 
             <p className="text-xs text-[#7D7261]">Here are the details registered for our celebration:</p>
@@ -216,7 +220,7 @@ export default function RsvpSheetModal({
           <form onSubmit={handleSubmitToSupabase} className="space-y-6">
             
             {/* Sticky Header Section */}
-            <div className="sticky top-0 bg-[#FDFBF7] pt-2 pb-4 z-10 border-b border-[#EADCC9]/60 text-center space-y-2">
+            <div className="sticky top-0 bg-[#FDFBF7] pt-1 pb-4 z-20 border-b border-[#EADCC9]/60 text-center space-y-1">
               <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Join Our Celebration</span>
               <h2 className="text-2xl font-serif font-light text-[#4A433A]">RSVP Form</h2>
               <div className="w-8 h-[1px] bg-[#C5A880] mx-auto" />
