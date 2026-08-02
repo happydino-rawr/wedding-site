@@ -1,5 +1,5 @@
 export const WEDDING_DATE = new Date("2027-03-06T15:00:00");
-export const RSVP_CUTOFF_DATE = new Date("2027-02-15T23:59:59");
+export const RSVP_CUTOFF_DATE = new Date("2026-11-30T23:59:59");
 export const ACCESS_PASSCODE = "123";
 
 export const COUPLE_PHOTOS = {
