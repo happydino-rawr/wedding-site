@@ -21,7 +21,15 @@ import RsvpSheetModal from '../components/RsvpSheetModal';
 import FloatingActionMenu from '../components/FloatingActionMenu';
 
 // --- Utilities & Constants ---
-import { COUPLE_PHOTOS, ACCESS_PASSCODE, WEDDING_DATE, RSVP_CUTOFF_DATE } from '../lib/constants';
+import { 
+  COUPLE_PHOTOS, 
+  ACCESS_PASSCODE, 
+  WEDDING_DATE, 
+  RSVP_CUTOFF_DATE,
+  WEDDING_DAY_START,
+  WEDDING_DAY_END,
+  ITINERARY_TIMINGS
+} from '../lib/constants';
 import { audio, initAudio, getAudio } from '../utils/audio';
 
 // --- Interfaces ---
@@ -56,22 +64,9 @@ export default function WeddingPage() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   
   // Gallery State
-  const [mediaGallery, setMediaGallery] = useState<MediaItem[]>([]);
   const [showGalleryGrid, setShowGalleryGrid] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [_myUploadedKeys, setMyUploadedKeys] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [uploadError, setUploadError] = useState<string>("");
   const [uploadToast, setUploadToast] = useState<string>("");
-
-  // Deletion State
-  const [isDeleteMode, setIsDeleteMode] = useState(false);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [keysToDelete, setKeysToDelete] = useState<string[]>([]);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteStatus, setDeleteStatus] = useState<'idle' | 'deleting' | 'success' | 'error'>('idle');
 
   // RSVP State
   const [guestsList, setGuestsList] = useState<Guest[]>([]); 
@@ -118,7 +113,6 @@ export default function WeddingPage() {
   useEffect(() => {
     const saved = localStorage.getItem("my_wedding_uploads");
     if (saved) setMyUploadedKeys(JSON.parse(saved));
-    refreshGallery();
     
     const session = localStorage.getItem("wedding_session_token");
     if (session === "true") setIsAuthenticated(true);
@@ -264,31 +258,23 @@ export default function WeddingPage() {
   }, []);
 
   useEffect(() => {
-    const weddingDayStart = new Date('2027-03-06T00:00:00').getTime();
-    const weddingDayEnd = new Date('2027-03-07T00:00:00').getTime();
-    const itineraryTimings = [
-      { time: new Date('2027-03-06T12:00:00').getTime(), title: "Tea Ceremony" },
-      { time: new Date('2027-03-06T13:30:00').getTime(), title: "Guest Arrival" },
-      { time: new Date('2027-03-06T14:00:00').getTime(), title: "The Ceremony" },
-      { time: new Date('2027-03-06T15:00:00').getTime(), title: "Travel & Rest" },
-      { time: new Date('2027-03-06T18:30:00').getTime(), title: "Grand Banquet" },
-    ];
+		const handleTimeCheck = () => {
+				const now = Date.now();
+				
+				// Use the imported constants here!
+				setIsWeddingDay(now >= WEDDING_DAY_START && now < WEDDING_DAY_END);
 
-    const handleTimeCheck = () => {
-      const now = Date.now();
-      setIsWeddingDay(now >= weddingDayStart && now < weddingDayEnd);
-
-      let activeIdx = -1;
-      for (let i = 0; i < itineraryTimings.length; i++) {
-        const eventTime = itineraryTimings[i].time;
-        const nextEventTime = itineraryTimings[i + 1]?.time || weddingDayEnd;
-        if (now >= eventTime && now < nextEventTime) {
-          activeIdx = i;
-          break;
-        }
-      }
-      setCurrentEventIndex(activeIdx);
-    };
+				let activeIdx = -1;
+				for (let i = 0; i < ITINERARY_TIMINGS.length; i++) {
+					const eventTime = ITINERARY_TIMINGS[i].time;
+					const nextEventTime = ITINERARY_TIMINGS[i + 1]?.time || WEDDING_DAY_END;
+					if (now >= eventTime && now < nextEventTime) {
+						activeIdx = i;
+						break;
+					}
+				}
+				setCurrentEventIndex(activeIdx);
+			};
 
     handleTimeCheck();
     const handleVisibilityChange = () => { if (document.visibilityState === 'visible') handleTimeCheck(); };
@@ -355,136 +341,6 @@ export default function WeddingPage() {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-  };
-
-  const refreshGallery = async () => {
-    try {
-      const res = await fetch('/api/gallery'); 
-      const data = await res.json();
-      const publicBaseUrl = "https://pub-24a198c3bcd44e7ab19fd37353cb5c07.r2.dev";
-      const rawImages = Array.isArray(data.images) ? data.images : [];
-
-      const parseKeyTimestamp = (key: string) => {
-        const match = key.match(/^(\d{13})_/);
-        return match ? parseInt(match[1], 10) : 0;
-      };
-
-      const sortedImages = [...rawImages].sort((a, b) => parseKeyTimestamp(b) - parseKeyTimestamp(a));
-
-      const itemsWithUrls = sortedImages.map((key: string) => {
-        const lowerKey = key.toLowerCase();
-        const isVideoFile = 
-          /\.(mp4|mov|m4v|webm|avi|mkv|3gp|flv|ogv|qt)(\?.*)?$/i.test(lowerKey) ||
-          lowerKey.includes('video') ||
-          lowerKey.includes('.mp4') || 
-          lowerKey.includes('.mov') ||
-          lowerKey.includes('.m4v') ||
-          lowerKey.includes('.webm');
-
-        return {
-          key,
-          url: `${publicBaseUrl}/${key}`,
-          type: isVideoFile ? 'video/mp4' : 'image/jpeg',
-          isVideo: isVideoFile 
-        };
-      });
-      setMediaGallery(itemsWithUrls);
-    } catch (err) {
-      console.error("Failed to refresh gallery:", err);
-    }
-  };
-
-  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
-
-      const filesArray = Array.from(files);
-      const totalBytes = filesArray.reduce((sum, file) => sum + file.size, 0);
-      let uploadedBytes = 0;
-      
-      setUploadError("");
-      setIsUploading(true);
-      setUploadProgress(0);
-      setUploadToast("");
-
-      const beforeUnload = (event: BeforeUnloadEvent) => {
-        event.preventDefault();
-        event.returnValue = "";
-      };
-      window.addEventListener('beforeunload', beforeUnload);
-
-      const newOptimisticFiles = filesArray.map((file) => {
-        const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|m4v|webm|avi|mkv)$/i.test(file.name);
-        return {
-          url: URL.createObjectURL(file),
-          type: file.type || (isVideo ? 'video/mp4' : 'image/jpeg'),
-          isVideo,
-          key: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        };
-      });
-
-      setMediaGallery((prev) => [...newOptimisticFiles, ...prev]);
-
-      const uploadSingleFile = (file: File) => {
-        return new Promise<string | null>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          const formData = new FormData();
-          formData.append("file", file);
-
-          xhr.open('POST', '/api/upload');
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = Math.round(((uploadedBytes + event.loaded) / totalBytes) * 100);
-              setUploadProgress(Math.min(100, progress));
-            }
-          };
-          xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              try {
-                const data = JSON.parse(xhr.responseText);
-                resolve(data.key ?? null);
-              } catch (parseError) {
-                resolve(null);
-              }
-            } else {
-              reject(new Error(`Upload failed for ${file.name}`));
-            }
-          };
-          xhr.onerror = () => reject(new Error(`Network error`));
-          xhr.send(formData);
-        });
-      };
-
-      try {
-        let hasUploadError = false;
-        for (const file of filesArray) {
-          try {
-            const key = await uploadSingleFile(file);
-            if (key) {
-              setMyUploadedKeys((prev) => {
-                const updated = [...prev, key];
-                localStorage.setItem("my_wedding_uploads", JSON.stringify(updated));
-                return updated;
-              });
-            }
-          } catch (uploadErr) {
-            hasUploadError = true;
-            setUploadError((prev) => prev || `Upload failed for ${file.name}.`);
-          } finally {
-            uploadedBytes += file.size;
-            setUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)));
-          }
-        }
-        await refreshGallery();
-        setUploadToast(hasUploadError ? "Upload finished with some errors." : "Uploads complete!");
-      } catch (error) {
-        setUploadError("Upload interrupted.");
-      } finally {
-        window.removeEventListener('beforeunload', beforeUnload);
-        setIsUploading(false);
-        setUploadProgress(0);
-        e.target.value = "";
-      }
   };
 
   const scrollToAnchor = (id: string) => {
@@ -609,30 +465,6 @@ export default function WeddingPage() {
       <Footer />
 
       {/* --- 4. Overlays & Modals --- */}
-      {showGalleryGrid && (
-        <FullGalleryModal 
-          mediaGallery={mediaGallery}
-          onClose={() => {
-            setShowGalleryGrid(false);
-            setIsDeleteMode(false);
-            setSelectedKeys([]);
-          }}
-          lightboxIndex={lightboxIndex}
-          setLightboxIndex={setLightboxIndex}
-          isDeleteMode={isDeleteMode}
-          setIsDeleteMode={setIsDeleteMode}
-          selectedKeys={selectedKeys}
-          setSelectedKeys={setSelectedKeys}
-          showDeleteModal={showDeleteModal}
-          setShowDeleteModal={setShowDeleteModal}
-          deleteStatus={deleteStatus}
-          setDeleteStatus={setDeleteStatus}
-          isDeleting={isDeleting}
-          setKeysToDelete={setKeysToDelete}
-          keysToDelete={keysToDelete}
-        />
-      )}
-
       {isRsvpOpen && (
         <RsvpSheetModal 
           onClose={() => setIsRsvpOpen(false)}

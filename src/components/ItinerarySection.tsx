@@ -68,13 +68,7 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
               <h2 className="text-2xl font-serif font-light text-[#4A433A] tracking-wide">Dress Code Guide</h2>
               <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-2" />
               <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
-                There is no strict dress code. We just want you here to celebrate with us! If you're looking for outfit ideas, here are some colors you can use as inspiration:
-              </p>
-              <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
                 Please feel free to wear whatever makes you feel comfortable and confident! For those who would like a little inspiration, here are a few soft, earthy tones that complement our wedding palette:
-              </p>
-              <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
-                Semi-formal attire is welcomed, but please wear whatever you feel best in! If you'd like color inspiration, feel free to use our suggested palette below:
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-6 pt-4 max-w-2xl mx-auto">
