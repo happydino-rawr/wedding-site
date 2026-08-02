@@ -14,11 +14,9 @@ import RsvpSection from '../components/RsvpSection';
 import HeroSection from '../components/HeroSection';
 import VinylVisualizerSection from '../components/VinylVisualizerSection';
 import OurStorySection from '../components/OurStorySection';
-import GalleryPreviewSection from '../components/GalleryPreviewSection';
 import Footer from '../components/Footer';
 
 // --- Modals & Overlays ---
-import FullGalleryModal from '../components/FullGalleryModal';
 import RsvpSheetModal from '../components/RsvpSheetModal';
 import FloatingActionMenu from '../components/FloatingActionMenu';
 
@@ -117,7 +115,6 @@ export default function WeddingPage() {
   // EFFECTS & LIFECYCLES
   // ============================================================================
   
-  // Initial Loads
   useEffect(() => {
     const saved = localStorage.getItem("my_wedding_uploads");
     if (saved) setMyUploadedKeys(JSON.parse(saved));
@@ -127,14 +124,12 @@ export default function WeddingPage() {
     if (session === "true") setIsAuthenticated(true);
   }, []);
 
-  // Toast Timer
   useEffect(() => {
     if (!uploadToast) return;
     const timer = window.setTimeout(() => setUploadToast(""), 4200);
     return () => window.clearTimeout(timer);
   }, [uploadToast]);
 
-  // Scroll Listeners
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > window.innerHeight * 0.8) {
@@ -148,7 +143,6 @@ export default function WeddingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Countdown Logic
   useEffect(() => {
     const updateCountdown = () => {
       const now = new Date();
@@ -167,7 +161,6 @@ export default function WeddingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Envelope Visibility & Responsiveness
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) setEnvelopeVisible(true);
@@ -225,7 +218,6 @@ export default function WeddingPage() {
     return () => window.removeEventListener('scroll', handleEnvelopeCheck);
   }, []);
 
-  // Audio Logic
   useEffect(() => {
     initAudio('/wedding_song.mp3');
     const handleInteraction = () => {
@@ -255,7 +247,7 @@ export default function WeddingPage() {
 
   useEffect(() => {
     const startMusic = () => {
-      const audioInstance = getAudio('/wedding_song.mp3'); // Fixed missing underscore from previous code
+      const audioInstance = getAudio('/wedding_song.mp3');
       if (audioInstance && audioInstance.paused) {
         audioInstance.currentTime = 6;
         audioInstance.play().catch(console.error);
@@ -271,7 +263,6 @@ export default function WeddingPage() {
     }
   }, []);
 
-  // Day-Of Tracker
   useEffect(() => {
     const weddingDayStart = new Date('2027-03-06T00:00:00').getTime();
     const weddingDayEnd = new Date('2027-03-07T00:00:00').getTime();
@@ -496,7 +487,6 @@ export default function WeddingPage() {
       }
   };
 
-  // UI Nav Handlers
   const scrollToAnchor = (id: string) => {
     const element = document.getElementById(id);
     if (element) element.scrollIntoView({ behavior: 'smooth' });
@@ -508,7 +498,7 @@ export default function WeddingPage() {
   };
 
   // ============================================================================
-  // CONDITIONAL RENDERING (Auth Gate & Day-of Layouts)
+  // CONDITIONAL RENDERING (Auth Gate)
   // ============================================================================
   
   if (!isAuthenticated) {
@@ -603,16 +593,18 @@ export default function WeddingPage() {
 
       <OurStorySection />
 
-      <GalleryPreviewSection 
-        mediaGallery={mediaGallery}
-        isUploading={isUploading}
-        uploadProgress={uploadProgress}
-        uploadError={uploadError}
-        uploadToast={uploadToast}
-        onUpload={handleMediaUpload}
-        onOpenFullGallery={() => setShowGalleryGrid(true)}
-        onSetLightboxIndex={setLightboxIndex}
-      />
+			<div className="py-20 text-center bg-[#FDFBF7]">
+			<h3 className="font-serif text-2xl text-[#4A433A] mb-4">Capture the Day</h3>
+      <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
+      <p className="text-[13px] text-[#7D7261] max-w-md mx-auto pt-4 mb-8 leading-relaxed">
+        Our story, seen through your eyes. Please upload your photos below to help us preserve every single moment of our special day.
+      </p>			<a
+				href="/share-gallery"
+				className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-all"
+			>
+				Open Shared Gallery
+			</a>
+			</div>
 
       <Footer />
 
@@ -627,7 +619,6 @@ export default function WeddingPage() {
           }}
           lightboxIndex={lightboxIndex}
           setLightboxIndex={setLightboxIndex}
-          // Pass down any delete state/functions your modal needs
           isDeleteMode={isDeleteMode}
           setIsDeleteMode={setIsDeleteMode}
           selectedKeys={selectedKeys}
