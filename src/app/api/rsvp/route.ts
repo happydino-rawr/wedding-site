@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// POST: Save or Update RSVP with case-insensitive duplicate handling
+// POST: Save or Update RSVP with strict cross-user duplicate blocking
 export async function POST(request: Request) {
   try {
     const { guests } = await request.json();
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No guest data provided" }, { status: 400 });
     }
 
-    // 1. Check for case-insensitive duplicates *within* the incoming submission payload itself
+    // 1. Check for duplicates *within* the incoming submission payload itself
     const seen = new Set();
     for (const g of guests) {
       const firstName = g.firstName?.trim().toLowerCase() || '';
@@ -32,25 +32,32 @@ export async function POST(request: Request) {
       seen.add(identifier);
     }
 
-    // 2. Check database for existing records case-insensitively using .ilike and lowercase email matching
+    // 2. Check database for existing records case-insensitively for EACH incoming guest
     for (const g of guests) {
       const firstName = g.firstName?.trim();
       const lastName = g.lastName?.trim();
       const email = g.email?.trim();
 
       if (firstName && lastName && email) {
-        const { data: existingRsvp } = await supabase
+        // Query database using case-insensitive matching (.ilike)
+        // We check if a row already exists with this exact name and email combination
+        const { data: existingRsvps, error: searchError } = await supabase
           .from('rsvp_list')
           .select('*')
           .ilike('first_name', firstName)
           .ilike('last_name', lastName)
-          .ilike('email', email)
-          .maybeSingle();
+          .ilike('email', email);
 
-        if (existingRsvp) {
+        if (searchError) {
+          console.error("Supabase search error:", searchError);
+          return NextResponse.json({ error: searchError.message }, { status: 500 });
+        }
+
+        // If any matching record is found in the database, block it immediately
+        if (existingRsvps && existingRsvps.length > 0) {
           return NextResponse.json(
             { 
-              error: `An RSVP for ${firstName} ${lastName} (${email}) already exists in our system (regardless of capitalization). Please use the lookup tool below to search and edit your existing response instead of creating a duplicate.` 
+              error: `An RSVP for ${firstName} ${lastName} (${email}) already exists in our system. Please use the lookup tool below to search and edit your existing response instead of creating a duplicate.` 
             }, 
             { status: 409 }
           );
@@ -58,6 +65,7 @@ export async function POST(request: Request) {
       }
     }
 
+    // 3. If no duplicates are found anywhere, proceed with the insert
     const payload = guests.map((g: any) => ({
       first_name: g.firstName.trim(),
       last_name: g.lastName.trim(),

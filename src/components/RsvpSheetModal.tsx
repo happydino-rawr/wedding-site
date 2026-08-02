@@ -31,7 +31,7 @@ export default function RsvpSheetModal({
   const [isDuplicateError, setIsDuplicateError] = useState(false);
 
   if (!isOpen) return null;
-  
+
   const handleLookupRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
@@ -332,18 +332,26 @@ export default function RsvpSheetModal({
                     <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">
                       Attendance Option <span className="text-[#BE185D]">*</span>
                     </label>
-                    <select
-                      value={guest.attending}
-                      onChange={(e) => handleUpdateGuest(guest.id, "attending", e.target.value)}
-                      required
-                      disabled={isCutoffPassed}
-                      className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
-                    >
-                      <option value="" disabled>Please select an option...</option>
-                      <option value="Attending both ceremony and reception">Attending both ceremony and reception</option>
-                      <option value="Reception only">Reception only</option>
-                      <option value="Declining">Regretfully declining</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={guest.attending}
+                        onChange={(e) => handleUpdateGuest(guest.id, "attending", e.target.value)}
+                        required
+                        disabled={isCutoffPassed}
+                        className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880] appearance-none cursor-pointer pr-8"
+                      >
+                        <option value="" disabled className="text-[#7D7261] bg-[#FDFBF7]">Please select an option...</option>
+                        <option value="Attending both ceremony and reception" className="bg-[#FDFBF7]">Attending both ceremony and reception</option>
+                        <option value="Reception only" className="bg-[#FDFBF7]">Reception only</option>
+                        <option value="Declining" className="bg-[#FDFBF7]">Regretfully declining</option>
+                      </select>
+                      {/* Custom subtle dropdown arrow matching your theme */}
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#C5A880]">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
 
                   {guest.attending !== 'Declining' && guest.attending !== '' && (
