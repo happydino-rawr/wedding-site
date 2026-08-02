@@ -125,6 +125,13 @@ export default function ShareGalleryPage() {
   const handleBatchDelete = async () => {
     if (isDeleting) return;
 
+    // Security check: Ensure all keys to delete belong to the user's uploaded keys
+    const unauthorizedKeys = keysToDelete.filter((key) => !_myUploadedKeys.includes(key));
+    if (unauthorizedKeys.length > 0) {
+      alert("You do not have permission to delete photos uploaded by other guests.");
+      return;
+    }
+
     setIsDeleting(true);
     setDeleteStatus('deleting');
     try {
