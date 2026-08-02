@@ -37,7 +37,7 @@ export interface Guest {
   id: number;
   firstName: string;
   lastName: string;
-  attending: string;
+  attending: 'Attending both ceremony and reception' | 'Reception only' | 'Declining' | '';
   email: string;
   dietary: string;
 }

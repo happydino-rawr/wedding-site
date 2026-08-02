@@ -1,6 +1,7 @@
-import React from 'react';
-import { X, Check, Edit2, Plus, Info } from 'lucide-react';
-import { Guest } from '../app/page';
+"use client";
+import React, { useState } from 'react';
+import { X, Plus, Trash2, Check, Search, ArrowLeft } from 'lucide-react';
+import type { Guest } from '../app/page';
 
 interface RsvpSheetModalProps {
   onClose: () => void;
@@ -8,7 +9,7 @@ interface RsvpSheetModalProps {
   guestsList: Guest[];
   setGuestsList: React.Dispatch<React.SetStateAction<Guest[]>>;
   isEditing: boolean;
-  setIsEditing: (val: boolean) => void;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function RsvpSheetModal({
@@ -19,198 +20,352 @@ export default function RsvpSheetModal({
   isEditing,
   setIsEditing,
 }: RsvpSheetModalProps) {
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [viewMode, setViewMode] = useState<'form' | 'lookup'>('form');
+  const [isSearching, setIsSearching] = useState(false);
+  const [lookupName, setLookupName] = useState({ firstName: '', lastName: '' });
+
+  const handleLookupRsvp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSearching(true);
+
+    try {
+      const res = await fetch(`/api/rsvp?firstName=${encodeURIComponent(lookupName.firstName)}&lastName=${encodeURIComponent(lookupName.lastName)}`);
+      const data = await res.json();
+
+      if (res.ok && data.found) {
+        setGuestsList(data.guests);
+        setIsSubmitted(true);
+        setIsEditing(false);
+        setViewMode('form');
+      } else {
+        alert("We couldn't find an RSVP matching that name. Please submit a new RSVP below.");
+        setViewMode('form');
+      }
+    } catch (err) {
+      console.error("Lookup error:", err);
+      alert("An error occurred during lookup. Please try again.");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleUpdateGuest = (id: number, field: keyof Guest, value: string) => {
+    setGuestsList((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, [field]: value } : g))
+    );
+    setIsEditing(true);
+  };
 
   const handleAddFamilyMember = () => {
     setIsEditing(true);
-    setGuestsList([
-      ...guestsList,
-      { id: Date.now() + Math.random(), firstName: "", lastName: "", email: "", attending: "Attending", dietary: "" }
+    setGuestsList((prev) => [
+      ...prev,
+      {
+        id: Date.now() + Math.random(),
+        firstName: "",
+        lastName: "",
+        email: "",
+        attending: "",
+        dietary: "",
+      },
     ]);
   };
 
-  const handleUpdateGuest = (id: number, field: string, value: string) => {
-    setGuestsList(prev => prev.map(g => g.id === id ? { ...g, [field]: value } : g));
-  };
-
   const handleRemoveGuest = (id: number) => {
-    setGuestsList(prev => prev.filter(g => g.id !== id));
+    if (guestsList.length === 1) return;
+    setIsEditing(true);
+    setGuestsList((prev) => prev.filter((g) => g.id !== id));
   };
 
-  const handleSaveRsvp = (e: React.FormEvent) => {
+  const handleSubmitToSupabase = async (e: React.FormEvent) => {
     e.preventDefault();
-    const invalid = guestsList.some(g => {
-      const fn = !g.firstName || !g.firstName.trim();
-      const ln = !g.lastName || !g.lastName.trim();
-      const em = !g.email || !/^\S+@\S+\.\S+$/.test(g.email);
-      return fn || ln || em;
-    });
-    if (invalid) {
-      alert("Please fill first name, last name, and a valid email for all guests, or remove the empty entry.");
-      return;
+    try {
+      const res = await fetch('/api/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guests: guestsList }),
+      });
+
+      if (res.ok) {
+        setIsSubmitted(true);
+        setIsEditing(false);
+      } else {
+        alert("Failed to save RSVP. Please try again.");
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("An error occurred while saving your RSVP.");
     }
-    setIsEditing(false);
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden flex items-end justify-center bg-black/50 backdrop-blur-md transition-all duration-300">
-      <div className="w-full max-w-2xl bg-[#FDFBF7] rounded-t-sm shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#FDFBF7] border border-[#EADCC9] max-w-xl w-full rounded-sm p-6 sm:p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
         
-        <div className="p-6 bg-[#FAF6F0] border-b border-[#EADCC9] flex justify-between items-center">
-          <div>
-            <h3 className="text-2xl font-serif font-light text-[#4A433A]">RSVP Portal</h3>
-            <p className="text-[10px] text-[#C5A880] uppercase tracking-widest mt-1 font-semibold">DEADLINE: NOV 30, 2026</p>
-          </div>
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center text-[#7D7261] hover:text-black transition-all">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+        {/* Close Button */}
+        <button 
+          onClick={onClose} 
+          className="absolute top-5 right-5 z-20 text-[#7D7261] hover:text-[#4A433A] transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 bg-white">
-          {isCutoffPassed ? (
-            <div className="bg-red-50 border border-red-200 p-6 rounded-sm text-center space-y-3">
-              <p className="text-sm text-red-800 font-serif leading-relaxed">
-                The online RSVP deadline has officially closed. All seating charts have frozen.
-              </p>
+        {/* --- VIEW 1: LOOKUP SCREEN --- */}
+        {viewMode === 'lookup' ? (
+          <div className="space-y-6 py-4">
+            <div className="sticky top-0 bg-[#FDFBF7] pt-2 pb-4 z-10 border-b border-[#EADCC9]/40 text-center space-y-2">
+              <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Welcome Back</span>
+              <h2 className="text-2xl font-serif font-light text-[#4A433A]">Look Up Your RSVP</h2>
+              <div className="w-8 h-[1px] bg-[#C5A880] mx-auto" />
+              <p className="text-xs text-[#7D7261] pt-1">Enter your name to view or update your existing response.</p>
             </div>
-          ) : (
-            <>
-              {!isEditing && guestsList.length > 0 ? (
-                <div className="space-y-8">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center pb-2 border-b border-[#EADCC9]">
-                      <span className="text-sm font-serif text-[#4A433A] flex items-center gap-2">
-                        <Check className="w-4 h-4 text-[#C5A880]" />
-                        <span>Registered Guests</span>
-                      </span>
-                    </div>
 
-                    <div className="space-y-4">
-                      {guestsList.map((guest) => (
-                        <div key={guest.id} className="bg-[#FAF6F0] p-5 rounded-sm border border-[#EADCC9]/50 shadow-sm">
-                          <h4 className="font-serif text-lg text-[#4A433A] mb-3">
-                            {guest.firstName || "Unnamed"} {guest.lastName || "Guest"}
-                          </h4>
-                          <div className="grid grid-cols-2 gap-4 text-xs text-[#7D7261]">
-                            <div>
-                              <span className="block text-[9px] uppercase tracking-widest text-[#C5A880] mb-1">Status</span> 
-                              {guest.attending}
-                            </div>
-                            {guest.dietary && (
-                              <div>
-                                <span className="block text-[9px] uppercase tracking-widest text-[#C5A880] mb-1">Dietary</span> 
-                                {guest.dietary}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+            <form onSubmit={handleLookupRsvp} className="space-y-4 max-w-md mx-auto pt-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">First Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={lookupName.firstName}
+                    onChange={(e) => setLookupName({ ...lookupName, firstName: e.target.value })}
+                    className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Last Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={lookupName.lastName}
+                    onChange={(e) => setLookupName({ ...lookupName, lastName: e.target.value })}
+                    className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
+                  />
+                </div>
+              </div>
 
-                    <div className="pt-6">
+              <button
+                type="submit"
+                disabled={isSearching}
+                className="w-full py-3 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-all flex items-center justify-center gap-2"
+              >
+                <Search className="w-4 h-4" /> {isSearching ? 'Searching...' : 'Find My RSVP'}
+              </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('form')}
+                  className="text-sm font-medium text-[#7D7261] underline hover:text-[#4A433A] flex items-center justify-center gap-1 mx-auto"
+                >
+                  <ArrowLeft className="w-3 h-3" /> Back to RSVP Form
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : isSubmitted && !isEditing ? (
+          /* --- VIEW 2: CONFIRMED RESULTS SCREEN --- */
+          <div className="space-y-6 text-center py-4">
+            <div className="sticky top-0 bg-[#FDFBF7] pt-2 pb-4 z-10 border-b border-[#EADCC9]/40 space-y-2">
+              <div className="w-10 h-10 bg-[#C5A880]/20 rounded-full flex items-center justify-center mx-auto text-[#C5A880]">
+                <Check className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Thank You</span>
+              <h2 className="text-2xl font-serif font-light text-[#4A433A] mt-1">Your RSVP is Confirmed</h2>
+            </div>
+
+            <p className="text-xs text-[#7D7261]">Here are the details registered for our celebration:</p>
+
+            <div className="space-y-3 text-left max-w-md mx-auto bg-[#FAF8F5] p-4 rounded-sm border border-[#EADCC9]">
+              {guestsList.map((guest, idx) => (
+                <div key={guest.id || idx} className="border-b border-[#EADCC9] pb-3 last:border-0 last:pb-0">
+                  <p className="font-semibold text-sm text-[#4A433A]">
+                    {guest.firstName} {guest.lastName}
+                  </p>
+                  <p className="text-xs text-[#C5A880] mt-0.5">{guest.attending}</p>
+                  {guest.dietary && (
+                    <p className="text-[11px] text-[#7D7261] mt-1">Dietary: {guest.dietary}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-3 justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="px-6 py-2.5 text-xs uppercase tracking-[0.2em] rounded-sm border border-[#C5A880] text-[#5C5346] hover:bg-[#C5A880] hover:text-white transition-all"
+              >
+                Edit RSVP
+              </button>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setViewMode('lookup')}
+                className="text-sm font-medium text-[#7D7261] underline hover:text-[#4A433A]"
+              >
+                Need to check or update an existing response? Search here
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* --- VIEW 3: RSVP INPUT / EDIT FORM (DEFAULT) --- */
+          <form onSubmit={handleSubmitToSupabase} className="space-y-6">
+            
+            {/* Sticky Header Section */}
+            <div className="sticky top-0 bg-[#FDFBF7] pt-2 pb-4 z-10 border-b border-[#EADCC9]/60 text-center space-y-2">
+              <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Join Our Celebration</span>
+              <h2 className="text-2xl font-serif font-light text-[#4A433A]">RSVP Form</h2>
+              <div className="w-8 h-[1px] bg-[#C5A880] mx-auto" />
+            </div>
+
+            {isCutoffPassed && (
+              <div className="bg-[#FAF0F0] border border-[#E5B8B8] p-3 text-xs text-[#8C3A3A] text-center rounded-sm">
+                The RSVP deadline has passed. Please contact the couple directly for any changes.
+              </div>
+            )}
+
+            <div className="space-y-6 pt-2">
+              {guestsList.map((guest, index) => (
+                <div key={guest.id} className="p-4 bg-[#FAF8F5] border border-[#EADCC9] rounded-sm space-y-4 relative">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">
+                      Guest {index + 1}
+                    </span>
+                    {guestsList.length > 1 && (
                       <button
-                        onClick={() => setIsEditing(true)}
-                        className="w-full py-4 border border-[#C5A880] text-[#C5A880] rounded-sm text-xs font-semibold tracking-widest uppercase hover:bg-[#FAF6F0] transition-all flex items-center justify-center gap-2"
+                        type="button"
+                        onClick={() => handleRemoveGuest(guest.id)}
+                        className="text-[#BE123C] hover:opacity-75 text-xs flex items-center gap-1"
                       >
-                        <Edit2 className="w-4 h-4" />
-                        <span>Edit details / Add family</span>
+                        <Trash2 className="w-3.5 h-3.5" /> Remove
                       </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">First Name *</label>
+                      <input
+                        type="text"
+                        required
+                        disabled={isCutoffPassed}
+                        value={guest.firstName}
+                        onChange={(e) => handleUpdateGuest(guest.id, "firstName", e.target.value)}
+                        className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
+                        placeholder="First name"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Last Name *</label>
+                      <input
+                        type="text"
+                        required
+                        disabled={isCutoffPassed}
+                        value={guest.lastName}
+                        onChange={(e) => handleUpdateGuest(guest.id, "lastName", e.target.value)}
+                        className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
+                        placeholder="Last name"
+                      />
                     </div>
                   </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSaveRsvp} className="space-y-10">
-                  {guestsList.map((guest, index) => (
-                    <div key={guest.id} className="bg-white pb-8 border-b border-[#EADCC9] space-y-6 relative last:border-b-0">
-                      <div className="flex justify-between items-center pb-3">
-                        <span className="text-xs font-serif font-semibold text-[#4A433A]">Guest {index + 1}</span>
-                        {guestsList.length > 1 && (
-                          <button type="button" onClick={() => handleRemoveGuest(guest.id)} className="text-[10px] text-[#BE123C] uppercase tracking-widest font-semibold">
-                            Remove
-                          </button>
-                        )}
-                      </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">First Name <span className="text-[#BE123C]">*</span></label>
-                          <input
-                            type="text"
-                            value={guest.firstName}
-                            onChange={(e) => handleUpdateGuest(guest.id, "firstName", e.target.value)}
-                            className="w-full px-1 py-2 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">Last Name <span className="text-[#BE123C]">*</span></label>
-                          <input
-                            type="text"
-                            value={guest.lastName}
-                            onChange={(e) => handleUpdateGuest(guest.id, "lastName", e.target.value)}
-                            className="w-full px-1 py-2 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
-                            required
-                          />
-                        </div>
-                      </div>
+                  <div>
+                    <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      disabled={isCutoffPassed}
+                      value={guest.email}
+                      onChange={(e) => handleUpdateGuest(guest.id, "email", e.target.value)}
+                      className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">Email <span className="text-[#BE123C]">*</span></label>
-                        <input
-                          type="email"
-                          value={guest.email}
-                          onChange={(e) => handleUpdateGuest(guest.id, "email", e.target.value)}
-                          className="w-full px-1 py-2 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
-                          required
-                        />
-                      </div>
+                  <div>
+                    <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">
+                      Attendance Option <span className="text-[#BE185D]">*</span>
+                    </label>
+                    <select
+                      value={guest.attending}
+                      onChange={(e) => handleUpdateGuest(guest.id, "attending", e.target.value)}
+                      required
+                      disabled={isCutoffPassed}
+                      className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
+                    >
+                      <option value="" disabled>Please select an option...</option>
+                      <option value="Attending both ceremony and reception">Attending both ceremony and reception</option>
+                      <option value="Reception only">Reception only</option>
+                      <option value="Declining">Regretfully declining</option>
+                    </select>
+                  </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">Attendance</label>
-                        <select
-                          value={guest.attending}
-                          onChange={(e) => handleUpdateGuest(guest.id, "attending", e.target.value)}
-                          className="w-full px-1 py-2 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
-                        >
-                          <option value="Attending">Joyfully Attending</option>
-                          <option value="Declining">Regretfully Declining</option>
-                        </select>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">Dietary Requirements</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Vegetarian, None"
-                          value={guest.dietary}
-                          onChange={(e) => handleUpdateGuest(guest.id, "dietary", e.target.value)}
-                          className="w-full px-1 py-2 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
-                        />
-                      </div>
+                  {guest.attending !== 'Declining' && guest.attending !== '' && (
+                    <div>
+                      <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Dietary Requirements</label>
+                      <input
+                        type="text"
+                        disabled={isCutoffPassed}
+                        value={guest.dietary}
+                        onChange={(e) => handleUpdateGuest(guest.id, "dietary", e.target.value)}
+                        className="w-full px-2 py-1.5 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
+                        placeholder="e.g. Vegetarian, Allergies"
+                      />
                     </div>
-                  ))}
+                  )}
+                </div>
+              ))}
+            </div>
 
-                  <div className="space-y-4 pt-2">
+            {!isCutoffPassed && (
+              <button
+                type="button"
+                onClick={handleAddFamilyMember}
+                className="w-full py-2.5 border border-dashed border-[#C5A880] text-xs uppercase tracking-[0.2em] text-[#C5A880] hover:bg-[#C5A880]/10 transition-all flex items-center justify-center gap-2 rounded-sm"
+              >
+                <Plus className="w-4 h-4" /> Add Family Member / Plus One
+              </button>
+            )}
+
+            {!isCutoffPassed && (
+              <div className="space-y-3 pt-2">
+                <div className="flex gap-3">
+                  {isSubmitted && (
                     <button
                       type="button"
-                      onClick={handleAddFamilyMember}
-                      className="w-full py-4 bg-white border border-dashed border-[#C5A880] text-[#C5A880] rounded-sm text-xs font-semibold tracking-widest uppercase hover:bg-[#FAF6F0] transition-all flex items-center justify-center gap-2"
+                      onClick={() => setIsEditing(false)}
+                      className="w-1/2 py-3 text-xs uppercase tracking-[0.2em] border border-[#EADCC9] bg-white text-[#5C5346] rounded-sm"
                     >
-                      <Plus className="w-4 h-4" />
-                      <span>Add Family Member</span>
+                      Cancel
                     </button>
+                  )}
+                  <button
+                    type="submit"
+                    className={`${isSubmitted ? 'w-1/2' : 'w-full'} py-3 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-all`}
+                  >
+                    Confirm & Submit RSVP
+                  </button>
+                </div>
 
-                    <button
-                      type="submit"
-                      className="w-full py-5 bg-[#C5A880] hover:bg-[#B3966E] text-white font-semibold tracking-[0.2em] text-sm uppercase rounded-sm shadow-md transition-all"
-                    >
-                      Save Reservations
-                    </button>
-                  </div>
-                </form>
-              )}
-            </>
-          )}
-        </div>
+                {/* Updated Lookup Link at the Bottom */}
+                <div className="text-center pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('lookup')}
+                    className="text-sm font-medium text-[#7D7261] underline hover:text-[#4A433A]"
+                  >
+                    Need to check or update an existing response? Search here
+                  </button>
+                </div>
+              </div>
+            )}
+          </form>
+        )}
+
       </div>
     </div>
   );
