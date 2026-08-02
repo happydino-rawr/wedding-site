@@ -1,40 +1,82 @@
-<<<<<<< HEAD
-# wedding-site
-=======
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project README: Wedding Website & RSVP Application
+
+Welcome to the Wedding Website & RSVP Application codebase! This project is a modern, responsive web application built with Next.js, styled with Tailwind CSS, and backed by Supabase for secure data storage. It features interactive guest management, digital photo galleries, and streamlined RSVP tracking.
+
+---
 
 ## Getting Started
 
+This is a Next.js project bootstrapped with create-next-app.
+
 First, run the development server:
 
-```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This project uses next/font to automatically optimize and load Geist, a new font family for Vercel.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Tech Stack & Architecture
 
-To learn more about Next.js, take a look at the following resources:
+* Frontend Framework: Next.js (React) utilizing the App Router architecture.
+* Styling: Tailwind CSS for a custom, elegant wedding aesthetic.
+* Database & Backend Services: Supabase (PostgreSQL) handling guest records and RSVP API queries.
+* Icons & UI Enhancements: lucide-react for icons and custom modals.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Codebase Structure & Component Breakdown
 
-## Deploy on Vercel
+### 1. Root & Configuration Files
+* app/page.tsx: The primary landing page component that orchestrates all major sections of the website (hero banner, countdown timers, itinerary, story sections, and galleries).
+* app/api/rsvp/route.ts: The backend API route responsible for handling Supabase database interactions:
+  * POST: Takes guest form submissions and inserts or updates records in the database table.
+  * GET: Looks up existing guest RSVPs by matching first and last names dynamically.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 2. Core UI Components (src/components/)
+* RsvpSheetModal.tsx: A comprehensive modal component managing the interactive guest RSVP lifecycle. It supports:
+  * Multi-View State: Toggles dynamically between the primary RSVP submission form, the guest lookup screen, and the confirmation summary screen.
+  * Dynamic Guest Management: Allows guests to add or remove family members and plus-ones dynamically.
+  * Sticky Header & Close Controls: Features a sticky header bar containing the title and a high-positioned close button (X) to ensure seamless navigation while scrolling long forms.
+* AuthGate.tsx: Manages passcode protection or access control for private sections of the website.
+* CountdownSection.tsx: Displays a live countdown timer ticking down to the wedding date.
+* FadeInSection.tsx: Provides smooth scroll-triggered animation wrappers for content sections.
+* FloatingActionMenu.tsx: Quick-access floating controls for navigating the site or opening primary actions (like RSVP).
+* Footer.tsx: Bottom page section containing closing notes, credits, and links.
+* HeroSection.tsx: The prominent introductory banner featuring the couple's names and primary event dates.
+* InvitationEnvelope.tsx: An interactive digital invitation opening animation simulating unsealing an envelope.
+* ItinerarySection.tsx: Outlines the schedule of events (ceremony, reception, times, and locations).
+* OurStorySection.tsx: Displays the couple's history, milestone photos, and relationship timeline.
+* ReceptionVenueSection.tsx: Details the venue location maps, parking instructions, and accommodation options.
+* RsvpSection.tsx: The trigger section allowing guests to open the RSVP modal or look up previous responses.
+* VinylVisualizerSection.tsx: An interactive music player / lo-fi visualizer element built into the site experience.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
->>>>>>> 56762e8 (Initial commit)
+---
+
+## Database Schema (Supabase)
+
+The application interacts with a Supabase PostgreSQL table named rsvp_list with the following schema structure:
+* id: uuid (Primary key, auto-generated)
+* created_at: timestamptz (Timestamp of creation)
+* first_name: text (Guest's first name)
+* last_name: text (Guest's last name)
+* email: text (Guest's contact email address)
+* attending: text (Attendance option selected, e.g., ceremony/reception choices or declining)
+* dietary_requirements: text (Special dietary notes or allergies)
+
+---
+
+## Building & Deployment
+
+### Ensuring a Successful Deployment (No Compile Errors)
+Before pushing to production or deploying to platforms like Vercel, you must run the production build command locally to catch any TypeScript type errors, syntax issues, or missing variables:
+
+npm run build
+
+If the build passes completely without errors, your app is safe to deploy. If any compilation or type errors occur during this step, resolve them immediately before deploying.
+
+### Deploy on Vercel
+The easiest way to deploy your Next.js app is to use the Vercel Platform from the creators of Next.js.
+

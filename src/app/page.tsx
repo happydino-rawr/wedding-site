@@ -64,7 +64,7 @@ export default function WeddingPage() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   
   // Gallery State
-  const [showGalleryGrid, setShowGalleryGrid] = useState(false);
+  const [showGalleryGrid] = useState(false);
   const [_myUploadedKeys, setMyUploadedKeys] = useState<string[]>([]);
   const [uploadToast, setUploadToast] = useState<string>("");
 
