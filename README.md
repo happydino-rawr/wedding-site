@@ -68,6 +68,17 @@ The application interacts with a Supabase PostgreSQL table named rsvp_list with 
 
 ---
 
+## Cloudflare Integration & Storage
+
+The application utilizes **Cloudflare** (specifically Cloudflare R2 or Worker-backed image storage) to handle media uploads securely and efficiently for the digital photo gallery. 
+
+### How It Works
+* **Direct Uploads / Routing:** When guests upload photos or media mixes through the gallery interface, the assets route directly through Cloudflare infrastructure to ensure low latency and high availability.
+* **Asset Keys & Tracking:** Uploaded assets are assigned unique storage keys. The frontend tracks these user uploads locally (via storage keys) to manage permissions, ownership, and batch deletion functionality securely.
+* **Edge Delivery:** Media files are served globally via Cloudflare's edge network, ensuring fast load times for wedding guests accessing the site from various locations.
+
+---
+
 ## Building & Deployment
 
 ### Ensuring a Successful Deployment (No Compile Errors)
