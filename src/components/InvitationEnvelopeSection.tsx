@@ -158,6 +158,8 @@ export default function InvitationEnvelopeSection({
             <div className="w-12 h-[1px] bg-[#EADCC9]/40 mx-auto my-3" />
             <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Ceremony</span>
             <p className="font-serif text-xl md:text-2xl text-[#4A433A]">{weddingInfo.ceremonyTime}</p>
+            <span className="mt-5 text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Reception</span>
+            <p className="font-serif text-xl md:text-2xl text-[#4A433A]">{weddingInfo.receptionTime}</p>
           </div>
         </div>
 
