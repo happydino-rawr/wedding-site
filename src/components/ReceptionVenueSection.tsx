@@ -96,7 +96,7 @@ export default function ReceptionVenueSection({ receptionName, receptionAddress 
             <Info className="w-6 h-6 text-[#C5A880] mx-auto" />
             <h4 className="font-serif font-light text-xl text-[#4A433A]">Rail Transit</h4>
             <p className="text-xs text-[#7D7261] leading-relaxed">
-              10 minute walk from Canley Vale Station.
+              10 minute walk from Cabramatta and Canley Vale Station.
             </p>
           </div>
         </div>

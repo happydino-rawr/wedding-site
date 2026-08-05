@@ -27,7 +27,6 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
 
             <div className="space-y-12 relative z-10">
               {[
-                { time: weddingInfo.ceremonyTime, title: 'Tea Ceremony', desc: 'A heartfelt welcome before the celebration begins.' },
                 { time: '1:30 PM', title: 'Guest Arrival', desc: `Arrive early at ${weddingInfo.ceremonyName} and settle in before the ceremony.` },
                 { time: weddingInfo.ceremonyTime, title: 'The Ceremony', desc: `Join us at ${weddingInfo.ceremonyName} as we exchange our vows.` },
                 { time: '3:30 PM', title: 'Travel & Rest', desc: 'A short break to transition before the evening celebration.' },
@@ -68,7 +67,7 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
               <h2 className="text-2xl font-serif font-light text-[#4A433A] tracking-wide">Dress Code Guide</h2>
               <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-2" />
               <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
-                Please feel free to wear whatever makes you feel comfortable and confident! For those who would like a little inspiration, here are a few soft, earthy tones that complement our wedding palette:
+                We kindly invite you to dress in formal attire for our celebration. Please feel free to wear whatever makes you feel comfortable and confident! For those who'd like a little inspiration, here are a few soft, earthy tones that complement our wedding palette:
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-6 pt-4 max-w-2xl mx-auto">

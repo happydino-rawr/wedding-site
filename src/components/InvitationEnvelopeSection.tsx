@@ -10,7 +10,7 @@ export interface WeddingInfo {
   receptionAddress: string;
   ceremonyTime: string;
   receptionTime: string;
-  eventDateLabel: string;
+  eventDayOfWeek: string;
   eventDateShort: string;
   calendarTitle?: string;
   calendarDescription?: string;
@@ -153,11 +153,13 @@ export default function InvitationEnvelopeSection({
             <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Date</span>
             <div className="space-y-3">
               <p className="font-serif text-lg md:text-xl tracking-wider text-[#4A433A]">{weddingInfo.eventDateShort}</p>
-              <p className="text-xs md:text-sm text-[#7D7261]">{weddingInfo.eventDateLabel}</p>
+              <p className="text-xs md:text-sm text-[#7D7261]">{weddingInfo.eventDayOfWeek}</p>
             </div>
             <div className="w-12 h-[1px] bg-[#EADCC9]/40 mx-auto my-3" />
             <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Ceremony</span>
             <p className="font-serif text-xl md:text-2xl text-[#4A433A]">{weddingInfo.ceremonyTime}</p>
+            <span className="mt-5 text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Reception</span>
+            <p className="font-serif text-xl md:text-2xl text-[#4A433A]">{weddingInfo.receptionTime}</p>
           </div>
         </div>
 
