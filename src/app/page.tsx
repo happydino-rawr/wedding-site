@@ -93,7 +93,7 @@ export default function WeddingPage() {
     receptionAddress: '1 Bartley Street, Canley Vale NSW 2166',
     ceremonyTime: '2:00 PM',
     receptionTime: '6:30 PM',
-    eventDateLabel: 'Saturday, 6 March 2027',
+    eventDayOfWeek: 'Saturday',
     eventDateShort: '06·03·2027',
     calendarTitle: "Jessica & William's Wedding",
     calendarDescription: 'Please join us for our wedding ceremony and reception. Kindly bring your ID for venue entry.',
