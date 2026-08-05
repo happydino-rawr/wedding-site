@@ -16,7 +16,7 @@ export default function RsvpSection({ onOpenRsvp, deadlineLabel }: RsvpSectionPr
 
           <div className="space-y-3">
             <h2 className="font-serif text-3xl sm:text-4xl text-[#4A433A] tracking-wide">
-              Répondez s'il vous plaît
+              RSVP
             </h2>
             <div className="w-12 sm:w-16 h-[1px] bg-[#C5A880] mx-auto" />
           </div>
