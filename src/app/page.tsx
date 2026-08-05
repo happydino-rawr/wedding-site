@@ -305,42 +305,9 @@ export default function WeddingPage() {
   };
 
   const handleAddToCalendar = () => {
-    const title = `${weddingInfo.calendarTitle} (Please bring your ID)`;
-    const description = `${weddingInfo.calendarDescription}\nPlease RSVP and check the details on our wedding website.`;
-    const location = weddingInfo.calendarLocation;
-
-    const formatIcsDate = (date: Date) => {
-      const pad = (value: number) => String(value).padStart(2, '0');
-      return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
-    };
-
-    const startTime = formatIcsDate(WEDDING_DATE);
-    const endTime = formatIcsDate(new Date(WEDDING_DATE.getTime() + 6 * 60 * 60 * 1000));
-
-    const icsContent = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//Jessica and William Wedding//EN",
-      "BEGIN:VEVENT",
-      `SUMMARY:${title}`,
-      `DESCRIPTION:${description}`,
-      `LOCATION:${location}`,
-      `DTSTART:${startTime}`,
-      `DTEND:${endTime}`,
-      "STATUS:CONFIRMED",
-      "END:VEVENT",
-      "END:VCALENDAR",
-    ].join("\r\n");
-
-    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "Jessica-and-William-Wedding.ics");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    // iOS Safari does not consistently honour Blob URL downloads. Navigating to
+    // a server-served calendar file lets it hand the event to Apple Calendar.
+    window.location.assign("/calendar.ics");
   };
 
   const scrollToAnchor = (id: string) => {
