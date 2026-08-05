@@ -27,7 +27,6 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
 
             <div className="space-y-12 relative z-10">
               {[
-                { time: weddingInfo.ceremonyTime, title: 'Tea Ceremony', desc: 'A heartfelt welcome before the celebration begins.' },
                 { time: '1:30 PM', title: 'Guest Arrival', desc: `Arrive early at ${weddingInfo.ceremonyName} and settle in before the ceremony.` },
                 { time: weddingInfo.ceremonyTime, title: 'The Ceremony', desc: `Join us at ${weddingInfo.ceremonyName} as we exchange our vows.` },
                 { time: '3:30 PM', title: 'Travel & Rest', desc: 'A short break to transition before the evening celebration.' },
