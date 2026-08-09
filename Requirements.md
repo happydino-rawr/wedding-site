@@ -24,7 +24,7 @@ This document outlines the complete architectural design, data flow, user interf
 * **Storage**: Upon successful entry, a session token (`wedding_session_token: "true"`) must be stored in the browser's `localStorage` to bypass the gate on page refreshes or return visits.
 
 ### 2.2. Automated Audio Controls
-* **Requirement**: Ambient background music (`/wedding_song.mp3`) plays during the user session.
+* **Requirement**: Ambient background music (`/enchanted_sam_yung.mp3`) plays during the user session.
 * **Interaction**: Playback must only trigger upon the visitor's first DOM interaction (click/scroll) to comply with modern browser autoplay policies. Global pause/play toggle states must be accessible in the main hero section and a floating action menu.
 
 ### 2.3. Dynamic "Day-Of" Mode Switch
