@@ -1,5 +1,4 @@
 import { Clock, Info, MapPin, Navigation } from 'lucide-react';
-import { COUPLE_PHOTOS } from '../lib/constants';
 
 interface CeremonyVenueSectionProps {
   ceremonyName: string;
