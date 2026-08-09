@@ -1,5 +1,4 @@
 import { Clock, Info, MapPin, Navigation } from 'lucide-react';
-import { COUPLE_PHOTOS } from '../lib/constants';
 
 interface CeremonyVenueSectionProps {
   ceremonyName: string;
@@ -50,14 +49,6 @@ export default function CeremonyVenueSection({ ceremonyName, ceremonyAddress }: 
         </a>
       </div>
       </section>
-
-      <div className="w-full max-w-4xl mx-auto px-4 my-8 sm:my-12">
-        <img
-          src={COUPLE_PHOTOS.couple_pic}
-          alt="Couple photo"
-          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
-        />
-      </div>
     </>
   );
 }

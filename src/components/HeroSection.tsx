@@ -15,7 +15,7 @@ export default function HeroSection({ isMusicPlaying, onToggleMusic, onBeginClic
               className="absolute inset-0 bg-cover bg-center transition-all duration-[2000ms] scale-105"
               style={{ backgroundImage: `url(${COUPLE_PHOTOS.hero})` }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/35 to-black/55" />
     
             <div className="absolute top-6 right-6 z-30">
               <button 
@@ -36,7 +36,7 @@ export default function HeroSection({ isMusicPlaying, onToggleMusic, onBeginClic
               </button>
             </div>
     
-            <div className="relative z-10 flex flex-col items-center text-center mt-32 px-4">
+            <div className="relative z-10 flex flex-col items-center text-center mt-14 sm:mt-20 px-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
               <span className="text-white/80 uppercase tracking-[0.5em] text-[9px] sm:text-[10px] mb-8 font-light">
                 Together with their families
               </span>

@@ -14,15 +14,17 @@ export const ITINERARY_TIMINGS = [
 ];
 
 export const COUPLE_PHOTOS = {
-  hero: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200",
-  story1: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=600",
-  story2: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&q=80&w=600",
-  story3: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&q=80&w=600",
-  envelope_couple: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&q=80&w=600",
-  pre_map: "https://images.unsplash.com/photo-1532712938310-34cb3982ef74?auto=format&fit=crop&q=80&w=800",
-  pre_dress: "https://images.unsplash.com/photo-1507504038482-762efc8a3321?auto=format&fit=crop&q=80&w=800",
-  pre_rsvp: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200",
-  vinyl_center: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200",
-  couple_pic: "https://i.ibb.co/n8jZk2s9/Stock-Cake-Elegant-wedding-couple-1149721-medium.webp",
-  couple_pic1: "https://ibb.co/3YcGhXy2",
+  hero: "/photos/William%20and%20Jess%20Proposal-167.jpg",
+  story1: "/photos/William%20and%20Jess%20Proposal-170.jpg",
+  story2: "/photos/William%20and%20Jess%20Proposal-182.jpg",
+  story3: "/photos/William%20and%20Jess%20Proposal-145.jpg",
+  envelope_couple: "/photos/William%20and%20Jess%20Proposal-178.jpg",
+  auth_background: "/photos/William%20and%20Jess%20Proposal-166.jpg",
+  countdown_photo: "/photos/William%20and%20Jess%20Proposal-149.jpg",
+  pre_dress: "/photos/William%20and%20Jess%20Proposal-142.jpg",
+  pre_rsvp: "/photos/William%20and%20Jess%20Proposal-185.jpg",
+  vinyl_portrait: "/photos/William%20and%20Jess%20Proposal-102.jpg",
+  vinyl_center: "/photos/William%20and%20Jess%20Proposal-190.jpg",
+  couple_pic: "/photos/William%20and%20Jess%20Proposal-119.jpg",
+  couple_pic2: "/photos/William%20and%20Jess%20Proposal-133.jpg",
 };

@@ -332,7 +332,7 @@ export default function WeddingPage() {
         onPasscodeChange={setPasscode}
         onSubmit={handleAuthSubmit}
         title={weddingInfo.coupleNames}
-        backgroundImage={COUPLE_PHOTOS.pre_map}
+        backgroundImage={COUPLE_PHOTOS.auth_background}
       />
     );
   }
