@@ -1,4 +1,5 @@
-import { Navigation } from 'lucide-react';
+import { Clock, Info, MapPin, Navigation } from 'lucide-react';
+import { COUPLE_PHOTOS } from '../lib/constants';
 
 interface CeremonyVenueSectionProps {
   ceremonyName: string;
@@ -7,12 +8,25 @@ interface CeremonyVenueSectionProps {
 
 export default function CeremonyVenueSection({ ceremonyName, ceremonyAddress }: CeremonyVenueSectionProps) {
   return (
-    <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
+    <>
+      <section id="map" className="py-20 px-4 bg-[#FDFBF7]">
       <div className="max-w-2xl mx-auto space-y-12 text-center">
         <div className="space-y-3">
           <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Ceremony Location</span>
           <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">{ceremonyName}</h2>
           <p className="text-sm text-[#7D7261]">{ceremonyAddress}</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 border-y border-[#EADCC9]/40 bg-[#FAF6F0] px-4 py-10 md:grid-cols-3">
+          <VenueDetail icon={Clock} title="Arrival">
+            Please arrive <span className="font-medium text-[#4A433A]">30 minutes early</span> to allow time for parking and the walk to Harbour Lawn for the ceremony.
+          </VenueDetail>
+          <VenueDetail icon={MapPin} title="Metered Parking">
+            Metered street parking is available on Mrs Macquaries Road and Hospital Road. Please note that parking is limited and may require a short walk to the venue.
+          </VenueDetail>
+          <VenueDetail icon={Info} title="Rail Transit">
+            St James, Martin Place and Circular Quay Stations are all a 10-minute walk from the venue.
+          </VenueDetail>
         </div>
 
         <div className="rounded-sm overflow-hidden shadow-md border border-[#EADCC9] aspect-video relative">
@@ -35,6 +49,25 @@ export default function CeremonyVenueSection({ ceremonyName, ceremonyAddress }: 
           <span>Route Directions</span>
         </a>
       </div>
-    </section>
+      </section>
+
+      <div className="w-full max-w-4xl mx-auto px-4 my-8 sm:my-12">
+        <img
+          src={COUPLE_PHOTOS.couple_pic}
+          alt="Couple photo"
+          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
+        />
+      </div>
+    </>
+  );
+}
+
+function VenueDetail({ icon: Icon, title, children }: { icon: typeof Clock; title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-3 text-center">
+      <Icon className="mx-auto h-6 w-6 text-[#C5A880]" />
+      <h3 className="font-serif text-xl font-light text-[#4A433A]">{title}</h3>
+      <p className="text-xs leading-relaxed text-[#7D7261]">{children}</p>
+    </div>
   );
 }

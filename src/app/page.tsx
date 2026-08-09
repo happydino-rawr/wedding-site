@@ -213,7 +213,7 @@ export default function WeddingPage() {
   }, []);
 
   useEffect(() => {
-    initAudio('/wedding_song.mp3');
+    initAudio('/enchanted_sam_yung.mp3');
     const handleInteraction = () => {
       if (audio) {
         audio.play().catch(e => console.error("Playback failed:", e));
@@ -241,7 +241,7 @@ export default function WeddingPage() {
 
   useEffect(() => {
     const startMusic = () => {
-      const audioInstance = getAudio('/wedding_song.mp3');
+      const audioInstance = getAudio('/enchanted_sam_yung.mp3');
       if (audioInstance && audioInstance.paused) {
         audioInstance.currentTime = 6;
         audioInstance.play().catch(console.error);
