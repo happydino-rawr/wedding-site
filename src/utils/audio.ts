@@ -6,7 +6,7 @@ export const playProceduralSong = (isPlaying: boolean, volume = 0.1) => {
 
   // Initialize the audio object only once
   if (!audio) {
-    audio = new Audio('/wedding_song.mp3'); // Path to your file in 'public'
+    audio = new Audio('/enchanted_sam_yung.mp3'); // Path to your file in 'public'
     audio.loop = true; // Essential for background music
     audio.volume = volume;
   }

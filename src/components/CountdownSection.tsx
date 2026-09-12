@@ -49,7 +49,7 @@ export default function CountdownSection({ timeLeft }: CountdownSectionProps) {
 
       <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
         <img
-          src={COUPLE_PHOTOS.pre_map}
+          src={COUPLE_PHOTOS.countdown_photo}
           alt="Couple photo"
           className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
         />
