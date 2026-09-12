@@ -30,7 +30,7 @@ import {
   WEDDING_DAY_END,
   ITINERARY_TIMINGS
 } from '../lib/constants';
-import { audio, initAudio, getAudio } from '../utils/audio';
+import { getAudio } from '../utils/audio';
 
 // --- Interfaces ---
 export interface Guest {
@@ -216,49 +216,21 @@ export default function WeddingPage() {
   }, []);
 
   useEffect(() => {
-    initAudio('/enchanted_sam_yung.mp3');
-    const handleInteraction = () => {
-      if (audio) {
-        audio.play().catch(e => console.error("Playback failed:", e));
-      }
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-    };
-    window.addEventListener('click', handleInteraction);
-    window.addEventListener('touchstart', handleInteraction);
-    return () => {
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-    };
-  }, []); 
+    const music = getAudio('/enchanted_sam_yung.mp3');
+    if (!music) return;
 
-  useEffect(() => {
-    if (audio) {
-      if (isMusicPlaying) {
-        audio.play().catch(e => console.log("Play toggle blocked:", e));
-      } else {
-        audio.pause();
-      }
+    music.loop = true;
+    music.volume = 0.3;
+
+    if (isMusicPlaying) {
+      music.currentTime = 6;
+      music.play().catch(() => {
+        // Browser autoplay restrictions can still block the first play; the toggle remains the source of truth.
+      });
+    } else {
+      music.pause();
     }
   }, [isMusicPlaying]);
-
-  useEffect(() => {
-    const startMusic = () => {
-      const audioInstance = getAudio('/enchanted_sam_yung.mp3');
-      if (audioInstance && audioInstance.paused) {
-        audioInstance.currentTime = 6;
-        audioInstance.play().catch(console.error);
-        window.removeEventListener('click', startMusic);
-        window.removeEventListener('touchstart', startMusic);
-      }
-    };
-    window.addEventListener('click', startMusic);
-    window.addEventListener('touchstart', startMusic);
-    return () => {
-      window.removeEventListener('click', startMusic);
-      window.removeEventListener('touchstart', startMusic);
-    }
-  }, []);
 
   useEffect(() => {
 		const handleTimeCheck = () => {

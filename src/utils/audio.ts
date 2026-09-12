@@ -18,20 +18,26 @@ export const playProceduralSong = (isPlaying: boolean, volume = 0.1) => {
   }
 };
 
-export const initAudio = (path: string, volume: number = 0.3) => { // Ensure volume is 0.5 or 1
-  if (typeof window === "undefined") return;
+export const initAudio = (path: string, volume: number = 0.3) => {
+  if (typeof window === "undefined") return null;
+
   if (!audio) {
     audio = new Audio(path);
-    audio.volume = volume; // Set it here!
+    audio.volume = volume;
     audio.loop = true;
   }
+
+  return audio;
 };
 
-export const getAudio = (path: string) => {
+export const getAudio = (path: string, volume: number = 0.3) => {
   if (typeof window === "undefined") return null;
+
   if (!audio) {
     audio = new Audio(path);
+    audio.volume = volume;
     audio.loop = true;
   }
+
   return audio;
 };
