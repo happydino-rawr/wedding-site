@@ -57,7 +57,7 @@ export default function WeddingPage() {
   const [authError, setAuthError] = useState("");
   const [passcode, setPasscode] = useState("");
   
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(true);
   const [showFAB, setShowFAB] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
@@ -115,7 +115,10 @@ export default function WeddingPage() {
     if (saved) setMyUploadedKeys(JSON.parse(saved));
     
     const session = localStorage.getItem("wedding_session_token");
-    if (session === "true") setIsAuthenticated(true);
+    if (session === "true") {
+      setIsAuthenticated(true);
+      setIsMusicPlaying(true);
+    }
   }, []);
 
   useEffect(() => {
