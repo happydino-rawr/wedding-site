@@ -60,7 +60,14 @@ export default function RsvpSheetModal({
 
   const handleUpdateGuest = (id: number, field: keyof Guest, value: string) => {
     setGuestsList((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, [field]: value } : g))
+      prev.map((g) => {
+        if (g.id !== id) return g;
+        const updated = { ...g, [field]: value };
+        if (field === 'attending' && value === 'Declining') {
+          updated.dietary = '';
+        }
+        return updated;
+      })
     );
     setIsEditing(true);
     setErrorMessage('');
@@ -215,9 +222,14 @@ export default function RsvpSheetModal({
             <div className="space-y-3 text-left max-w-md mx-auto bg-[#FAF8F5] p-4 rounded-sm border border-[#EADCC9]">
               {guestsList.map((guest, idx) => (
                 <div key={guest.id || idx} className="border-b border-[#EADCC9] pb-3 last:border-0 last:pb-0">
-                  <p className="font-semibold text-sm text-[#4A433A]">
-                    {guest.firstName} {guest.lastName}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-sm text-[#4A433A]">
+                      {guest.firstName} {guest.lastName}
+                    </p>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#3B522F] bg-[#E8F0E3] px-2 py-0.5 rounded-full">
+                      <Check className="w-3 h-3" /> Confirmed
+                    </span>
+                  </div>
                   <p className="text-xs text-[#7D7261] mt-0.5">{guest.email}</p>
                   <p className="text-xs text-[#C5A880] mt-0.5">{guest.attending}</p>
                   {guest.dietary && (
@@ -254,9 +266,22 @@ export default function RsvpSheetModal({
             {/* Sticky Header Section */}
             <div className="sticky top-0 bg-[#FDFBF7] pt-1 pb-4 z-20 border-b border-[#EADCC9]/60 text-center space-y-1">
               <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Join Our Celebration</span>
-              <h2 className="text-2xl font-serif font-light text-[#4A433A]">RSVP Form</h2>
+              <h2 className="text-2xl font-serif font-light text-[#4A433A]">
+                {isSubmitted ? "Modify Your RSVP" : "RSVP Form"}
+              </h2>
               <div className="w-8 h-[1px] bg-[#C5A880] mx-auto" />
             </div>
+
+            {/* Confirmed Record Indicator Banner */}
+            {isSubmitted && (
+              <div className="p-3 bg-[#F3F7F0] border border-[#C5D8BC] rounded-sm flex items-center justify-between text-xs text-[#3B522F]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#527A3E] animate-pulse" />
+                  <span className="font-semibold">RSVP response is active and saved in our database.</span>
+                </div>
+                <span className="text-[9px] uppercase font-bold tracking-wider text-[#527A3E]/80">Confirmed</span>
+              </div>
+            )}
 
             {isCutoffPassed && (
               <div className="bg-[#FAF0F0] border border-[#E5B8B8] p-3 text-xs text-[#8C3A3A] text-center rounded-sm">
@@ -268,9 +293,16 @@ export default function RsvpSheetModal({
               {guestsList.map((guest, index) => (
                 <div key={guest.id} className="p-4 bg-[#FAF8F5] border border-[#EADCC9] rounded-sm space-y-4 relative">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">
-                      Guest {index + 1}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">
+                        Guest {index + 1}
+                      </span>
+                      {isSubmitted && !isEditing && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold text-[#3B522F] bg-[#E8F0E3] px-2 py-0.5 rounded-full">
+                          <Check className="w-2.5 h-2.5" /> Saved
+                        </span>
+                      )}
+                    </div>
                     {guestsList.length > 1 && (
                       <button
                         type="button"
@@ -345,7 +377,6 @@ export default function RsvpSheetModal({
                         <option value="Reception only" className="bg-[#FDFBF7]">Reception only</option>
                         <option value="Declining" className="bg-[#FDFBF7]">Regretfully declining</option>
                       </select>
-                      {/* Custom subtle dropdown arrow matching your theme */}
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#C5A880]">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
@@ -418,7 +449,7 @@ export default function RsvpSheetModal({
                     type="submit"
                     className={`${isSubmitted ? 'w-1/2' : 'w-full'} py-3 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-all`}
                   >
-                    Confirm & Submit RSVP
+                    {isSubmitted ? "Update RSVP" : "Confirm & Submit RSVP"}
                   </button>
                 </div>
 

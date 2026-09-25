@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// POST: Save or Update RSVP with strict cross-user duplicate blocking
+// POST: Save (Insert) or Update existing RSVPs
 export async function POST(request: Request) {
   try {
     const { guests } = await request.json();
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No guest data provided" }, { status: 400 });
     }
 
-    // 1. Check for duplicates *within* the incoming submission payload itself
+    // 1. Check for duplicate guests within the incoming array payload
     const seen = new Set();
     for (const g of guests) {
       const firstName = g.firstName?.trim().toLowerCase() || '';
@@ -32,32 +32,37 @@ export async function POST(request: Request) {
       seen.add(identifier);
     }
 
-    // 2. Check database for existing records case-insensitively for EACH incoming guest
+    // 2. Check for collisions against OTHER existing database records
     for (const g of guests) {
       const firstName = g.firstName?.trim();
       const lastName = g.lastName?.trim();
       const email = g.email?.trim();
 
       if (firstName && lastName && email) {
-        // Query database using case-insensitive matching (.ilike)
-        // We check if a row already exists with this exact name and email combination
-        const { data: existingRsvps, error: searchError } = await supabase
+        let query = supabase
           .from('rsvp_list')
           .select('*')
           .ilike('first_name', firstName)
           .ilike('last_name', lastName)
           .ilike('email', email);
 
+        // If the guest object has a numeric/UUID ID, exclude itself from the duplicate check (so editing works!)
+        if (g.id && typeof g.id !== 'string') {
+          query = query.neq('id', g.id);
+        }
+
+        const { data: existingRsvps, error: searchError } = await query;
+
         if (searchError) {
           console.error("Supabase search error:", searchError);
           return NextResponse.json({ error: searchError.message }, { status: 500 });
         }
 
-        // If any matching record is found in the database, block it immediately
+        // If a match belongs to ANOTHER record in the DB, block it as a duplicate
         if (existingRsvps && existingRsvps.length > 0) {
           return NextResponse.json(
             { 
-              error: `An RSVP for ${firstName} ${lastName} (${email}) already exists in our system. Please use the lookup tool below to search and edit your existing response instead of creating a duplicate.` 
+              error: `An RSVP for ${firstName} ${lastName} (${email}) already exists in our system. Please use the lookup tool below to search and edit your existing response.` 
             }, 
             { status: 409 }
           );
@@ -65,19 +70,31 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. If no duplicates are found anywhere, proceed with the insert
-    const payload = guests.map((g: any) => ({
-      first_name: g.firstName.trim(),
-      last_name: g.lastName.trim(),
-      email: g.email.trim(),
-      attending: g.attending,
-      dietary_requirements: g.dietary || null,
-    }));
+    // 3. Upsert (Update existing records if ID exists, or Insert new ones)
+    const payload = guests.map((g: any) => {
+      const record: any = {
+        first_name: g.firstName.trim(),
+        last_name: g.lastName.trim(),
+        email: g.email.trim(),
+        attending: g.attending,
+        dietary_requirements: g.attending === 'Declining' ? null : (g.dietary?.trim() || null),
+      };
 
-    const { data, error } = await supabase.from('rsvp_list').insert(payload).select();
+      // Only pass ID if it's a valid existing database primary key (e.g. UUID or integer ID from GET lookup)
+      if (g.id && typeof g.id === 'number' && g.id < 1000000000000) {
+        record.id = g.id;
+      }
+
+      return record;
+    });
+
+    const { data, error } = await supabase
+      .from('rsvp_list')
+      .upsert(payload, { onConflict: 'id' })
+      .select();
 
     if (error) {
-      console.error("Supabase insert error:", error);
+      console.error("Supabase upsert error:", error);
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
