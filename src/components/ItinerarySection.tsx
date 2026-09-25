@@ -78,6 +78,7 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
                 { hex: 'bg-[#E9D1AC]', name: 'Champagne' },
                 { hex: 'bg-[#C7A26B]', name: 'Antique Gold' },
                 { hex: 'bg-[#C7B9B0]', name: 'Soft Taupe' },
+                { hex: 'bg-[#000000]', name: 'Black' },
               ].map((color, idx) => (
                 <div key={idx} className="flex flex-col items-center space-y-3 group cursor-pointer w-20">
                   <div className={`w-12 h-12 rounded-full ${color.hex} shadow-sm border border-white/50 ring-1 ring-[#EADCC9] group-hover:ring-[#C5A880] transition-all duration-300 transform group-hover:scale-105`} />

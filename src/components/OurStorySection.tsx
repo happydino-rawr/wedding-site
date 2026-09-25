@@ -26,7 +26,7 @@ export default function OurStorySection() {
 
                 <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
                   <FadeInSection>
-                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">First Coffee Sparks</h4>
+                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">First Sparks</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
                       Fate collided in a corner café in Melbourne on a rainy afternoon. What was supposed to be a ten-minute coffee turned into a four-hour deep dialogue about music, art, and lifetime philosophies.
                     </p>
@@ -51,7 +51,7 @@ export default function OurStorySection() {
 
                 <div className="w-full md:w-1/2 md:pl-16 flex flex-col items-center md:items-start text-center md:text-left order-3 md:order-2 mt-6 md:mt-0 px-4 md:px-0">
                   <FadeInSection>
-                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">The Sunset Proposal</h4>
+                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">Sunset Proposal</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:ml-0 md:mr-auto">
                       Surrounded by golden sand dunes and the soothing melody of ocean waves, William dropped on one knee. With tears, laughter, and an absolute whisper of certainty, Jessica said "Yes!"
                     </p>
@@ -68,7 +68,7 @@ export default function OurStorySection() {
 
                 <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
                   <FadeInSection>
-                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">The Golden Future</h4>
+                    <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">Our Future</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
                       Now we are carving our path toward a lifetime of mutual laughter, shared dreams, growing our small home sanctuary, and traveling to wild untamed horizons.
                     </p>
