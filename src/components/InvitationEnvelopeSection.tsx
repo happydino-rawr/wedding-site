@@ -175,7 +175,7 @@ export default function InvitationEnvelopeSection({
 
         <div className="flex flex-col items-center pt-2 pb-0 relative z-20">
           <p className="text-[14px] md:text-xs text-[#D5CBA7] italic tracking-wider max-w-xs md:max-w-sm mx-auto">
-            Sincerely invite you. Come and share this wonderful day with us.
+            We warmly invite you to celebrate this special day with us.
           </p>
         </div>
       </div>
