@@ -30,7 +30,7 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
                 { time: '1:30 PM', title: 'Guest Arrival', desc: `Arrive early at ${weddingInfo.ceremonyName} and settle in before the ceremony.` },
                 { time: weddingInfo.ceremonyTime, title: 'The Ceremony', desc: `Join us at ${weddingInfo.ceremonyName} as we exchange our vows.` },
                 { time: '3:30 PM', title: 'Travel & Rest', desc: 'A short break to transition before the evening celebration.' },
-                { time: weddingInfo.receptionTime, title: 'Grand Banquet', desc: `Continue the celebration at ${weddingInfo.receptionName}.` },
+                { time: weddingInfo.receptionTime, title: 'Reception', desc: `Continue the celebration at ${weddingInfo.receptionName}.` },
               ].map((item, idx) => {
                 const isHappeningNow = isWeddingDay && currentEventIndex === idx;
 

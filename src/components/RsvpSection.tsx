@@ -7,7 +7,7 @@ interface RsvpSectionProps {
 
 export default function RsvpSection({ onOpenRsvp, deadlineLabel }: RsvpSectionProps) {
   return (
-    <section className="py-24 px-4 bg-[#FAF6F0] flex justify-center">
+    <section className="py-24 px-4 bg-[#FAF6F0] flex justify-center"> 
       <div className="bg-white border border-[#EADCC9] shadow-xl p-10 sm:p-16 rounded-sm max-w-2xl w-full text-center relative overflow-hidden">
         <div className="absolute inset-4 sm:inset-5 border border-[#EADCC9]/80 border-dashed pointer-events-none" />
 

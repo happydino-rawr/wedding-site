@@ -26,7 +26,6 @@ import {
   ACCESS_PASSCODE, 
   WEDDING_DATE, 
   RSVP_CUTOFF_DATE,
-  WEDDING_DAY_START,
   WEDDING_DAY_END,
   ITINERARY_TIMINGS
 } from '../lib/constants';
@@ -70,7 +69,7 @@ export default function WeddingPage() {
 
   // RSVP State
   const [guestsList, setGuestsList] = useState<Guest[]>([]); 
-  const [isEditing, setIsEditing] = useState(false);
+  const [, setIsEditing] = useState(false);
   const isCutoffPassed = new Date() > RSVP_CUTOFF_DATE;
 
   // Envelope State
@@ -370,8 +369,8 @@ export default function WeddingPage() {
         {!isWeddingDay && countdownSectionComponent}
         {ceremonyMapSectionComponent}
         {receptionMapSectionComponent}
-        {timingsSectionComponent}
-        {rsvpSectionComponent} {/* Guaranteed render */}
+        {rsvpSectionComponent}
+        {timingsSectionComponent}{/* Guaranteed render */}
       </>
     );
   };
@@ -431,7 +430,6 @@ export default function WeddingPage() {
         isCutoffPassed={isCutoffPassed}
         guestsList={guestsList}
         setGuestsList={setGuestsList}
-        isEditing={isEditing}
         setIsEditing={setIsEditing}
       />
       )}
