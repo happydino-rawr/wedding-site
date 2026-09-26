@@ -31,7 +31,7 @@ export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }
 
           {/* 2. Main Portrait Photo (Z-0) */}
           <div className="relative z-0 w-full bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-white mt-[210px] sm:mt-[230px]">
-            <img src={COUPLE_PHOTOS.vinyl_portrait} className="w-full h-[480px] sm:h-[520px] object-cover " alt="Couple portrait" />
+            <img src={COUPLE_PHOTOS.vinyl_portrait} className="w-full h-[480px] sm:h-[620px] object-cover " alt="Couple portrait" />
             
             {/* Sleek Frosted Glass Play/Pause Button */}
             <button

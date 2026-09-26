@@ -94,7 +94,7 @@ export default function WeddingPage() {
     ceremonyTime: '2:00 PM',
     receptionTime: '6:30 PM',
     eventDayOfWeek: 'Saturday',
-    eventDateShort: '06·03·2027',
+    eventDateShort: '06 March 2027',
     calendarTitle: "Jessica & William's Wedding",
     calendarDescription: 'Please join us for our wedding ceremony and reception. Kindly bring your ID for venue entry.',
     calendarLocation: 'Harbour View Lawn, Royal Botanic Garden Sydney, Sydney NSW 2000',

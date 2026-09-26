@@ -12,7 +12,7 @@ export default function HeroSection({ isMusicPlaying, onToggleMusic, onBeginClic
   return (
           <section id="hero" className="relative h-screen flex flex-col items-center justify-between text-center overflow-hidden pt-12 pb-16">
             <div 
-              className="absolute inset-0 bg-cover bg-[55%_center] transition-all duration-[2000ms] scale-105"
+              className="absolute inset-0 bg-cover bg-[69.5%_center] transition-all duration-[2000ms] scale-105"
               style={{ backgroundImage: `url(${COUPLE_PHOTOS.hero})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/35 to-black/55" />
