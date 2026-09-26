@@ -6,6 +6,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// Regex helper to validate UUID strings
+const isValidUUID = (id: any): boolean => {
+  if (typeof id !== 'string') return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+};
+
 // POST: Save (Insert) or Update existing RSVPs
 export async function POST(request: Request) {
   try {
@@ -46,8 +53,8 @@ export async function POST(request: Request) {
           .ilike('last_name', lastName)
           .ilike('email', email);
 
-        // If the guest object has a numeric/UUID ID, exclude itself from the duplicate check (so editing works!)
-        if (g.id && typeof g.id !== 'string') {
+        // If guest has a valid UUID, exclude it from duplicate checks so updating works
+        if (isValidUUID(g.id)) {
           query = query.neq('id', g.id);
         }
 
@@ -70,7 +77,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Upsert (Update existing records if ID exists, or Insert new ones)
+    // 3. Upsert (Update existing records if valid UUID exists, or Insert new ones)
     const payload = guests.map((g: any) => {
       const record: any = {
         first_name: g.firstName.trim(),
@@ -80,8 +87,8 @@ export async function POST(request: Request) {
         dietary_requirements: g.attending === 'Declining' ? null : (g.dietary?.trim() || null),
       };
 
-      // Only pass ID if it's a valid existing database primary key (e.g. UUID or integer ID from GET lookup)
-      if (g.id && typeof g.id === 'number' && g.id < 1000000000000) {
+      // Only pass ID if it's a valid UUID string
+      if (isValidUUID(g.id)) {
         record.id = g.id;
       }
 
