@@ -22,7 +22,7 @@ export const COUPLE_PHOTOS = {
   story5: "/photos/JessicaWilliamPreweddingPhotos-139.4.jpg",
   envelope_couple: "/photos/JessicaWilliamPreweddingPhotos-140.4.jpg",
   auth_background: "/photos/William%20and%20Jess%20Proposal-166.jpg",
-  pre_rsvp: "/photos/William%20and%20Jess%20Proposal-185.jpg",
+  harbour_pic: "/photos/William%20and%20Jess%20Proposal-185.jpg",
   countdown_photo: "/photos/JessicaWilliamPreweddingPhotos-143.jpg",
   vinyl_portrait: "/photos/JessicaWilliamPreweddingPhotos-162.11.jpg",
   vinyl_center: "/photos/JessicaWilliamPreweddingPhotos-157.1.jpg",

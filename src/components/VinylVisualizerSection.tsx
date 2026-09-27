@@ -8,7 +8,7 @@ interface VinylVisualizerProps {
 
 export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }: VinylVisualizerProps) {
   return (
-      <section id="interactive" className="py-24 px-4 bg-[#FDFBF7] flex flex-col items-center">
+      <section id="interactive" className="py-5 px-4 bg-[#FDFBF7] flex flex-col items-center">
         <div className="w-full max-w-[360px] relative flex flex-col items-center pt-8">
 
           {/* 1. Black Vinyl Background (Z-10) */}
