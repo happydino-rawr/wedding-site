@@ -18,7 +18,7 @@ export default function ReceptionVenueSection({ receptionName, receptionAddress 
       </div>
 
       {/* Reduced bottom padding on section from py-20 to pt-20 pb-8 sm:pb-12 */}
-      <section id="map" className="pt-20 pb-8 sm:pb-5 bg-[#FDFBF7]">
+      <section id="map" className="pt-20 pb-0 sm:pb-12 bg-[#FDFBF7]">
         <div className="space-y-12 text-center">
           
           {/* Location Details (Constrained) */}

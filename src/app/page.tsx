@@ -8,7 +8,6 @@ import CountdownSection from '../components/CountdownSection';
 import CeremonyVenueSection from '../components/CeremonyVenueSection';
 import ReceptionVenueSection from '../components/ReceptionVenueSection';
 import ItinerarySection from '../components/ItinerarySection';
-import RsvpSection from '../components/RsvpSection';
 
 // --- Newly Extracted UI Components ---
 import HeroSection from '../components/HeroSection';
