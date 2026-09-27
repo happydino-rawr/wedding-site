@@ -1,37 +1,44 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
-// Server-side client using Service Role Key to bypass RLS policies safely
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// GET: Look up guest by First & Last Name AND pull linked family members
+export const dynamic = 'force-dynamic';
+
+function escapeSqlWildcards(str: string): string {
+  return str.replace(/[%_]/g, '\\$&');
+}
+
+// GET: Exact Name Search
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const firstName = searchParams.get('firstName')?.trim();
-  const lastName = searchParams.get('lastName')?.trim();
+  const rawFirst = searchParams.get('firstName')?.trim();
+  const rawLast = searchParams.get('lastName')?.trim();
 
-  if (!firstName || !lastName) {
-    return NextResponse.json({ error: "Missing name search parameters" }, { status: 400 });
+  if (!rawFirst || !rawLast) {
+    return NextResponse.json({ error: "First name and last name are required for lookup" }, { status: 400 });
   }
 
+  const cleanFirst = escapeSqlWildcards(rawFirst);
+  const cleanLast = escapeSqlWildcards(rawLast);
+
   try {
-    // Step 1: Find guest(s) matching exact first & last name
     const { data: matchedGuests, error: searchError } = await supabase
       .from('rsvp_list')
       .select('*')
-      .ilike('first_name', firstName)
-      .ilike('last_name', lastName);
+      .ilike('first_name', cleanFirst)
+      .ilike('last_name', cleanLast);
 
     if (searchError) throw searchError;
 
     if (!matchedGuests || matchedGuests.length === 0) {
-      return NextResponse.json({ found: false }, { status: 404 });
+      return NextResponse.json({ found: false, guests: [] }, { status: 200 });
     }
 
-    // Step 2: Fetch any additional guests sharing the same email addresses (family members)
     const emails = matchedGuests.map((g) => g.email).filter(Boolean);
     let allGroupGuests = [...matchedGuests];
 
@@ -42,7 +49,6 @@ export async function GET(request: Request) {
         .in('email', emails);
 
       if (!familyError && familyData) {
-        // Merge without duplicates by ID
         const guestMap = new Map();
         [...matchedGuests, ...familyData].forEach((g) => guestMap.set(g.id, g));
         allGroupGuests = Array.from(guestMap.values());
@@ -65,46 +71,105 @@ export async function GET(request: Request) {
   }
 }
 
-// POST: Save or update RSVP records
+// POST: Save or Update RSVP Entries
 export async function POST(request: Request) {
   try {
     const bodyText = await request.text();
     const body = bodyText ? JSON.parse(bodyText) : {};
-    const { guests } = body;
+    const { guests, forceCreate } = body;
 
     if (!Array.isArray(guests) || guests.length === 0) {
       return NextResponse.json({ error: "No guest data provided" }, { status: 400 });
     }
 
-    const payload = guests.map((g: any) => {
-      const guestRow: Record<string, any> = {
-        first_name: g.firstName?.trim(),
-        last_name: g.lastName?.trim(),
-        email: g.email?.trim(),
-        attending: g.attending,
-        dietary_requirements: g.attending === 'Declining' ? null : (g.dietary?.trim() || null),
-      };
+    // 1. Pre-deduplicate incoming payload within the same request batch
+    const uniquePayloadMap = new Map<string, any>();
+    for (const g of guests) {
+      const cleanFirst = g.firstName?.trim() || '';
+      const cleanLast = g.lastName?.trim() || '';
+      const cleanEmail = g.email?.trim().toLowerCase() || '';
 
-      // CRITICAL: Only attach 'id' if it's a non-empty string!
-      // If it's a new entry, do NOT attach the 'id' key at all so DB uses DEFAULT gen_random_uuid()
-      if (g.id && typeof g.id === 'string' && g.id.trim().length > 0 && g.id !== 'undefined') {
-        guestRow.id = g.id;
+      if (!cleanFirst || !cleanLast || !cleanEmail) {
+        return NextResponse.json(
+          { error: "First name, last name, and email address are required for all guests." },
+          { status: 400 }
+        );
       }
 
-      return guestRow;
-    });
+      const dedupeKey = `${cleanFirst.toLowerCase()}-${cleanLast.toLowerCase()}-${cleanEmail}`;
+      uniquePayloadMap.set(dedupeKey, {
+        id: (g.id && typeof g.id === 'string' && g.id.trim() !== '' && g.id !== 'undefined' && g.id !== 'null') ? g.id : undefined,
+        first_name: cleanFirst,
+        last_name: cleanLast,
+        email: cleanEmail,
+        attending: g.attending,
+        dietary_requirements: g.attending === 'Declining' ? null : (g.dietary?.trim() || null),
+      });
+    }
 
-    // Upsert using unique identity constraint
+    const sanitizedGuests = Array.from(uniquePayloadMap.values());
+    const finalPayload = [];
+
+    // 2. Validate collisions against existing DB records
+    for (const guest of sanitizedGuests) {
+      let targetId = guest.id;
+
+      // Check if another DB row already has this exact (Name + Email)
+      const { data: existingIdentity } = await supabase
+        .from('rsvp_list')
+        .select('id, first_name, last_name, email')
+        .ilike('first_name', escapeSqlWildcards(guest.first_name))
+        .ilike('last_name', escapeSqlWildcards(guest.last_name))
+        .ilike('email', escapeSqlWildcards(guest.email))
+        .maybeSingle();
+
+      if (existingIdentity) {
+        // If editing a card whose ID differs from the DB row holding those details
+        if (targetId && targetId !== existingIdentity.id && !forceCreate) {
+          return NextResponse.json(
+            {
+              conflict: true,
+              existingGuest: {
+                id: existingIdentity.id,
+                name: `${existingIdentity.first_name} ${existingIdentity.last_name}`,
+                email: existingIdentity.email,
+              },
+              submittingGuest: {
+                firstName: guest.first_name,
+                lastName: guest.last_name,
+                email: guest.email,
+              },
+            },
+            { status: 409 }
+          );
+        }
+        // Auto-link to existing identity ID to avoid unique constraint crash
+        targetId = existingIdentity.id;
+      }
+
+      finalPayload.push({
+        ...guest,
+        id: targetId || crypto.randomUUID(),
+      });
+    }
+
+    // 3. Perform atomic upsert on primary key ID
     const { data, error } = await supabase
       .from('rsvp_list')
-      .upsert(payload, { 
-        onConflict: 'first_name,last_name,email',
-        ignoreDuplicates: false 
-      })
+      .upsert(finalPayload, { onConflict: 'id', ignoreDuplicates: false })
       .select();
 
     if (error) {
       console.error("Supabase Upsert Error:", error);
+
+      // Catch unique constraint violations gracefully
+      if (error.code === '23505') {
+        return NextResponse.json(
+          { error: "An RSVP with this name and email combination already exists in the database." },
+          { status: 409 }
+        );
+      }
+
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
