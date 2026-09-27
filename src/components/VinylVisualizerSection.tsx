@@ -20,7 +20,7 @@ export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }
               <path id="vinyl-curve" d="M 40,160 A 120,120 0 0,1 280,160" fill="transparent" />
               <text className="text-[14px] uppercase tracking-[0.4em] font-serif fill-[#FDFBF7] opacity-90">
                 <textPath href="#vinyl-curve" startOffset="50%" textAnchor="middle">
-                  《 A Single Thought 》
+                  《 Enchanted 》
                 </textPath>
               </text>
             </svg>
@@ -31,7 +31,7 @@ export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }
 
           {/* 2. Main Portrait Photo (Z-0) */}
           <div className="relative z-0 w-full bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-white mt-[210px] sm:mt-[230px]">
-            <img src={COUPLE_PHOTOS.vinyl_portrait} className="w-full h-[480px] sm:h-[520px] object-cover" alt="Couple portrait" />
+            <img src={COUPLE_PHOTOS.vinyl_portrait} className="w-full h-[480px] sm:h-[620px] object-cover " alt="Couple portrait" />
             
             {/* Sleek Frosted Glass Play/Pause Button */}
             <button
@@ -67,9 +67,13 @@ export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }
           {/* 3. Quote Card (Z-20, Overlapping Vinyl and Photo) */}
           <div className="absolute top-[180px] sm:top-[200px] z-20 w-[120%] bg-white/85 px-6 py-8 pt-10 rounded-sm shadow-[0_0px_15px_rgba(0,0,0,0.80)] border border-white/50 text-center">
             <p className="font-serif italic text-xs sm:text-sm leading-loose text-[#5C5346] tracking-wide">
-              "If the sun were to rise in the west, <br />
+              {/* "If the sun were to rise in the west, <br />
               I'd never change my mind to love you forever. <br />
-              I love you not for who you are, but for who I am before you."
+              I love you not for who you are, but for who I am before you." */}
+              "This night is sparkling, don't you let it go <br />
+              I'm wonderstruck, blushing all the way home <br />
+              I'll spend forever wondering if you knew <br />
+              I was enchanted to meet you."
             </p>
           </div>
 

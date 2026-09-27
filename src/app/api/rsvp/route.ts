@@ -1,83 +1,175 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// POST: Save or Update RSVP with strict cross-user duplicate blocking
+export const dynamic = 'force-dynamic';
+
+function escapeSqlWildcards(str: string): string {
+  return str.replace(/[%_]/g, '\\$&');
+}
+
+// GET: Exact Name Search
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const rawFirst = searchParams.get('firstName')?.trim();
+  const rawLast = searchParams.get('lastName')?.trim();
+
+  if (!rawFirst || !rawLast) {
+    return NextResponse.json({ error: "First name and last name are required for lookup" }, { status: 400 });
+  }
+
+  const cleanFirst = escapeSqlWildcards(rawFirst);
+  const cleanLast = escapeSqlWildcards(rawLast);
+
+  try {
+    const { data: matchedGuests, error: searchError } = await supabase
+      .from('rsvp_list')
+      .select('*')
+      .ilike('first_name', cleanFirst)
+      .ilike('last_name', cleanLast);
+
+    if (searchError) throw searchError;
+
+    if (!matchedGuests || matchedGuests.length === 0) {
+      return NextResponse.json({ found: false, guests: [] }, { status: 200 });
+    }
+
+    const emails = matchedGuests.map((g) => g.email).filter(Boolean);
+    let allGroupGuests = [...matchedGuests];
+
+    if (emails.length > 0) {
+      const { data: familyData, error: familyError } = await supabase
+        .from('rsvp_list')
+        .select('*')
+        .in('email', emails);
+
+      if (!familyError && familyData) {
+        const guestMap = new Map();
+        [...matchedGuests, ...familyData].forEach((g) => guestMap.set(g.id, g));
+        allGroupGuests = Array.from(guestMap.values());
+      }
+    }
+
+    const formattedGuests = allGroupGuests.map((row: any) => ({
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email || '',
+      attending: row.attending,
+      dietary: row.dietary_requirements || '',
+    }));
+
+    return NextResponse.json({ found: true, guests: formattedGuests });
+  } catch (err: any) {
+    console.error("GET Lookup Error:", err);
+    return NextResponse.json({ error: err.message || "Failed to search RSVP" }, { status: 500 });
+  }
+}
+
+// POST: Save or Update RSVP Entries
 export async function POST(request: Request) {
   try {
-    const { guests } = await request.json();
+    const bodyText = await request.text();
+    const body = bodyText ? JSON.parse(bodyText) : {};
+    const { guests, forceCreate } = body;
 
     if (!Array.isArray(guests) || guests.length === 0) {
       return NextResponse.json({ error: "No guest data provided" }, { status: 400 });
     }
 
-    // 1. Check for duplicates *within* the incoming submission payload itself
-    const seen = new Set();
+    // 1. Pre-deduplicate incoming payload within the same request batch
+    const uniquePayloadMap = new Map<string, any>();
     for (const g of guests) {
-      const firstName = g.firstName?.trim().toLowerCase() || '';
-      const lastName = g.lastName?.trim().toLowerCase() || '';
-      const email = g.email?.trim().toLowerCase() || '';
-      
-      const identifier = `${firstName}_${lastName}_${email}`;
-      if (seen.has(identifier)) {
+      const cleanFirst = g.firstName?.trim() || '';
+      const cleanLast = g.lastName?.trim() || '';
+      const cleanEmail = g.email?.trim().toLowerCase() || '';
+
+      if (!cleanFirst || !cleanLast || !cleanEmail) {
         return NextResponse.json(
-          { error: `Duplicate entry found in your list for ${g.firstName} ${g.lastName}. Each guest must be unique.` },
+          { error: "First name, last name, and email address are required for all guests." },
           { status: 400 }
         );
       }
-      seen.add(identifier);
+
+      const dedupeKey = `${cleanFirst.toLowerCase()}-${cleanLast.toLowerCase()}-${cleanEmail}`;
+      uniquePayloadMap.set(dedupeKey, {
+        id: (g.id && typeof g.id === 'string' && g.id.trim() !== '' && g.id !== 'undefined' && g.id !== 'null') ? g.id : undefined,
+        first_name: cleanFirst,
+        last_name: cleanLast,
+        email: cleanEmail,
+        attending: g.attending,
+        dietary_requirements: g.attending === 'Declining' ? null : (g.dietary?.trim() || null),
+      });
     }
 
-    // 2. Check database for existing records case-insensitively for EACH incoming guest
-    for (const g of guests) {
-      const firstName = g.firstName?.trim();
-      const lastName = g.lastName?.trim();
-      const email = g.email?.trim();
+    const sanitizedGuests = Array.from(uniquePayloadMap.values());
+    const finalPayload = [];
 
-      if (firstName && lastName && email) {
-        // Query database using case-insensitive matching (.ilike)
-        // We check if a row already exists with this exact name and email combination
-        const { data: existingRsvps, error: searchError } = await supabase
-          .from('rsvp_list')
-          .select('*')
-          .ilike('first_name', firstName)
-          .ilike('last_name', lastName)
-          .ilike('email', email);
+    // 2. Validate collisions against existing DB records
+    for (const guest of sanitizedGuests) {
+      let targetId = guest.id;
 
-        if (searchError) {
-          console.error("Supabase search error:", searchError);
-          return NextResponse.json({ error: searchError.message }, { status: 500 });
-        }
+      // Check if another DB row already has this exact (Name + Email)
+      const { data: existingIdentity } = await supabase
+        .from('rsvp_list')
+        .select('id, first_name, last_name, email')
+        .ilike('first_name', escapeSqlWildcards(guest.first_name))
+        .ilike('last_name', escapeSqlWildcards(guest.last_name))
+        .ilike('email', escapeSqlWildcards(guest.email))
+        .maybeSingle();
 
-        // If any matching record is found in the database, block it immediately
-        if (existingRsvps && existingRsvps.length > 0) {
+      if (existingIdentity) {
+        // If editing a card whose ID differs from the DB row holding those details
+        if (targetId && targetId !== existingIdentity.id && !forceCreate) {
           return NextResponse.json(
-            { 
-              error: `An RSVP for ${firstName} ${lastName} (${email}) already exists in our system. Please use the lookup tool below to search and edit your existing response instead of creating a duplicate.` 
-            }, 
+            {
+              conflict: true,
+              existingGuest: {
+                id: existingIdentity.id,
+                name: `${existingIdentity.first_name} ${existingIdentity.last_name}`,
+                email: existingIdentity.email,
+              },
+              submittingGuest: {
+                firstName: guest.first_name,
+                lastName: guest.last_name,
+                email: guest.email,
+              },
+            },
             { status: 409 }
           );
         }
+        // Auto-link to existing identity ID to avoid unique constraint crash
+        targetId = existingIdentity.id;
       }
+
+      finalPayload.push({
+        ...guest,
+        id: targetId || crypto.randomUUID(),
+      });
     }
 
-    // 3. If no duplicates are found anywhere, proceed with the insert
-    const payload = guests.map((g: any) => ({
-      first_name: g.firstName.trim(),
-      last_name: g.lastName.trim(),
-      email: g.email.trim(),
-      attending: g.attending,
-      dietary_requirements: g.dietary || null,
-    }));
-
-    const { data, error } = await supabase.from('rsvp_list').insert(payload).select();
+    // 3. Perform atomic upsert on primary key ID
+    const { data, error } = await supabase
+      .from('rsvp_list')
+      .upsert(finalPayload, { onConflict: 'id', ignoreDuplicates: false })
+      .select();
 
     if (error) {
-      console.error("Supabase insert error:", error);
+      console.error("Supabase Upsert Error:", error);
+
+      // Catch unique constraint violations gracefully
+      if (error.code === '23505') {
+        return NextResponse.json(
+          { error: "An RSVP with this name and email combination already exists in the database." },
+          { status: 409 }
+        );
+      }
+
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
@@ -92,45 +184,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: formattedData });
   } catch (err: any) {
-    console.error("Server error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
-
-// GET: Look up guest by name case-insensitively
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const firstName = searchParams.get('firstName');
-  const lastName = searchParams.get('lastName');
-
-  if (!firstName || !lastName) {
-    return NextResponse.json({ error: "Missing name parameters" }, { status: 400 });
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('rsvp_list')
-      .select('*')
-      .ilike('first_name', firstName.trim())
-      .ilike('last_name', lastName.trim());
-
-    if (error) throw error;
-
-    if (!data || data.length === 0) {
-      return NextResponse.json({ found: false }, { status: 404 });
-    }
-
-    const formattedGuests = data.map((row: any) => ({
-      id: row.id,
-      firstName: row.first_name,
-      lastName: row.last_name,
-      email: row.email || '',
-      attending: row.attending,
-      dietary: row.dietary_requirements || '',
-    }));
-
-    return NextResponse.json({ found: true, guests: formattedGuests });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("POST RSVP Error:", err);
+    return NextResponse.json({ error: err.message || "Server error while saving RSVP" }, { status: 500 });
   }
 }

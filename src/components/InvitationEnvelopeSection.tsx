@@ -125,6 +125,8 @@ export default function InvitationEnvelopeSection({
           </div>
           <div className="space-y-6">
             <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
+              <p className="font-serif text-lg md:text-xl tracking-wider text-[#BE123C]">{weddingInfo.eventDateShort}</p>
+              <p className="text-xs md:text-sm text-[#7D7261]">{weddingInfo.eventDayOfWeek}</p>
             <div className="w-8 md:w-12 h-[1px] bg-[#EADCC9] mx-auto my-2" />
           </div>
         </div>
@@ -150,11 +152,6 @@ export default function InvitationEnvelopeSection({
           </div>
 
           <div className="mt-12 space-y-1 text-center text-[#5C5346]">
-            <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Date</span>
-            <div className="space-y-3">
-              <p className="font-serif text-lg md:text-xl tracking-wider text-[#4A433A]">{weddingInfo.eventDateShort}</p>
-              <p className="text-xs md:text-sm text-[#7D7261]">{weddingInfo.eventDayOfWeek}</p>
-            </div>
             <div className="w-12 h-[1px] bg-[#EADCC9]/40 mx-auto my-3" />
             <span className="text-[10px] md:text-xs uppercase tracking-widest text-[#9C8F7E] block italic">Ceremony</span>
             <p className="font-serif text-xl md:text-2xl text-[#4A433A]">{weddingInfo.ceremonyTime}</p>
@@ -175,7 +172,7 @@ export default function InvitationEnvelopeSection({
 
         <div className="flex flex-col items-center pt-2 pb-0 relative z-20">
           <p className="text-[14px] md:text-xs text-[#D5CBA7] italic tracking-wider max-w-xs md:max-w-sm mx-auto">
-            Sincerely invite you. Come and share this wonderful day with us.
+            We warmly invite you to celebrate this special day with us.
           </p>
         </div>
       </div>

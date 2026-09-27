@@ -30,7 +30,7 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
                 { time: '1:30 PM', title: 'Guest Arrival', desc: `Arrive early at ${weddingInfo.ceremonyName} and settle in before the ceremony.` },
                 { time: weddingInfo.ceremonyTime, title: 'The Ceremony', desc: `Join us at ${weddingInfo.ceremonyName} as we exchange our vows.` },
                 { time: '3:30 PM', title: 'Travel & Rest', desc: 'A short break to transition before the evening celebration.' },
-                { time: weddingInfo.receptionTime, title: 'Grand Banquet', desc: `Continue the celebration at ${weddingInfo.receptionName}.` },
+                { time: weddingInfo.receptionTime, title: 'Reception', desc: `Continue the celebration at ${weddingInfo.receptionName}.` },
               ].map((item, idx) => {
                 const isHappeningNow = isWeddingDay && currentEventIndex === idx;
 
@@ -72,12 +72,12 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
             </div>
             <div className="flex flex-wrap justify-center gap-6 pt-4 max-w-2xl mx-auto">
               {[
-                { hex: 'bg-[#F7F3E9]', name: 'Warm Champagne' },
-                { hex: 'bg-[#F5E6E8]', name: 'Dusty Rose' },
-                { hex: 'bg-[#F9ECE5]', name: 'Blush Pink' },
-                { hex: 'bg-[#E2E8DD]', name: 'Soft Sage' },
-                { hex: 'bg-[#C3D0C0]', name: 'Earthy Sage' },
-                { hex: 'bg-[#EFE6DC]', name: 'Soft Oat' },
+                { hex: 'bg-[#e9d2ac]', name: 'Champagne' },
+                { hex: 'bg-[#ce9297]', name: 'Dusty Rose' },
+                { hex: 'bg-[#e6bbbb]', name: 'Baby Pink' },
+                { hex: 'bg-[#c5d7c3]', name: 'Soft Sage' },
+                { hex: 'bg-[#8a9689]', name: 'Earthy Green' },
+                { hex: 'bg-[#e2cfbe]', name: 'Soft Oat' },
               ].map((color, idx) => (
                 <div key={idx} className="flex flex-col items-center space-y-3 group cursor-pointer w-20">
                   <div className={`w-12 h-12 rounded-full ${color.hex} shadow-sm border border-white/50 ring-1 ring-[#EADCC9] group-hover:ring-[#C5A880] transition-all duration-300 transform group-hover:scale-105`} />

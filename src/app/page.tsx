@@ -26,15 +26,14 @@ import {
   ACCESS_PASSCODE, 
   WEDDING_DATE, 
   RSVP_CUTOFF_DATE,
-  WEDDING_DAY_START,
   WEDDING_DAY_END,
   ITINERARY_TIMINGS
 } from '../lib/constants';
-import { getAudio } from '../utils/audio';
+import { audio, initAudio, getAudio } from '../utils/audio';
 
 // --- Interfaces ---
 export interface Guest {
-  id: number;
+  id?: string;
   firstName: string;
   lastName: string;
   attending: 'Attending both ceremony and reception' | 'Reception only' | 'Declining' | '';
@@ -57,7 +56,7 @@ export default function WeddingPage() {
   const [authError, setAuthError] = useState("");
   const [passcode, setPasscode] = useState("");
   
-  const [isMusicPlaying, setIsMusicPlaying] = useState(true);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [showFAB, setShowFAB] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
@@ -69,8 +68,17 @@ export default function WeddingPage() {
   const [uploadToast, setUploadToast] = useState<string>("");
 
   // RSVP State
-  const [guestsList, setGuestsList] = useState<Guest[]>([]); 
-  const [isEditing, setIsEditing] = useState(false);
+  const [guestsList, setGuestsList] = useState<Guest[]>([
+    {
+      id: undefined, // or string '1'
+      firstName: '',
+      lastName: '',
+      email: '',
+      attending: '',
+      dietary: '',
+    },
+  ])
+  const [, setIsEditing] = useState(false);
   const isCutoffPassed = new Date() > RSVP_CUTOFF_DATE;
 
   // Envelope State
@@ -94,7 +102,7 @@ export default function WeddingPage() {
     ceremonyTime: '2:00 PM',
     receptionTime: '6:30 PM',
     eventDayOfWeek: 'Saturday',
-    eventDateShort: '06·03·2027',
+    eventDateShort: '06 March 2027',
     calendarTitle: "Jessica & William's Wedding",
     calendarDescription: 'Please join us for our wedding ceremony and reception. Kindly bring your ID for venue entry.',
     calendarLocation: 'Harbour View Lawn, Royal Botanic Garden Sydney, Sydney NSW 2000',
@@ -115,10 +123,7 @@ export default function WeddingPage() {
     if (saved) setMyUploadedKeys(JSON.parse(saved));
     
     const session = localStorage.getItem("wedding_session_token");
-    if (session === "true") {
-      setIsAuthenticated(true);
-      setIsMusicPlaying(true);
-    }
+    if (session === "true") setIsAuthenticated(true);
   }, []);
 
   useEffect(() => {
@@ -216,52 +221,82 @@ export default function WeddingPage() {
   }, []);
 
   useEffect(() => {
-    const music = getAudio('/enchanted_sam_yung.mp3');
-    if (!music) return;
+    initAudio('/enchanted_sam_yung.mp3');
+    const handleInteraction = () => {
+      if (audio) {
+        audio.play().catch(e => console.error("Playback failed:", e));
+      }
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+    };
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+    };
+  }, []); 
 
-    music.loop = true;
-    music.volume = 0.3;
-
-    if (isMusicPlaying) {
-      music.currentTime = 6;
-      music.play().catch(() => {
-        // Browser autoplay restrictions can still block the first play; the toggle remains the source of truth.
-      });
-    } else {
-      music.pause();
+  useEffect(() => {
+    if (audio) {
+      if (isMusicPlaying) {
+        audio.play().catch(e => console.log("Play toggle blocked:", e));
+      } else {
+        audio.pause();
+      }
     }
   }, [isMusicPlaying]);
 
   useEffect(() => {
-		const handleTimeCheck = () => {
-				const now = Date.now();
-				
-				// Use the imported constants here!
-				setIsWeddingDay(now >= WEDDING_DAY_START && now < WEDDING_DAY_END);
+    const startMusic = () => {
+      const audioInstance = getAudio('/enchanted_sam_yung.mp3');
+      if (audioInstance && audioInstance.paused) {
+        audioInstance.currentTime = 6;
+        audioInstance.play().catch(console.error);
+        window.removeEventListener('click', startMusic);
+        window.removeEventListener('touchstart', startMusic);
+      }
+    };
+    window.addEventListener('click', startMusic);
+    window.addEventListener('touchstart', startMusic);
+    return () => {
+      window.removeEventListener('click', startMusic);
+      window.removeEventListener('touchstart', startMusic);
+    }
+  }, []);
 
-				let activeIdx = -1;
-				for (let i = 0; i < ITINERARY_TIMINGS.length; i++) {
-					const eventTime = ITINERARY_TIMINGS[i].time;
-					const nextEventTime = ITINERARY_TIMINGS[i + 1]?.time || WEDDING_DAY_END;
-					if (now >= eventTime && now < nextEventTime) {
-						activeIdx = i;
-						break;
-					}
-				}
-				setCurrentEventIndex(activeIdx);
-			};
+  useEffect(() => {
+    const handleTimeCheck = () => {
+      const now = new Date();
+      
+      // Explicitly check day, month, and year instead of timestamp ranges
+      const isTodayWeddingDay = 
+        now.getFullYear() === 2027 &&
+        now.getMonth() === 2; // March is 2 (0-indexed)
+        now.getDate() === 6;
+
+      setIsWeddingDay(isTodayWeddingDay);
+
+      if (isTodayWeddingDay) {
+        const nowMs = now.getTime();
+        let activeIdx = -1;
+        for (let i = 0; i < ITINERARY_TIMINGS.length; i++) {
+          const eventTime = ITINERARY_TIMINGS[i].time;
+          const nextEventTime = ITINERARY_TIMINGS[i + 1]?.time || WEDDING_DAY_END;
+          if (nowMs >= eventTime && nowMs < nextEventTime) {
+            activeIdx = i;
+            break;
+          }
+        }
+        setCurrentEventIndex(activeIdx);
+      } else {
+        setCurrentEventIndex(-1);
+      }
+    };
 
     handleTimeCheck();
-    const handleVisibilityChange = () => { if (document.visibilityState === 'visible') handleTimeCheck(); };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleTimeCheck);
     const timer = setInterval(handleTimeCheck, 5 * 60 * 1000);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleTimeCheck);
-      clearInterval(timer);
-    };
+    return () => clearInterval(timer);
   }, []);
 
   // ============================================================================
@@ -339,22 +374,12 @@ export default function WeddingPage() {
 
     return (
       <>
-        {isWeddingDay ? (
-          <>
-            {timingsSectionComponent}
-            {ceremonyMapSectionComponent}
-            {receptionMapSectionComponent}
-          </>
-        ) : (
-          <>
-            {envelopeSectionComponent}
-            {countdownSectionComponent}
-            {ceremonyMapSectionComponent}
-            {receptionMapSectionComponent}
-            {timingsSectionComponent}
-            {rsvpSectionComponent}
-          </>
-        )}
+        {!isWeddingDay && envelopeSectionComponent}
+        {!isWeddingDay && countdownSectionComponent}
+        {ceremonyMapSectionComponent}
+        {receptionMapSectionComponent}
+        {rsvpSectionComponent}
+        {timingsSectionComponent}{/* Guaranteed render */}
       </>
     );
   };
@@ -414,7 +439,6 @@ export default function WeddingPage() {
         isCutoffPassed={isCutoffPassed}
         guestsList={guestsList}
         setGuestsList={setGuestsList}
-        isEditing={isEditing}
         setIsEditing={setIsEditing}
       />
       )}
