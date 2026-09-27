@@ -33,7 +33,7 @@ import { audio, initAudio, getAudio } from '../utils/audio';
 
 // --- Interfaces ---
 export interface Guest {
-  id: number;
+  id?: string;
   firstName: string;
   lastName: string;
   attending: 'Attending both ceremony and reception' | 'Reception only' | 'Declining' | '';
@@ -68,7 +68,16 @@ export default function WeddingPage() {
   const [uploadToast, setUploadToast] = useState<string>("");
 
   // RSVP State
-  const [guestsList, setGuestsList] = useState<Guest[]>([]); 
+  const [guestsList, setGuestsList] = useState<Guest[]>([
+    {
+      id: undefined, // or string '1'
+      firstName: '',
+      lastName: '',
+      email: '',
+      attending: '',
+      dietary: '',
+    },
+  ])
   const [, setIsEditing] = useState(false);
   const isCutoffPassed = new Date() > RSVP_CUTOFF_DATE;
 

@@ -1,15 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Trash2, Check, Search, CheckCircle2, UserPlus, Users, Info, AlertCircle, PlusCircle } from 'lucide-react';
+import { Guest } from '@/app/page';
 
-export interface Guest {
-  id?: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  attending: string;
-  dietary: string;
-}
 
 interface RsvpSheetModalProps {
   isOpen?: boolean;
