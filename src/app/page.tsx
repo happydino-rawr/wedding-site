@@ -356,6 +356,8 @@ export default function WeddingPage() {
         closedTranslateY={closedTranslateY}
         weddingInfo={weddingInfo}
         onAddToCalendar={handleAddToCalendar}
+        onOpenRsvp={triggerOpenRsvp}
+        deadlineLabel={rsvpDeadlineLabel}
       />
     );
     const countdownSectionComponent = <CountdownSection timeLeft={timeLeft} />;
@@ -368,9 +370,6 @@ export default function WeddingPage() {
     const timingsSectionComponent = (
       <ItinerarySection isWeddingDay={isWeddingDay} currentEventIndex={currentEventIndex} weddingInfo={weddingInfo} />
     );
-    const rsvpSectionComponent = (
-      <RsvpSection onOpenRsvp={triggerOpenRsvp} deadlineLabel={rsvpDeadlineLabel} />
-    );
 
     return (
       <>
@@ -378,7 +377,6 @@ export default function WeddingPage() {
         {!isWeddingDay && countdownSectionComponent}
         {ceremonyMapSectionComponent}
         {receptionMapSectionComponent}
-        {rsvpSectionComponent}
         {timingsSectionComponent}{/* Guaranteed render */}
       </>
     );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 import { COUPLE_PHOTOS } from '../lib/constants';
+import RsvpSection from './RsvpSection';
 
 export interface WeddingInfo {
   coupleNames: string;
@@ -24,6 +25,8 @@ interface InvitationEnvelopeSectionProps {
   closedTranslateY: number;
   weddingInfo: WeddingInfo;
   onAddToCalendar: () => void;
+  onOpenRsvp?: () => void;
+  deadlineLabel?: string;
 }
 
 export default function InvitationEnvelopeSection({
@@ -33,6 +36,8 @@ export default function InvitationEnvelopeSection({
   closedTranslateY,
   weddingInfo,
   onAddToCalendar,
+  onOpenRsvp,
+  deadlineLabel,
 }: InvitationEnvelopeSectionProps) {
   return (
     <section className="py-20 md:py-32 px-4 bg-[#FDFBF7] flex flex-col items-center min-h-[700px] justify-center overflow-visible">
@@ -159,6 +164,12 @@ export default function InvitationEnvelopeSection({
             <p className="font-serif text-xl md:text-2xl text-[#4A433A]">{weddingInfo.receptionTime}</p>
           </div>
         </div>
+
+        {onOpenRsvp && deadlineLabel && (
+          <div className="mt-6">
+            <RsvpSection onOpenRsvp={onOpenRsvp} deadlineLabel={deadlineLabel} />
+          </div>
+        )}
 
         <button
           onClick={onAddToCalendar}
