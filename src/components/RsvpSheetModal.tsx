@@ -184,7 +184,7 @@ export default function RsvpSheetModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="rsvp-modal fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       {/* Outer Modal Container */}
       <div className="bg-[#FDFBF7] border border-[#EADCC9] max-w-xl w-full rounded-sm relative shadow-2xl max-h-[90vh] flex flex-col overflow-hidden">
         
@@ -201,7 +201,7 @@ export default function RsvpSheetModal({
           </button>
 
           <div>
-            <span className="text-[15px] uppercase tracking-[0.4em] text-[#C5A880] font-bold block">
+            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold block mb-2">
               {isSubmitted ? 'Your Recorded Details' : 'Join Our Celebration'}
             </span>
             <h2 className="text-2xl font-serif font-light text-[#4A433A]">
@@ -234,7 +234,7 @@ export default function RsvpSheetModal({
                       {/* Header */}
                       <div className="flex justify-between items-center border-b border-[#EADCC9]/60 pb-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-[#C5A880]/20 text-[#C5A880] font-bold text-[15px] flex items-center justify-center">
+                          <span className="w-5 h-5 rounded-full bg-[#C5A880]/20 text-[#C5A880] font-bold text-[10px] flex items-center justify-center">
                             {index + 1}
                           </span>
                           <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[#4A433A]">
@@ -242,11 +242,11 @@ export default function RsvpSheetModal({
                           </span>
 
                           {isGuestConfirmed ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7] text-[14px] font-semibold text-[#2E7D32]">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7] text-[9px] font-semibold text-[#2E7D32]">
                               <CheckCircle2 className="w-3 h-3 text-[#2E7D32]" /> Confirmed Response
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[14px] font-semibold text-amber-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[9px] font-semibold text-amber-800">
                               New Entry
                             </span>
                           )}
@@ -256,7 +256,7 @@ export default function RsvpSheetModal({
                           <button
                             type="button"
                             onClick={() => handleRemoveGuest(guest.id, index)}
-                            className="text-[#BE123C] hover:text-[#9E1235] text-xs flex items-center gap-1 transition"
+                            className="rsvp-modal-button text-[#BE123C] hover:text-[#9E1235] text-xs flex items-center gap-1 transition"
                           >
                             <Trash2 className="w-3.5 h-3.5" /> Remove
                           </button>
@@ -390,7 +390,7 @@ export default function RsvpSheetModal({
                   <button
                     type="button"
                     onClick={handleAddFamilyMember}
-                    className="w-full py-2.5 border border-dashed border-[#C5A880] text-xs uppercase tracking-[0.2em] text-[#C5A880] hover:bg-[#C5A880]/10 transition-all flex items-center justify-center gap-2 rounded-sm"
+                    className="rsvp-modal-button w-full py-2.5 border border-dashed border-[#C5A880] text-xs uppercase tracking-[0.2em] text-[#C5A880] hover:bg-[#C5A880]/10 transition-all flex items-center justify-center gap-2 rounded-sm"
                   >
                     <UserPlus className="w-4 h-4" /> Add Family Member / Plus One
                   </button>
@@ -399,12 +399,12 @@ export default function RsvpSheetModal({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="rsvp-modal-button w-full py-3.5 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <Check className="w-4 h-4" />
                     {isSubmitting ? 'Saving...' : isSubmitted ? 'Save Changes' : 'Submit RSVP'}
                   </button>
-                  <p className="text-xs text-[#7D7261] leading-relaxed text-center">
+                  <p className="text-[12px] text-[#7D7261] leading-relaxed text-center">
                     For any questions about the celebration, please reach out to the couple privately.
                   </p>
                 </div>
@@ -425,7 +425,7 @@ export default function RsvpSheetModal({
                 An RSVP already exists for <strong className="text-[#4A433A]">{conflictData.existingGuest.name}</strong> with the email <span className="underline">{conflictData.existingGuest.email || 'No email registered'}</span>.
               </p>
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-sm text-[15px] text-amber-900 leading-snug">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-sm text-[11px] text-amber-900 leading-snug">
                 Would you like to update that existing response, or create a new entry for a different person with the same name?
               </div>
 
@@ -433,7 +433,7 @@ export default function RsvpSheetModal({
                 <button
                   type="button"
                   onClick={handleOverwriteExisting}
-                  className="w-full py-2.5 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-wider rounded-sm transition-all"
+                  className="rsvp-modal-button w-full py-2.5 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-wider rounded-sm transition-all"
                 >
                   Update Existing RSVP
                 </button>
@@ -441,7 +441,7 @@ export default function RsvpSheetModal({
                 <button
                   type="button"
                   onClick={handleCreateAsNew}
-                  className="w-full py-2.5 bg-[#FAF8F5] border border-[#EADCC9] hover:bg-[#F2ECE1] text-[#4A433A] text-xs font-semibold uppercase tracking-wider rounded-sm transition-all"
+                  className="rsvp-modal-button w-full py-2.5 bg-[#FAF8F5] border border-[#EADCC9] hover:bg-[#F2ECE1] text-[#4A433A] text-xs font-semibold uppercase tracking-wider rounded-sm transition-all"
                 >
                   Create New Entry (Different Person)
                 </button>
@@ -449,7 +449,7 @@ export default function RsvpSheetModal({
                 <button
                   type="button"
                   onClick={() => setConflictData(null)}
-                  className="w-full text-[15px] text-[#7D7261] underline text-center pt-1"
+                  className="w-full text-[11px] text-[#7D7261] underline text-center pt-1"
                 >
                   Cancel and Review Form
                 </button>

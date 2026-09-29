@@ -48,7 +48,7 @@ export default function ReceptionVenueSection({ receptionName, receptionAddress 
               </div>
 
               {/* Photo ID Note Box */}
-              <div className="w-full max-w-2xl mx-auto mt-10 p-5 sm:p-6 rounded-xl bg-[#F4EFE6]/50 border border-[#EADCC9]/60 space-y-2 text-left">
+              <div className="w-full max-w-2xl mx-auto mt-10 p-5 sm:p-6 rounded-xl bg-[#F4EFE6]/50 border border-[#EADCC9]/60 space-y-2 text-center">
                 <p className="text-[15px] uppercase tracking-widest text-[#C5A880] font-bold">Please Note</p>
                 <p className="text-xs text-[#7D7261] leading-relaxed">
                   All guests must present a <strong className="font-semibold text-[#BE123C]">valid form of photo ID </strong> upon arrival to sign into the venue (e.g., Passport, Driver&apos;s Licence, or Proof of Age Card).

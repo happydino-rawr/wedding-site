@@ -414,7 +414,7 @@ export default function WeddingPage() {
   // THE MAIN RETURN STATEMENT
   // ============================================================================
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#5C5346] font-sans selection:bg-[#C5A880] selection:text-white pb-20 relative overflow-x-hidden">
+    <div className="wedding-site min-h-screen bg-[#FDFBF7] text-[#5C5346] font-sans selection:bg-[#C5A880] selection:text-white pb-20 relative overflow-x-hidden">
       
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Fascinate&family=Fascinate+Inline&display=swap');
@@ -442,7 +442,7 @@ export default function WeddingPage() {
 
       <OurStorySection />
 
-			{isGalleryAvailable && <div className="py-20 text-center bg-[#FDFBF7]">
+			{isGalleryAvailable && <div className="px-12 py-20 text-center bg-[#FDFBF7]">
 			<h3 className="font-serif text-2xl text-[#4A433A] mb-4">Capture the Day</h3>
       <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
       <p className="text-[20px] text-[#7D7261] max-w-md mx-auto pt-4 mb-8 leading-relaxed">

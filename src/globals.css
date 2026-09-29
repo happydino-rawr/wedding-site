@@ -18,6 +18,18 @@
   --text-base: 1.5rem;
 }
 
+.rsvp-modal {
+  --text-xs: 0.9375rem;
+  --text-sm: 1.09375rem;
+  --text-base: 1.25rem;
+}
+
+.rsvp-modal .rsvp-modal-button {
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -29,4 +41,13 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.wedding-site section:not(#hero):not(.rsvp-section),
+.wedding-site > footer {
+  padding-inline: clamp(3rem, 10.5vw, 4.5rem);
+}
+
+.wedding-site .rsvp-section {
+  padding-inline: 1rem;
 }
