@@ -28,7 +28,7 @@ import {
   WEDDING_DAY_END,
   ITINERARY_TIMINGS
 } from '../lib/constants';
-import { audio, initAudio, getAudio } from '../utils/audio';
+import { audio, initAudio } from '../utils/audio';
 
 // --- Interfaces ---
 export interface Guest {
@@ -56,6 +56,7 @@ export default function WeddingPage() {
   const [passcode, setPasscode] = useState("");
   
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const shouldPlayMusicRef = useRef(true);
   const [showFAB, setShowFAB] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
@@ -217,49 +218,75 @@ export default function WeddingPage() {
   }, []);
 
   useEffect(() => {
-    initAudio('/enchanted_sam_yung.mp3');
-    const handleInteraction = () => {
-      if (audio) {
-        audio.play().catch(e => console.error("Playback failed:", e));
-      }
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-    };
-    window.addEventListener('click', handleInteraction);
-    window.addEventListener('touchstart', handleInteraction);
-    return () => {
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-    };
-  }, []); 
+    const audioInstance = initAudio('/enchanted_sam_yung.mp3');
+    if (!audioInstance) return;
 
-  useEffect(() => {
-    if (audio) {
-      if (isMusicPlaying) {
-        audio.play().catch(e => console.log("Play toggle blocked:", e));
-      } else {
-        audio.pause();
-      }
+    try {
+      const savedPreference = window.localStorage.getItem('wedding-music-enabled');
+      if (savedPreference !== null) shouldPlayMusicRef.current = savedPreference === 'true';
+    } catch {
+      // Continue with the default preference when browser storage is unavailable.
     }
-  }, [isMusicPlaying]);
 
-  useEffect(() => {
-    const startMusic = () => {
-      const audioInstance = getAudio('/enchanted_sam_yung.mp3');
-      if (audioInstance && audioInstance.paused) {
-        audioInstance.currentTime = 6;
-        audioInstance.play().catch(console.error);
-        window.removeEventListener('click', startMusic);
-        window.removeEventListener('touchstart', startMusic);
-      }
+    const syncPlayingState = () => setIsMusicPlaying(!audioInstance.paused && !audioInstance.ended);
+    const startWhenVisible = () => {
+      if (!shouldPlayMusicRef.current || document.visibilityState !== 'visible' || !audioInstance.paused) return;
+      void audioInstance.play().then(() => {
+        // A pending autoplay request can resolve after Safari backgrounds the tab.
+        if (document.visibilityState !== 'visible') audioInstance.pause();
+      }).catch(() => {
+        // Browsers can block audible autoplay until the visitor taps the music button.
+        syncPlayingState();
+      });
     };
-    window.addEventListener('click', startMusic);
-    window.addEventListener('touchstart', startMusic);
+    const stopWhenHidden = () => {
+      if (document.visibilityState !== 'visible') audioInstance.pause();
+    };
+    const stopOnPageHide = () => audioInstance.pause();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') startWhenVisible();
+      else stopWhenHidden();
+    };
+
+    audioInstance.addEventListener('play', syncPlayingState);
+    audioInstance.addEventListener('pause', syncPlayingState);
+    audioInstance.addEventListener('ended', syncPlayingState);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', stopOnPageHide);
+    syncPlayingState();
+    startWhenVisible();
+
     return () => {
-      window.removeEventListener('click', startMusic);
-      window.removeEventListener('touchstart', startMusic);
-    }
+      audioInstance.pause();
+      audioInstance.removeEventListener('play', syncPlayingState);
+      audioInstance.removeEventListener('pause', syncPlayingState);
+      audioInstance.removeEventListener('ended', syncPlayingState);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', stopOnPageHide);
+    };
   }, []);
+
+  const toggleMusic = () => {
+    const audioInstance = audio;
+    if (!audioInstance) return;
+
+    const shouldPlay = audioInstance.paused || audioInstance.ended;
+    shouldPlayMusicRef.current = shouldPlay;
+    try {
+      window.localStorage.setItem('wedding-music-enabled', String(shouldPlay));
+    } catch {
+      // Playback controls still work when browser storage is unavailable.
+    }
+
+    if (shouldPlay) {
+      void audioInstance.play().catch((error: unknown) => {
+        console.error('Music playback failed:', error);
+        setIsMusicPlaying(false);
+      });
+    } else {
+      audioInstance.pause();
+    }
+  };
 
   useEffect(() => {
     const handleTimeCheck = () => {
@@ -400,7 +427,7 @@ export default function WeddingPage() {
       {/* --- 1. Top Content --- */}
       <HeroSection 
         isMusicPlaying={isMusicPlaying}
-        onToggleMusic={() => setIsMusicPlaying(!isMusicPlaying)}
+        onToggleMusic={toggleMusic}
         onBeginClick={() => scrollToAnchor('countdown-anchor')}
       />
 
@@ -410,7 +437,7 @@ export default function WeddingPage() {
       {/* --- 3. Bottom Content --- */}
       <VinylVisualizerSection 
         isMusicPlaying={isMusicPlaying}
-        onToggleMusic={() => setIsMusicPlaying(!isMusicPlaying)}
+        onToggleMusic={toggleMusic}
       />
 
       <OurStorySection />
