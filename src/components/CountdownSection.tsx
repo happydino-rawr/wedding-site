@@ -10,8 +10,8 @@ export default function CountdownSection({ timeLeft }: CountdownSectionProps) {
     <>
       <section id="countdown-anchor" className="pt-0 pb-16 px-4 bg-[#FDFBF7] relative overflow-hidden flex flex-col items-center justify-center border-b border-[#EADCC9]/30">
         <div className="text-center space-y-4 relative z-10 max-w-2xl w-full">
-          <div className="space-y-3">
-            <span className="text-[14px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Promise</span>
+          <div className="space-y-5">
+            <span className="block text-[14px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Promise</span>
             <p className="font-serif italic text-base sm:text-lg text-[#7D7261] tracking-wide">
               "Counting down to our forever..."
             </p>
