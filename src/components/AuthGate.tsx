@@ -37,13 +37,13 @@ export function AuthGate({
           <h1 className="font-serif text-2xl sm:text-3xl text-[#4A433A] tracking-widest font-light mb-2">
             {title}
           </h1>
-          <p className="text-[#9C8F7E] text-[8px] sm:text-[9px] uppercase tracking-[0.4em] mb-10 font-semibold">
+          <p className="text-[#9C8F7E] text-[12px] sm:text-[14px] uppercase tracking-[0.4em] mb-10 font-semibold">
             The Wedding Celebration
           </p>
 
           <form onSubmit={onSubmit} className="w-full space-y-8">
             <div className="space-y-2">
-              <span className="text-[8px] uppercase tracking-[0.3em] text-[#C5A880] block font-bold">Private Access Key</span>
+              <span className="text-[12px] uppercase tracking-[0.3em] text-[#C5A880] block font-bold">Private Access Key</span>
               <input
                 type="password"
                 placeholder="Enter Passcode"
@@ -53,11 +53,11 @@ export function AuthGate({
               />
             </div>
             {authError && (
-              <p className="text-red-500 text-[10px] tracking-widest font-medium uppercase">{authError}</p>
+              <p className="text-red-500 text-[15px] tracking-widest font-medium uppercase">{authError}</p>
             )}
             <button
               type="submit"
-              className="w-full py-4 bg-[#C5A880] text-white font-serif tracking-[0.3em] text-[9px] uppercase hover:bg-[#B3966E] transition-all duration-300 shadow-sm"
+              className="w-full py-4 bg-[#C5A880] text-white font-serif tracking-[0.3em] text-[14px] uppercase hover:bg-[#B3966E] transition-all duration-300 shadow-sm"
             >
               Request Entrance
             </button>

@@ -18,7 +18,7 @@ export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }
           >
             <svg viewBox="0 0 320 320" className="absolute inset-0 w-full h-full pointer-events-none">
               <path id="vinyl-curve" d="M 40,160 A 120,120 0 0,1 280,160" fill="transparent" />
-              <text className="text-[14px] uppercase tracking-[0.4em] font-serif fill-[#FDFBF7] opacity-90">
+              <text className="text-[18px] uppercase tracking-[0.4em] font-serif fill-[#FDFBF7] opacity-90">
                 <textPath href="#vinyl-curve" startOffset="50%" textAnchor="middle">
                   《 Enchanted 》
                 </textPath>
@@ -66,7 +66,7 @@ export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }
 
           {/* 3. Quote Card (Z-20, Overlapping Vinyl and Photo) */}
           <div className="absolute top-[180px] sm:top-[200px] z-20 w-[120%] bg-white/85 px-6 py-8 pt-10 rounded-sm shadow-[0_0px_15px_rgba(0,0,0,0.80)] border border-white/50 text-center">
-            <p className="font-serif italic text-xs sm:text-sm leading-loose text-[#5C5346] tracking-wide">
+            <p className="font-serif italic text-[12px] sm:text-[14px] leading-loose text-[#5C5346] tracking-wide">
               {/* "If the sun were to rise in the west, <br />
               I'd never change my mind to love you forever. <br />
               I love you not for who you are, but for who I am before you." */}

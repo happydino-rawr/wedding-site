@@ -96,10 +96,10 @@ export default function ShareGalleryPage() {
         
         {/* Section Heading */}
         <div className="text-center space-y-3">
-          <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Capture the Day</span>
+          <span className="block pb-2 text-[15px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Capture the Day</span>
           <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Our Shared Gallery</h2>
           <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
-          <p className="text-[13px] text-[#7D7261] max-w-md mx-auto pt-4 leading-relaxed">
+          <p className="text-[20px] text-[#7D7261] max-w-md mx-auto pt-4 leading-relaxed">
             Our story, seen through your eyes. Please upload your photos below to help us preserve every single moment of our special day.
           </p>
         </div>

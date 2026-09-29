@@ -418,7 +418,7 @@ export default function WeddingPage() {
 			{isGalleryAvailable && <div className="py-20 text-center bg-[#FDFBF7]">
 			<h3 className="font-serif text-2xl text-[#4A433A] mb-4">Capture the Day</h3>
       <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
-      <p className="text-[13px] text-[#7D7261] max-w-md mx-auto pt-4 mb-8 leading-relaxed">
+      <p className="text-[20px] text-[#7D7261] max-w-md mx-auto pt-4 mb-8 leading-relaxed">
         Our story, seen through your eyes. Please upload your photos below to help us preserve every single moment of our special day.
       </p>			<a
 				href="/share-gallery"

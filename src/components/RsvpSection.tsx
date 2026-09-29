@@ -22,7 +22,7 @@ export default function RsvpSection({ onOpenRsvp, deadlineLabel }: RsvpSectionPr
           </div>
 
           <div className="space-y-2 py-2">
-            <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] text-[#C5A880] font-bold block">
+            <span className="text-[15px] sm:text-xs uppercase tracking-[0.3em] text-[#C5A880] font-bold block">
               Kindly Reply By
             </span>
             <p className="font-serif italic text-2xl sm:text-3xl text-[#BE123C] pt-1">

@@ -11,7 +11,7 @@ export default function CountdownSection({ timeLeft }: CountdownSectionProps) {
       <section id="countdown-anchor" className="pt-0 pb-16 px-4 bg-[#FDFBF7] relative overflow-hidden flex flex-col items-center justify-center border-b border-[#EADCC9]/30">
         <div className="text-center space-y-4 relative z-10 max-w-2xl w-full">
           <div className="space-y-3">
-            <span className="text-[9px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Promise</span>
+            <span className="text-[14px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">The Promise</span>
             <p className="font-serif italic text-base sm:text-lg text-[#7D7261] tracking-wide">
               "Counting down to our forever..."
             </p>
@@ -19,22 +19,22 @@ export default function CountdownSection({ timeLeft }: CountdownSectionProps) {
           <div className="flex items-center justify-center gap-5 sm:gap-10">
             <div className="flex flex-col items-center">
               <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.days}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Days</span>
+              <span className="text-[12px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Days</span>
             </div>
             <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
             <div className="flex flex-col items-center">
               <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.hours}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Hours</span>
+              <span className="text-[12px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Hours</span>
             </div>
             <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
             <div className="flex flex-col items-center">
               <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.minutes}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Mins</span>
+              <span className="text-[12px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Mins</span>
             </div>
             <div className="w-[1px] h-8 bg-[#EADCC9]/50" />
             <div className="flex flex-col items-center">
               <span className="text-3xl sm:text-4xl font-serif font-light text-[#BE123C] tracking-wider">{timeLeft.seconds}</span>
-              <span className="text-[8px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Secs</span>
+              <span className="text-[12px] uppercase tracking-widest text-[#9C8F7E] mt-1 font-semibold">Secs</span>
             </div>
           </div>
 

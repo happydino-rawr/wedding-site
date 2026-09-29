@@ -12,7 +12,7 @@ export default function CeremonyVenueSection({ ceremonyName, ceremonyAddress }: 
         
         {/* Header Section (Constrained) */}
         <div className="max-w-2xl mx-auto px-4 space-y-3">
-          <span className="text-[12px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Ceremony Location</span>
+          <span className="block pb-2 text-[18px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Ceremony Location</span>
           <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">{ceremonyName}</h2>
           <p className="text-sm text-[#7D7261]">{ceremonyAddress}</p>
         </div>
@@ -48,7 +48,7 @@ export default function CeremonyVenueSection({ ceremonyName, ceremonyAddress }: 
             href="https://www.google.com/maps/search/?api=1&query=Harbour+View+Lawn+Royal+Botanic+Garden+Sydney"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2.5 px-4 py-2 text-[10px] sm:px-8 sm:py-3 sm:text-xs rounded-sm border border-[#BE123C] text-[#BE123C] font-semibold uppercase tracking-[0.2em] hover:bg-[#BE123C] hover:text-white transition-all duration-300 active:scale-95"
+            className="inline-flex items-center gap-2.5 px-4 py-2 text-[15px] sm:px-8 sm:py-3 sm:text-xs rounded-sm border border-[#BE123C] text-[#BE123C] font-semibold uppercase tracking-[0.2em] hover:bg-[#BE123C] hover:text-white transition-all duration-300 active:scale-95"
           >
             <Navigation className="w-3.5 h-3.5" />
             <span>Route Directions</span>

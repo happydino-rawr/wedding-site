@@ -201,7 +201,7 @@ export default function RsvpSheetModal({
           </button>
 
           <div>
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold block">
+            <span className="text-[15px] uppercase tracking-[0.4em] text-[#C5A880] font-bold block">
               {isSubmitted ? 'Your Recorded Details' : 'Join Our Celebration'}
             </span>
             <h2 className="text-2xl font-serif font-light text-[#4A433A]">
@@ -234,7 +234,7 @@ export default function RsvpSheetModal({
                       {/* Header */}
                       <div className="flex justify-between items-center border-b border-[#EADCC9]/60 pb-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-[#C5A880]/20 text-[#C5A880] font-bold text-[10px] flex items-center justify-center">
+                          <span className="w-5 h-5 rounded-full bg-[#C5A880]/20 text-[#C5A880] font-bold text-[15px] flex items-center justify-center">
                             {index + 1}
                           </span>
                           <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[#4A433A]">
@@ -242,11 +242,11 @@ export default function RsvpSheetModal({
                           </span>
 
                           {isGuestConfirmed ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7] text-[9px] font-semibold text-[#2E7D32]">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7] text-[14px] font-semibold text-[#2E7D32]">
                               <CheckCircle2 className="w-3 h-3 text-[#2E7D32]" /> Confirmed Response
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[9px] font-semibold text-amber-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[14px] font-semibold text-amber-800">
                               New Entry
                             </span>
                           )}
@@ -266,7 +266,7 @@ export default function RsvpSheetModal({
                       {/* Inputs */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                          <label className="text-[14px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
                             First Name <span className="text-[#BE185D]">*</span>
                           </label>
                           <input
@@ -280,7 +280,7 @@ export default function RsvpSheetModal({
                           />
                         </div>
                         <div>
-                          <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                          <label className="text-[14px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
                             Last Name <span className="text-[#BE185D]">*</span>
                           </label>
                           <input
@@ -296,7 +296,7 @@ export default function RsvpSheetModal({
                       </div>
 
                       <div>
-                        <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                        <label className="text-[14px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
                           Email Address <span className="text-[#BE185D]">*</span>
                         </label>
                         <input
@@ -311,7 +311,7 @@ export default function RsvpSheetModal({
                       </div>
 
                       <div>
-                        <label className="text-[9px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">
+                        <label className="text-[14px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">
                           Attendance Option <span className="text-[#BE185D]">*</span>
                         </label>
                         <div className="relative">
@@ -337,7 +337,7 @@ export default function RsvpSheetModal({
 
                       {guest.attending !== 'Declining' && guest.attending !== '' && (
                         <div>
-                          <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Dietary Requirements</label>
+                          <label className="text-[14px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Dietary Requirements</label>
                           <input
                             type="text"
                             disabled={isCutoffPassed}
@@ -425,7 +425,7 @@ export default function RsvpSheetModal({
                 An RSVP already exists for <strong className="text-[#4A433A]">{conflictData.existingGuest.name}</strong> with the email <span className="underline">{conflictData.existingGuest.email || 'No email registered'}</span>.
               </p>
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-sm text-[11px] text-amber-900 leading-snug">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-sm text-[15px] text-amber-900 leading-snug">
                 Would you like to update that existing response, or create a new entry for a different person with the same name?
               </div>
 
@@ -449,7 +449,7 @@ export default function RsvpSheetModal({
                 <button
                   type="button"
                   onClick={() => setConflictData(null)}
-                  className="w-full text-[11px] text-[#7D7261] underline text-center pt-1"
+                  className="w-full text-[15px] text-[#7D7261] underline text-center pt-1"
                 >
                   Cancel and Review Form
                 </button>
