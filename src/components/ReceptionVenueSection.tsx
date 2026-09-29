@@ -9,11 +9,11 @@ interface ReceptionVenueSectionProps {
 export default function ReceptionVenueSection({ receptionName, receptionAddress }: ReceptionVenueSectionProps) {
   return (
     <>
-      <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-12 mb-4 sm:mb-8">
+      <div className="photo-gutter w-full max-w-4xl mx-auto mt-4 sm:mt-12 mb-4 sm:mb-8">
         <img
           src={COUPLE_PHOTOS.reception_pic}
           alt="Couple photo"
-          className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
+          className="w-full aspect-[16/9] object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
         />
       </div>
 

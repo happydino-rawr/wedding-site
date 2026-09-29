@@ -45,9 +45,17 @@ body {
 
 .wedding-site section:not(#hero):not(.rsvp-section),
 .wedding-site > footer {
-  padding-inline: clamp(3rem, 10.5vw, 4.5rem);
+  padding-inline: var(--site-gutter);
+}
+
+.wedding-site {
+  --site-gutter: clamp(1.5rem, 6vw, 3rem);
+}
+
+.wedding-site .photo-gutter {
+  padding-inline: var(--site-gutter);
 }
 
 .wedding-site .rsvp-section {
-  padding-inline: 1rem;
+  padding-inline: 0;
 }

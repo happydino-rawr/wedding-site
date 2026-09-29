@@ -17,11 +17,11 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
       <section id="timings" className="py-24 bg-[#FDFBF7]">
         
         {/* --- 1. TOP PHOTO (itinery_pic) WITH TOP BORDER --- */}
-        <div className="w-full max-w-4xl mx-auto px-4 mb-16 sm:mb-20 pt-15 sm:pt-20 border-t border-[#EADCC9]/50">
+        <div className="w-full max-w-4xl mx-auto px-0 mb-16 sm:mb-20 pt-15 sm:pt-20 border-t border-[#EADCC9]/50">
           <img
             src={COUPLE_PHOTOS.itinery_pic}
             alt="Couple photo"
-            className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
+            className="w-full aspect-[16/9] object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
           />
         </div>
 
@@ -77,11 +77,11 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
         <div className="pt-15 mt-10 text-center">
           
           {/* Harbour Photo */}
-          <div className="w-full max-w-4xl mx-auto px-4 mt-4 sm:mt-6 mb-12 sm:mb-16">
+          <div className="w-full max-w-4xl mx-auto px-0 mt-4 sm:mt-6 mb-12 sm:mb-16">
             <img
               src={COUPLE_PHOTOS.harbour_pic}
               alt="RSVP transition layout"
-              className="w-full h-56 sm:h-80 object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
+              className="w-full aspect-[16/9] object-cover rounded-sm shadow-md border border-[#EADCC9]/50"
             />
           </div>
 

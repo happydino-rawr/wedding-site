@@ -7,11 +7,11 @@ interface RsvpSectionProps {
 
 export default function RsvpSection({ onOpenRsvp, deadlineLabel }: RsvpSectionProps) {
   return (
-    <section className="rsvp-section py-24 px-4 flex justify-center">
-      <div className="bg-white border border-[#EADCC9] shadow-xl p-6 sm:p-16 rounded-sm max-w-2xl w-full text-center relative overflow-hidden">
+    <section className="rsvp-section py-16 sm:py-24 flex justify-center">
+      <div className="bg-white border border-[#EADCC9] shadow-xl p-8 sm:p-12 md:p-16 rounded-sm max-w-2xl w-full text-center relative overflow-hidden">
         <div className="absolute inset-4 sm:inset-5 border border-[#EADCC9]/80 border-dashed pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col items-center space-y-8 sm:space-y-10">
+        <div className="relative z-10 flex flex-col items-center space-y-6 sm:space-y-10">
           <Heart className="w-6 h-6 text-[#C5A880] fill-current opacity-90" />
 
           <div className="space-y-3">
@@ -37,7 +37,7 @@ export default function RsvpSection({ onOpenRsvp, deadlineLabel }: RsvpSectionPr
           <div className="w-full pt-4 border-t border-[#FAF6F0]">
             <button
               onClick={onOpenRsvp}
-              className="inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#C5A880] hover:bg-[#B3956D] text-white text-[14px] sm:text-xs font-semibold uppercase tracking-[0.2em] rounded-sm shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
+              className="inline-flex items-center justify-center gap-3 px-6 sm:px-10 py-4 max-w-full bg-[#C5A880] hover:bg-[#B3956D] text-white text-[14px] sm:text-xs font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] rounded-sm shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
             >
               <Users className="w-4 h-4" />
               <span>Please RSVP Here</span>
