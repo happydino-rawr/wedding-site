@@ -18,7 +18,7 @@ export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }
           >
             <svg viewBox="0 0 320 320" className="absolute inset-0 w-full h-full pointer-events-none">
               <path id="vinyl-curve" d="M 40,160 A 120,120 0 0,1 280,160" fill="transparent" />
-              <text className="text-[14px] uppercase tracking-[0.4em] font-serif fill-[#FDFBF7] opacity-90">
+              <text className="text-[18px] uppercase tracking-[0.4em] font-serif fill-[#FDFBF7] opacity-90">
                 <textPath href="#vinyl-curve" startOffset="50%" textAnchor="middle">
                   《 Enchanted 》
                 </textPath>
