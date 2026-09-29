@@ -23,7 +23,7 @@ export default function ReceptionVenueSection({ receptionName, receptionAddress 
           
           {/* Location Details (Constrained) */}
           <div className="max-w-2xl mx-auto px-4 space-y-3">
-            <span className="text-[18px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception Location</span>
+            <span className="block pb-2 text-[18px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception Location</span>
             <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">{receptionName}</h2>
             <p className="text-sm text-[#7D7261]">{receptionAddress}</p>
             <p className="font-serif italic text-sm text-[#7D7261] pt-2">

@@ -6,7 +6,7 @@ export default function OurStorySection() {
       <section id="story" className="py-24 px-4 bg-[#FAF6F0]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center space-y-3 mb-24">
-            <span className="text-[15px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Chronology of Us</span>
+            <span className="block pb-2 text-[15px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Chronology of Us</span>
             <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Our Story</h2>
             <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
           </div>
@@ -24,7 +24,7 @@ export default function OurStorySection() {
                   <span className="text-[12px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Jan 30, 2012</span>
                 </div>
 
-                <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
+                <div className="w-full md:w-1/2 md:pr-24 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
                   <FadeInSection>
                     <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">Where it Began</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
@@ -33,7 +33,7 @@ export default function OurStorySection() {
                   </FadeInSection>
                 </div>
                 
-                <div className="w-full md:w-1/2 md:pl-16 flex justify-center md:justify-start order-2 md:order-2 z-10">
+                <div className="w-full md:w-1/2 md:pl-24 flex justify-center md:justify-start order-2 md:order-2 z-10">
                   <img src={COUPLE_PHOTOS.story1} alt="Where it Began" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
                 </div>
               </div>
@@ -45,11 +45,11 @@ export default function OurStorySection() {
                   <span className="text-[12px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Sep 21, 2017</span>
                 </div>
 
-                <div className="w-full md:w-1/2 md:pr-16 flex justify-center md:justify-end order-2 md:order-1 z-10">
+                <div className="w-full md:w-1/2 md:pr-24 flex justify-center md:justify-end order-2 md:order-1 z-10">
                   <img src={COUPLE_PHOTOS.story2} alt="High School Days" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
                 </div>
 
-                <div className="w-full md:w-1/2 md:pl-16 flex flex-col items-center md:items-start text-center md:text-left order-3 md:order-2 mt-6 md:mt-0 px-4 md:px-0">
+                <div className="w-full md:w-1/2 md:pl-24 flex flex-col items-center md:items-start text-center md:text-left order-3 md:order-2 mt-6 md:mt-0 px-4 md:px-0">
                   <FadeInSection>
                     <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">High School Days</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:ml-0 md:mr-auto">
@@ -66,11 +66,11 @@ export default function OurStorySection() {
                   <span className="text-[12px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Oct 09, 2018</span>
                 </div>
 
-                <div className="w-full md:w-1/2 md:pl-16 flex justify-center md:justify-start order-2 md:order-2 z-10">
+                <div className="w-full md:w-1/2 md:pl-24 flex justify-center md:justify-start order-2 md:order-2 z-10">
                   <img src={COUPLE_PHOTOS.story3} alt="Our Story Starts" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
                 </div>
 
-                <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
+                <div className="w-full md:w-1/2 md:pr-24 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
                   <FadeInSection>
                     <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">Our Story Starts</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
@@ -87,11 +87,11 @@ export default function OurStorySection() {
                   <span className="text-[12px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">May 10, 2025</span>
                 </div>
 
-                <div className="w-full md:w-1/2 md:pr-16 flex justify-center md:justify-end order-2 md:order-1 z-10">
+                <div className="w-full md:w-1/2 md:pr-24 flex justify-center md:justify-end order-2 md:order-1 z-10">
                   <img src={COUPLE_PHOTOS.story4} alt="Surprise Proposal" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
                 </div>
 
-                <div className="w-full md:w-1/2 md:pl-16 flex flex-col items-center md:items-start text-center md:text-left order-3 md:order-2 mt-6 md:mt-0 px-4 md:px-0">
+                <div className="w-full md:w-1/2 md:pl-24 flex flex-col items-center md:items-start text-center md:text-left order-3 md:order-2 mt-6 md:mt-0 px-4 md:px-0">
                   <FadeInSection>
                     <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">Surprise Proposal</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:ml-0 md:mr-auto">
@@ -108,7 +108,7 @@ export default function OurStorySection() {
                   <span className="text-[12px] uppercase tracking-[0.2em] text-[#C5A880] font-bold">Mar 06, 2027</span>
                 </div>
 
-                <div className="w-full md:w-1/2 md:pr-16 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
+                <div className="w-full md:w-1/2 md:pr-24 flex flex-col items-center md:items-end text-center md:text-right order-3 md:order-1 mt-6 md:mt-0 px-4 md:px-0">
                   <FadeInSection>
                     <h4 className="font-serif text-2xl font-light text-[#4A433A] mb-3">Our Next Chapter</h4>
                     <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-sm mx-auto md:mr-0 md:ml-auto">
@@ -117,7 +117,7 @@ export default function OurStorySection() {
                   </FadeInSection>
                 </div>
 
-                <div className="w-full md:w-1/2 md:pl-16 flex justify-center md:justify-start order-2 md:order-2 z-10">
+                <div className="w-full md:w-1/2 md:pl-24 flex justify-center md:justify-start order-2 md:order-2 z-10">
                   <img src={COUPLE_PHOTOS.story5} alt="Our Next Chapter" className="w-4/5 max-w-[280px] aspect-[4/5] object-cover rounded-sm shadow-md border border-[#EADCC9]/40 p-1.5 bg-white" />
                 </div>
               </div>
