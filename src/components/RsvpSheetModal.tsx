@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Trash2, Check, Search, CheckCircle2, UserPlus, Users, Info, AlertCircle, PlusCircle } from 'lucide-react';
+import { X, Trash2, Check, CheckCircle2, UserPlus, Info, AlertCircle } from 'lucide-react';
 import { Guest } from '@/app/page';
 
 
@@ -21,14 +21,8 @@ export default function RsvpSheetModal({
   setGuestsList,
   setIsEditing,
 }: RsvpSheetModalProps) {
-  const [activeTab, setActiveTab] = useState<'form' | 'lookup'>('form');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [lookupName, setLookupName] = useState({ firstName: '', lastName: '' });
-  
-  const [searchResults, setSearchResults] = useState<Guest[]>([]);
-  const [selectedSearchIds, setSelectedSearchIds] = useState<Set<string>>(new Set());
   const [conflictData, setConflictData] = useState<any>(null);
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -87,98 +81,6 @@ export default function RsvpSheetModal({
   }, [errorMessage, successMessage]);
 
   if (!isOpen) return null;
-
-  // Search Lookup Handler
-  const handleLookupRsvp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSearching(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    setSearchResults([]);
-    setSelectedSearchIds(new Set());
-
-    const cleanFirst = lookupName.firstName.trim();
-    const cleanLast = lookupName.lastName.trim();
-
-    if (!cleanFirst || !cleanLast) {
-      setErrorMessage("Please enter both a first and last name to search.");
-      setIsSearching(false);
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `/api/rsvp?firstName=${encodeURIComponent(cleanFirst)}&lastName=${encodeURIComponent(cleanLast)}`
-      );
-      
-      const responseText = await res.text();
-      const data = responseText ? JSON.parse(responseText) : {};
-
-      if (res.ok && data.found && Array.isArray(data.guests) && data.guests.length > 0) {
-        setSearchResults(data.guests);
-        setSelectedSearchIds(new Set(data.guests.map((g: Guest) => g.id || `${g.firstName}-${g.lastName}`)));
-        setSuccessMessage(`Found ${data.guests.length} match(es). Select who you would like to add below.`);
-      } else {
-        setErrorMessage("We couldn't find an exact RSVP matching that name. Please check spelling or fill out a new form.");
-      }
-    } catch (err) {
-      console.error("Lookup error:", err);
-      setErrorMessage("An error occurred during lookup. Please try again.");
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const toggleSelectSearchGuest = (guestKey: string) => {
-    setSelectedSearchIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(guestKey)) next.delete(guestKey);
-      else next.add(guestKey);
-      return next;
-    });
-  };
-
-  const handleAddSelectedToRsvp = () => {
-    const guestsToAdd = searchResults.filter((g) => {
-      const key = g.id || `${g.firstName}-${g.lastName}`;
-      return selectedSearchIds.has(key);
-    });
-
-    if (guestsToAdd.length === 0) {
-      setErrorMessage("Please select at least one guest to add.");
-      return;
-    }
-
-    const currentValid = guestsList.filter(
-      (g) => (g.firstName && g.firstName.trim() !== '') || (g.lastName && g.lastName.trim() !== '')
-    );
-
-    const getGuestKey = (g: Guest, indexFallback: number) => {
-      if (g.id) return `id-${g.id}`;
-      return `key-${(g.firstName || '').toLowerCase().trim()}-${(g.lastName || '').toLowerCase().trim()}-${indexFallback}`;
-    };
-
-    const mergedMap = new Map<string, Guest>();
-
-    currentValid.forEach((g, idx) => {
-      mergedMap.set(getGuestKey(g, idx), g);
-    });
-
-    guestsToAdd.forEach((fetchedGuest: Guest, idx: number) => {
-      mergedMap.set(getGuestKey(fetchedGuest, idx + 100), fetchedGuest);
-    });
-
-    const combinedList = Array.from(mergedMap.values());
-
-    setGuestsList(combinedList);
-    localStorage.setItem('confirmed_rsvp_guests', JSON.stringify(combinedList));
-
-    setIsSubmitted(true);
-    setIsEditing(false);
-    setSearchResults([]);
-    setSuccessMessage(`Added ${guestsToAdd.length} guest(s) to your RSVP list!`);
-    setActiveTab('form');
-  };
 
   const handleUpdateGuest = (targetId: string | undefined, targetIndex: number, field: keyof Guest, value: string) => {
     setGuestsList((prev) =>
@@ -300,165 +202,19 @@ export default function RsvpSheetModal({
 
           <div>
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] font-bold block">
-              {activeTab === 'form' ? (isSubmitted ? 'Your Recorded Details' : 'Join Our Celebration') : 'Welcome Back'}
+              {isSubmitted ? 'Your Recorded Details' : 'Join Our Celebration'}
             </span>
             <h2 className="text-2xl font-serif font-light text-[#4A433A]">
-              {activeTab === 'form' ? 'RSVP Form' : 'Find Your RSVP'}
+              RSVP Form
             </h2>
             <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-1" />
-          </div>
-
-          <div className="flex justify-center gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => { 
-                setActiveTab('form'); 
-                setErrorMessage(''); 
-                setSuccessMessage(''); 
-                setHasRemovedConfirmedGuest(false); 
-              }}
-              className={`px-4 py-1.5 text-[11px] uppercase tracking-[0.15em] rounded-full transition-all flex items-center gap-1.5 ${
-                activeTab === 'form'
-                  ? 'bg-[#C5A880] text-white font-semibold shadow-xs'
-                  : 'bg-[#FAF8F5] text-[#7D7261] border border-[#EADCC9] hover:bg-[#F2ECE1]'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              {isSubmitted ? 'Edit RSVP' : 'RSVP Form'}
-            </button>
-            <button
-              type="button"
-              onClick={() => { 
-                setActiveTab('lookup'); 
-                setErrorMessage(''); 
-                setSuccessMessage(''); 
-                setHasRemovedConfirmedGuest(false); 
-              }}
-              className={`px-4 py-1.5 text-[11px] uppercase tracking-[0.15em] rounded-full transition-all flex items-center gap-1.5 ${
-                activeTab === 'lookup'
-                  ? 'bg-[#C5A880] text-white font-semibold shadow-xs'
-                  : 'bg-[#FAF8F5] text-[#7D7261] border border-[#EADCC9] hover:bg-[#F2ECE1]'
-              }`}
-            >
-              <Search className="w-3.5 h-3.5" />
-              Find RSVP
-            </button>
           </div>
         </div>
 
         {/* --- SCROLLABLE BODY SECTION --- */}
         <div className="p-6 sm:p-8 pt-4 overflow-y-auto flex-1">
           
-          {/* --- TAB 1: LOOKUP --- */}
-          {activeTab === 'lookup' ? (
-            <div className="space-y-5 max-w-md mx-auto">
-              <form onSubmit={handleLookupRsvp} className="space-y-4">
-                <p className="text-xs text-[#7D7261] text-center leading-relaxed">
-                  Enter your exact first and last name to look up attendance records.
-                </p>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">First Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={lookupName.firstName}
-                      onChange={(e) => setLookupName({ ...lookupName, firstName: e.target.value })}
-                      className="w-full px-2 py-2 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
-                      placeholder="First name"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[9px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Last Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={lookupName.lastName}
-                      onChange={(e) => setLookupName({ ...lookupName, lastName: e.target.value })}
-                      className="w-full px-2 py-2 bg-transparent border-0 border-b border-[#DCD3BD] text-sm text-[#4A433A] focus:outline-none focus:border-[#C5A880]"
-                      placeholder="Last name"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSearching}
-                  className="w-full py-3 bg-[#C5A880] hover:bg-[#B3956D] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
-                >
-                  <Search className="w-4 h-4" /> {isSearching ? 'Searching...' : 'Search RSVP'}
-                </button>
-              </form>
-
-              {/* Checklist Results */}
-              {searchResults.length > 0 && (
-                <div className="space-y-3 pt-3 border-t border-[#EADCC9]">
-                  <span className="text-[10px] uppercase font-bold text-[#7D7261] tracking-wider block">
-                    Select matching guests to add:
-                  </span>
-
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    {searchResults.map((g) => {
-                      const guestKey = g.id || `${g.firstName}-${g.lastName}`;
-                      const isChecked = selectedSearchIds.has(guestKey);
-
-                      return (
-                        <label
-                          key={guestKey}
-                          onClick={() => toggleSelectSearchGuest(guestKey)}
-                          className={`flex items-center justify-between p-3 border rounded-sm cursor-pointer transition-all ${
-                            isChecked 
-                              ? 'bg-[#FAF6F0] border-[#C5A880]' 
-                              : 'bg-white border-[#EADCC9] opacity-75 hover:opacity-100'
-                          }`}
-                        >
-                          <div>
-                            <p className="text-xs font-semibold text-[#4A433A]">
-                              {g.firstName} {g.lastName}
-                            </p>
-                            <p className="text-[10px] text-[#7D7261]">{g.email || 'No email provided'}</p>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => {}}
-                            className="w-4 h-4 accent-[#C5A880] cursor-pointer"
-                          />
-                        </label>
-                      );
-                    })}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleAddSelectedToRsvp}
-                    className="w-full py-3 bg-[#4A433A] hover:bg-[#36312B] text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-all flex items-center justify-center gap-2 shadow-xs"
-                  >
-                    <PlusCircle className="w-4 h-4" /> Add Selected Guests to My RSVP
-                  </button>
-                </div>
-              )}
-
-              <div ref={bottomFeedbackRef} className="space-y-3">
-                {errorMessage && (
-                  <div className="p-3 bg-[#FAF0F0] border border-[#E5B8B8] rounded-sm text-xs text-[#8C3A3A] flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                    <p>{errorMessage}</p>
-                  </div>
-                )}
-                {successMessage && (
-                  <div className="p-3 bg-[#F2F7F2] border border-[#C2E0C2] rounded-sm text-xs text-[#2E6B34] flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                    <p>{successMessage}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-
-            /* --- TAB 2: RSVP FORM --- */
-            <form onSubmit={handleSubmitToSupabase} className="space-y-6">
+          <form onSubmit={handleSubmitToSupabase} className="space-y-6">
               
               {isCutoffPassed && (
                 <div className="bg-[#FAF0F0] border border-[#E5B8B8] p-3 text-xs text-[#8C3A3A] text-center rounded-sm">
@@ -648,10 +404,12 @@ export default function RsvpSheetModal({
                     <Check className="w-4 h-4" />
                     {isSubmitting ? 'Saving...' : isSubmitted ? 'Save Changes' : 'Submit RSVP'}
                   </button>
+                  <p className="text-xs text-[#7D7261] leading-relaxed text-center">
+                    For any questions about the celebration, please reach out to the couple privately.
+                  </p>
                 </div>
               )}
-            </form>
-          )}
+          </form>
 
         </div>
 
