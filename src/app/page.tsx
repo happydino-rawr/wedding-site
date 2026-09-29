@@ -85,7 +85,6 @@ export default function WeddingPage() {
   const envelopeRef = useRef<HTMLDivElement>(null);
   const [openTranslateY, setOpenTranslateY] = useState<number>(-160);
   const [closedTranslateY, setClosedTranslateY] = useState<number>(10);
-  const lastScrollY = useRef(0);
 
   // Day-Of State
   const [isWeddingDay, setIsWeddingDay] = useState(false);
@@ -163,14 +162,6 @@ export default function WeddingPage() {
   }, []);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setEnvelopeVisible(true);
-    }, { threshold: 0.35 }); 
-    if (envelopeRef.current) observer.observe(envelopeRef.current);
-    return () => { if (envelopeRef.current) observer.unobserve(envelopeRef.current); };
-  }, []);
-
-  useEffect(() => {
     const calculate = () => {
       const w = window.innerWidth;
       if (w >= 1280) return setOpenTranslateY(-110);
@@ -199,24 +190,29 @@ export default function WeddingPage() {
   }, []);
 
   useEffect(() => {
-    const handleEnvelopeCheck = () => {
-      if (!envelopeRef.current) return;
-      const rect = envelopeRef.current!.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const currentScrollY = window.scrollY;
-      const shouldOpen = rect.top < vh * 0.85;
-      const shouldClose = rect.bottom < vh * 0.3;
-      const isScrollingUp = currentScrollY < lastScrollY.current;
+    const updateEnvelope = () => {
+      const envelope = envelopeRef.current;
+      if (!envelope) return;
 
-      if (isScrollingUp && shouldClose) {
-        setEnvelopeVisible(false);
-      } else if (!isScrollingUp && shouldOpen) {
-        setEnvelopeVisible(true);
-      }
-      lastScrollY.current = currentScrollY;
+      const { top, bottom } = envelope.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      setEnvelopeVisible((isOpen) => {
+        // Use separate open and close boundaries to prevent flicker near an edge.
+        if (isOpen) {
+          return top < viewportHeight * 0.92 && bottom > viewportHeight * 0.2;
+        }
+        return top < viewportHeight * 0.82 && bottom > viewportHeight * 0.28;
+      });
     };
-    window.addEventListener('scroll', handleEnvelopeCheck, { passive: true });
-    return () => window.removeEventListener('scroll', handleEnvelopeCheck);
+
+    updateEnvelope();
+    window.addEventListener('scroll', updateEnvelope, { passive: true });
+    window.addEventListener('resize', updateEnvelope);
+    return () => {
+      window.removeEventListener('scroll', updateEnvelope);
+      window.removeEventListener('resize', updateEnvelope);
+    };
   }, []);
 
   useEffect(() => {
