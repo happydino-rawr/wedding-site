@@ -88,6 +88,7 @@ export default function WeddingPage() {
 
   // Day-Of State
   const [isWeddingDay, setIsWeddingDay] = useState(false);
+  const [isGalleryAvailable, setIsGalleryAvailable] = useState(false);
   const [currentEventIndex, setCurrentEventIndex] = useState(-1);
 
   // Constants
@@ -263,14 +264,19 @@ export default function WeddingPage() {
   useEffect(() => {
     const handleTimeCheck = () => {
       const now = new Date();
-      
-      // Explicitly check day, month, and year instead of timestamp ranges
-      const isTodayWeddingDay = 
-        now.getFullYear() === 2027 &&
-        now.getMonth() === 2; // March is 2 (0-indexed)
-        now.getDate() === 6;
+
+      // Use Sydney's calendar date so guests in other timezones see the same
+      // wedding-day content at the same time.
+      const sydneyDate = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Australia/Sydney',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(now);
+      const isTodayWeddingDay = sydneyDate === '2027-03-06';
 
       setIsWeddingDay(isTodayWeddingDay);
+      setIsGalleryAvailable(sydneyDate >= '2027-03-06');
 
       if (isTodayWeddingDay) {
         const nowMs = now.getTime();
@@ -409,7 +415,7 @@ export default function WeddingPage() {
 
       <OurStorySection />
 
-			<div className="py-20 text-center bg-[#FDFBF7]">
+			{isGalleryAvailable && <div className="py-20 text-center bg-[#FDFBF7]">
 			<h3 className="font-serif text-2xl text-[#4A433A] mb-4">Capture the Day</h3>
       <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
       <p className="text-[13px] text-[#7D7261] max-w-md mx-auto pt-4 mb-8 leading-relaxed">
@@ -420,7 +426,7 @@ export default function WeddingPage() {
 			>
 				Open Shared Gallery
 			</a>
-			</div>
+			</div>}
 
       <Footer />
 
@@ -443,6 +449,7 @@ export default function WeddingPage() {
           onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
           onScrollTo={scrollToAnchor}
           onOpenRsvp={triggerOpenRsvp}
+          showGallery={isGalleryAvailable}
         />
       )}
     </div>
