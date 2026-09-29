@@ -18,7 +18,7 @@ export const COUPLE_PHOTOS = {
   story1: "/photos/IMG_7877.1.jpg",
   story2: "/photos/IMG_8639.1.jpg",
   story3: "/photos/IMG_9061.1.jpg",
-  story4: "/photos/William%20and%20Jess%20Proposal-145.jpg",
+  story4: "/photos/William%20and%20Jess%20Proposal-182.jpg",
   story5: "/photos/JessicaWilliamPreweddingPhotos-139.4.jpg",
   envelope_couple: "/photos/JessicaWilliamPreweddingPhotos-140.4.jpg",
   auth_background: "/photos/William%20and%20Jess%20Proposal-166.jpg",

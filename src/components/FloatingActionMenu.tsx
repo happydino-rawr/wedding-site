@@ -7,6 +7,7 @@ interface FloatingActionMenuProps {
   onToggleMenu: () => void;
   onScrollTo: (id: string) => void;
   onOpenRsvp: () => void;
+  showGallery: boolean;
 }
 
 export default function FloatingActionMenu({ 
@@ -14,7 +15,8 @@ export default function FloatingActionMenu({
   isMenuOpen, 
   onToggleMenu, 
   onScrollTo, 
-  onOpenRsvp 
+  onOpenRsvp,
+  showGallery,
 }: FloatingActionMenuProps) {
   
   if (!showFAB) return null;
@@ -41,14 +43,13 @@ export default function FloatingActionMenu({
             <span>Wedding Itinerary</span>
           </button>
 
-          {/* Dedicated Link to the new Shared Gallery page */}
-          <Link 
+          {showGallery && <Link
             href="/share-gallery"
             className="bg-white hover:bg-[#C5A880] text-[#5C5346] hover:text-white text-xs font-semibold px-4 py-2 rounded-full border border-[#EADCC9] shadow-md flex items-center gap-2 transform transition-all"
           >
             <ImageIcon className="w-3.5 h-3.5" />
             <span>Shared Gallery</span>
-          </Link>
+          </Link>}
 
           {/* RSVP Action integrated in list */}
           <button 

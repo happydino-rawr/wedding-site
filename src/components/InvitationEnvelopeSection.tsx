@@ -52,7 +52,7 @@ export default function InvitationEnvelopeSection({
           </div>
 
           <div
-            className="absolute left-4 right-4 bottom-0 h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
+            className="absolute left-4 right-4 bottom-0 h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-[transform,opacity] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
             style={{
               transform: envelopeVisible
                 ? `translateY(${openTranslateY}px) rotate(1deg) scale(1.02)`
@@ -75,7 +75,7 @@ export default function InvitationEnvelopeSection({
           </svg>
 
           <div
-            className="absolute top-0 inset-x-0 h-[115px] sm:h-[138px] md:h-[195px] origin-top transition-all duration-[1200ms] ease-in-out pointer-events-none"
+            className="absolute top-0 inset-x-0 h-[115px] sm:h-[138px] md:h-[195px] origin-top transition-[transform] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-none will-change-transform"
             style={{
               transform: envelopeVisible ? 'rotateX(180deg)' : 'rotateX(0deg)',
               zIndex: envelopeVisible ? 5 : 30,
