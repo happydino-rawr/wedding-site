@@ -5,8 +5,8 @@ export default function OurStorySection() {
   return (
       <section id="story" className="py-24 px-4 bg-[#FAF6F0]">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center space-y-3 mb-24">
-            <span className="block pb-2 text-[15px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Chronology of Us</span>
+          <div className="text-center space-y-3 mb-12">
+            <span className="block pb-2 text-[14px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Chronology of Us</span>
             <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#4A433A] tracking-wide">Our Story</h2>
             <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-4" />
           </div>

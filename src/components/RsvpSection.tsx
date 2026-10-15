@@ -15,22 +15,22 @@ export default function RsvpSection({ onOpenRsvp, deadlineLabel }: RsvpSectionPr
           <Heart className="w-6 h-6 text-[#C5A880] fill-current opacity-90" />
 
           <div className="space-y-3">
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#4A433A] tracking-wide">
+            <h2 className="font-serif text-4xl sm:text-4xl text-[#4A433A] tracking-wide">
               RSVP
             </h2>
             <div className="w-12 sm:w-16 h-[1px] bg-[#C5A880] mx-auto" />
           </div>
 
-          <div className="space-y-2 py-2">
-            <span className="text-[15px] sm:text-xs uppercase tracking-[0.3em] text-[#C5A880] font-bold block">
+          <div className="space-y-4 py-2">
+            <span className="text-[16px] sm:text-xs uppercase tracking-[0.3em] text-[#C5A880] font-bold block">
               Kindly Reply By
             </span>
-            <p className="font-serif italic text-2xl sm:text-3xl text-[#BE123C] pt-1">
+            <p className="font-serif italic text-[34px] sm:text-3xl text-[#BE123C] pt-1">
               {deadlineLabel}
             </p>
           </div>
 
-          <p className="text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-md mx-auto px-2">
+          <p className="text-[19px] sm:text-sm text-[#7D7261] leading-relaxed max-w-md mx-auto px-2">
             We eagerly await your response to help us finalise our celebration. Please let us know if you can attend and note any dietary requirements.
           </p>
 

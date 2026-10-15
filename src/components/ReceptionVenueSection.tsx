@@ -23,10 +23,10 @@ export default function ReceptionVenueSection({ receptionName, receptionAddress 
           
           {/* Location Details (Constrained) */}
           <div className="max-w-2xl mx-auto px-4 space-y-3">
-            <span className="block pb-2 text-[18px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception Location</span>
-            <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">{receptionName}</h2>
-            <p className="text-sm text-[#7D7261]">{receptionAddress}</p>
-            <p className="font-serif italic text-sm text-[#7D7261] pt-2">
+            <span className="block pb-2 text-[16px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Reception Location</span>
+            <h2 className="text-[35px] font-serif font-light text-[#4A433A] tracking-wide">{receptionName}</h2>
+            <p className="text-[21px] text-[#7D7261] pt-3">{receptionAddress}</p>
+            <p className="font-serif italic text-[17px] text-[#7D7261] pt-2">
               Following the ceremony, please join us for our wedding reception.
             </p>
           </div>
@@ -37,20 +37,20 @@ export default function ReceptionVenueSection({ receptionName, receptionAddress 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center max-w-xl mx-auto">
                 <div className="space-y-3">
                   <MapPin className="mx-auto h-6 w-6 text-[#C5A880]" />
-                  <h3 className="font-serif text-xl font-light text-[#4A433A]">Free Parking</h3>
-                  <p className="text-xs leading-relaxed text-[#7D7261]">Complimentary onsite parking is available.</p>
+                  <h3 className="font-serif text-[26px] font-light text-[#4A433A]">Free Parking</h3>
+                  <p className="text-[19px] leading-relaxed text-[#7D7261]">Complimentary onsite parking is available.</p>
                 </div>
                 <div className="space-y-3">
                   <Info className="mx-auto h-6 w-6 text-[#C5A880]" />
-                  <h3 className="font-serif text-xl font-light text-[#4A433A]">Rail Transit</h3>
-                  <p className="text-xs leading-relaxed text-[#7D7261]">10 minute walk from Cabramatta and Canley Vale Station.</p>
+                  <h3 className="font-serif text-[26px] font-light text-[#4A433A]">Rail Transit</h3>
+                  <p className="text-[19px] leading-relaxed text-[#7D7261]">10 minute walk from Cabramatta and Canley Vale Station.</p>
                 </div>
               </div>
 
               {/* Photo ID Note Box */}
               <div className="w-full max-w-2xl mx-auto mt-10 p-5 sm:p-6 rounded-xl bg-[#F4EFE6]/50 border border-[#EADCC9]/60 space-y-2 text-center">
                 <p className="text-[15px] uppercase tracking-widest text-[#C5A880] font-bold">Please Note</p>
-                <p className="text-xs text-[#7D7261] leading-relaxed">
+                <p className="text-[17px] text-[#7D7261] leading-relaxed">
                   All guests must present a <strong className="font-semibold text-[#BE123C]">valid form of photo ID </strong> upon arrival to sign into the venue (e.g., Passport, Driver&apos;s Licence, or Proof of Age Card).
                 </p>
               </div>

@@ -50,15 +50,18 @@ export default function InvitationEnvelopeSection({
           <div className="absolute inset-0 bg-[#E8E1D5] rounded-sm shadow-inner border border-[#D5CBA7] overflow-hidden z-0">
             <div className="absolute inset-1 bg-[#EBE5DA] rounded-sm" />
           </div>
-
+          {/* Inner Card / Photo Transition (Rising Out) */}
           <div
-            className="absolute left-4 right-4 bottom-0 h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-[transform,opacity] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
+            className="absolute left-4 right-4 bottom-0 h-[210px] sm:h-[255px] md:h-[360px] bg-white p-2 sm:p-3 md:p-4 pb-6 sm:pb-8 md:pb-12 rounded-sm shadow-xl border border-slate-200/60 transition-[transform,opacity,filter] duration-[2500ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
             style={{
+              zIndex: 12,
               transform: envelopeVisible
                 ? `translateY(${openTranslateY}px) rotate(1deg) scale(1.02)`
                 : `translateY(${closedTranslateY}px) rotate(0deg) scale(0.95)`,
               opacity: envelopeVisible ? 1 : 0,
+              filter: envelopeVisible ? 'drop-shadow(0 12px 18px rgba(44, 34, 20, 0.12))' : 'drop-shadow(0 6px 10px rgba(44, 34, 20, 0.08))',
               pointerEvents: envelopeVisible ? 'auto' : 'none',
+              transitionDelay: envelopeVisible ? '300ms' : '0ms',
             }}
           >
             <img
@@ -74,21 +77,24 @@ export default function InvitationEnvelopeSection({
             <polygon points="0,280 400,280 200,158" fill="#F7F3ED" stroke="#E3D8C8" strokeWidth="1" />
           </svg>
 
+          {/* Top Flap Transition (Opening Flip) */}
           <div
-            className="absolute top-0 inset-x-0 h-[115px] sm:h-[138px] md:h-[195px] origin-top transition-[transform] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-none will-change-transform"
+            className="absolute top-0 inset-x-0 h-[115px] sm:h-[138px] md:h-[195px] origin-top transition-[transform,filter] duration-[2500ms] ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-none will-change-transform"
             style={{
-              transform: envelopeVisible ? 'rotateX(180deg)' : 'rotateX(0deg)',
-              zIndex: envelopeVisible ? 5 : 30,
+              transform: envelopeVisible ? 'rotateX(180deg) translateY(2px)' : 'rotateX(0deg)',
+              zIndex: envelopeVisible ? 2 : 28,
+              transformOrigin: 'center top',
               transformStyle: 'preserve-3d',
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
+              filter: envelopeVisible ? 'drop-shadow(0 10px 10px rgba(43, 28, 16, 0.08))' : 'drop-shadow(0 4px 10px rgba(43, 28, 16, 0.12))',
             }}
           >
             <svg viewBox="0 0 400 160" preserveAspectRatio="none" className="w-full h-full drop-shadow-md">
               <polygon points="0,0 400,0 200,160" fill="#F4EFE8" stroke="#E3D8C8" strokeWidth="1" />
             </svg>
           </div>
-
+ 
           <div className="absolute top-[52%] sm:top-[54%] inset-x-0 flex flex-col items-center z-40 pointer-events-none">
             <div className="w-[80px] sm:w-24 md:w-32 h-auto -mt-3">
               <svg viewBox="0 0 100 50" fill="none" className="w-full h-full">
@@ -125,12 +131,12 @@ export default function InvitationEnvelopeSection({
 
         <div className="space-y-7 pt-6 text-center relative z-20">
           <h3 className="font-serif text-lg md:text-2xl tracking-[0.2em] text-[#5C5346]">Inviting You To Our Wedding</h3>
-          <div className="flex justify-center items-center gap-4 text-2xl md:text-4xl font-serif text-[#4A433A]">
+          <div className="flex justify-center items-center gap-4 text-[28px] md:text-4xl font-serif text-[#4A433A]">
             <span>{weddingInfo.coupleNames}</span>
           </div>
           <div className="space-y-6">
-            <span className="text-[15px] md:text-xs uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
-              <p className="font-serif text-lg md:text-xl tracking-wider text-[#BE123C]">{weddingInfo.eventDateShort}</p>
+            <span className="text-[14px] md:text-xs uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
+              <p className="font-serif text-2xl md:text-xl tracking-wider text-[#BE123C]">{weddingInfo.eventDateShort}</p>
               <p className="text-xs md:text-sm text-[#7D7261]">{weddingInfo.eventDayOfWeek}</p>
             <div className="w-8 md:w-12 h-[1px] bg-[#EADCC9] mx-auto my-2" />
           </div>
@@ -182,7 +188,7 @@ export default function InvitationEnvelopeSection({
         </button>
 
         <div className="flex flex-col items-center pt-2 pb-0 relative z-20">
-          <p className="text-[18px] md:text-xs text-[#D5CBA7] italic tracking-wider max-w-xs md:max-w-sm mx-auto">
+          <p className="text-[16px] md:text-xs text-[#D5CBA7] italic tracking-wider max-w-xs md:max-w-sm mx-auto">
             We warmly invite you to celebrate this special day with us.
           </p>
         </div>
