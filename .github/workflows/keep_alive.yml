@@ -12,4 +12,5 @@ jobs:
     steps:
       - name: Ping Supabase Health Endpoint
         run: |
-          curl -i -X GET "${{ secrets.SUPABASE_URL }}/auth/v1/health"
+          curl -i -X GET "${{ secrets.SUPABASE_URL }}/auth/v1/health" \
+            -H "apikey: ${{ secrets.SUPABASE_KEY }}"
