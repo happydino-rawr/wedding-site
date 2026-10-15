@@ -65,8 +65,8 @@ export default function VinylVisualizerSection({ isMusicPlaying, onToggleMusic }
           </div>
 
           {/* 3. Quote Card (Z-20, Overlapping Vinyl and Photo) */}
-          <div className="absolute top-[180px] sm:top-[200px] z-20 w-[120%] bg-white/85 px-6 py-8 pt-10 rounded-sm shadow-[0_0px_15px_rgba(0,0,0,0.80)] border border-white/50 text-center">
-            <p className="font-serif italic text-[12px] sm:text-[14px] leading-loose text-[#5C5346] tracking-wide">
+          <div className="absolute top-[180px] sm:top-[200px] z-20 w-[120%] bg-white/85 px-6 py-6 pt-8 rounded-sm shadow-[0_0px_15px_rgba(0,0,0,0.80)] border border-white/50 text-center">
+            <p className="font-serif italic text-[13px] sm:text-[14px] leading-loose text-[#5C5346] tracking-wide">
               {/* "If the sun were to rise in the west, <br />
               I'd never change my mind to love you forever. <br />
               I love you not for who you are, but for who I am before you." */}

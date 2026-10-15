@@ -12,9 +12,9 @@ export default function CeremonyVenueSection({ ceremonyName, ceremonyAddress }: 
         
         {/* Header Section (Constrained) */}
         <div className="max-w-2xl mx-auto px-4 space-y-3">
-          <span className="block pb-2 text-[18px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Ceremony Location</span>
-          <h2 className="text-3xl font-serif font-light text-[#4A433A] tracking-wide">{ceremonyName}</h2>
-          <p className="text-sm text-[#7D7261]">{ceremonyAddress}</p>
+          <span className="block pb-2 text-[16px] uppercase tracking-[0.4em] text-[#C5A880] font-bold">Ceremony Location</span>
+          <h2 className="text-[35px] font-serif font-light text-[#4A433A] tracking-wide">{ceremonyName}</h2>
+          <p className="text-[21px] text-[#7D7261] pt-3">{ceremonyAddress}</p>
         </div>
 
         {/* --- FULL-WIDTH BACKGROUND SECTION --- */}
@@ -64,8 +64,8 @@ function VenueDetail({ icon: Icon, title, children }: { icon: typeof Clock; titl
   return (
     <div className="space-y-3 text-center">
       <Icon className="mx-auto h-6 w-6 text-[#C5A880]" />
-      <h3 className="font-serif text-xl font-light text-[#4A433A]">{title}</h3>
-      <p className="text-xs leading-relaxed text-[#7D7261]">{children}</p>
+      <h3 className="font-serif text-[26px] font-light text-[#4A433A]">{title}</h3>
+      <p className="text-[19px] leading-relaxed text-[#7D7261]">{children}</p>
     </div>
   );
 }

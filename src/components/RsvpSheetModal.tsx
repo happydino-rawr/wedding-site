@@ -242,11 +242,11 @@ export default function RsvpSheetModal({
                           </span>
 
                           {isGuestConfirmed ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7] text-[9px] font-semibold text-[#2E7D32]">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7] text-[12px] font-semibold text-[#2E7D32]">
                               <CheckCircle2 className="w-3 h-3 text-[#2E7D32]" /> Confirmed Response
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[9px] font-semibold text-amber-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[12px] font-semibold text-amber-800">
                               New Entry
                             </span>
                           )}
@@ -266,7 +266,7 @@ export default function RsvpSheetModal({
                       {/* Inputs */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[14px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                          <label className="text-[12px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
                             First Name <span className="text-[#BE185D]">*</span>
                           </label>
                           <input
@@ -280,7 +280,7 @@ export default function RsvpSheetModal({
                           />
                         </div>
                         <div>
-                          <label className="text-[14px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                          <label className="text-[12px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
                             Last Name <span className="text-[#BE185D]">*</span>
                           </label>
                           <input
@@ -296,7 +296,7 @@ export default function RsvpSheetModal({
                       </div>
 
                       <div>
-                        <label className="text-[14px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
+                        <label className="text-[12px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">
                           Email Address <span className="text-[#BE185D]">*</span>
                         </label>
                         <input
@@ -311,7 +311,7 @@ export default function RsvpSheetModal({
                       </div>
 
                       <div>
-                        <label className="text-[14px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">
+                        <label className="text-[12px] uppercase font-bold text-[#C5A880] tracking-widest pl-1">
                           Attendance Option <span className="text-[#BE185D]">*</span>
                         </label>
                         <div className="relative">
@@ -337,7 +337,7 @@ export default function RsvpSheetModal({
 
                       {guest.attending !== 'Declining' && guest.attending !== '' && (
                         <div>
-                          <label className="text-[14px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Dietary Requirements</label>
+                          <label className="text-[12px] uppercase font-bold text-[#7D7261] tracking-widest pl-1">Dietary Requirements</label>
                           <input
                             type="text"
                             disabled={isCutoffPassed}
@@ -404,7 +404,7 @@ export default function RsvpSheetModal({
                     <Check className="w-4 h-4" />
                     {isSubmitting ? 'Saving...' : isSubmitted ? 'Save Changes' : 'Submit RSVP'}
                   </button>
-                  <p className="text-[12px] text-[#7D7261] leading-relaxed text-center">
+                  <p className="text-[14px] text-[#7D7261] leading-relaxed text-center">
                     For any questions about the celebration, please reach out to the couple privately.
                   </p>
                 </div>

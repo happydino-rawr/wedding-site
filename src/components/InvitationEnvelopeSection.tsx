@@ -61,7 +61,7 @@ export default function InvitationEnvelopeSection({
               opacity: envelopeVisible ? 1 : 0,
               filter: envelopeVisible ? 'drop-shadow(0 12px 18px rgba(44, 34, 20, 0.12))' : 'drop-shadow(0 6px 10px rgba(44, 34, 20, 0.08))',
               pointerEvents: envelopeVisible ? 'auto' : 'none',
-              transitionDelay: envelopeVisible ? '400ms' : '0ms',
+              transitionDelay: envelopeVisible ? '300ms' : '0ms',
             }}
           >
             <img
@@ -131,12 +131,12 @@ export default function InvitationEnvelopeSection({
 
         <div className="space-y-7 pt-6 text-center relative z-20">
           <h3 className="font-serif text-lg md:text-2xl tracking-[0.2em] text-[#5C5346]">Inviting You To Our Wedding</h3>
-          <div className="flex justify-center items-center gap-4 text-2xl md:text-4xl font-serif text-[#4A433A]">
+          <div className="flex justify-center items-center gap-4 text-[28px] md:text-4xl font-serif text-[#4A433A]">
             <span>{weddingInfo.coupleNames}</span>
           </div>
           <div className="space-y-6">
-            <span className="text-[15px] md:text-xs uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
-              <p className="font-serif text-lg md:text-xl tracking-wider text-[#BE123C]">{weddingInfo.eventDateShort}</p>
+            <span className="text-[14px] md:text-xs uppercase tracking-[0.3em] text-[#9C8F7E] block font-serif">Save the Date</span>
+              <p className="font-serif text-2xl md:text-xl tracking-wider text-[#BE123C]">{weddingInfo.eventDateShort}</p>
               <p className="text-xs md:text-sm text-[#7D7261]">{weddingInfo.eventDayOfWeek}</p>
             <div className="w-8 md:w-12 h-[1px] bg-[#EADCC9] mx-auto my-2" />
           </div>
@@ -188,7 +188,7 @@ export default function InvitationEnvelopeSection({
         </button>
 
         <div className="flex flex-col items-center pt-2 pb-0 relative z-20">
-          <p className="text-[18px] md:text-xs text-[#D5CBA7] italic tracking-wider max-w-xs md:max-w-sm mx-auto">
+          <p className="text-[16px] md:text-xs text-[#D5CBA7] italic tracking-wider max-w-xs md:max-w-sm mx-auto">
             We warmly invite you to celebrate this special day with us.
           </p>
         </div>

@@ -87,16 +87,18 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
 
           {/* Dress Code Header & Description */}
           <div className="max-w-2xl mx-auto px-4 pt-10 space-y-2">
-            <span className="block pb-2 text-[15px] uppercase tracking-[0.3em] text-[#C5A880] font-bold">Attire Etiquette</span>
-            <h2 className="text-2xl font-serif font-light text-[#4A433A] tracking-wide">Dress Code Guide</h2>
+            <span className="block pb-2 text-[14px] uppercase tracking-[0.3em] text-[#C5A880] font-bold">Attire Etiquette</span>
+            <h2 className="text-[30px] font-serif font-light text-[#4A433A] tracking-wide">Dress Code Guide</h2>
             <div className="w-8 h-[1px] bg-[#C5A880] mx-auto mt-2" />
-            <p className="pt-3 text-xs sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
-              We kindly invite you to dress in formal attire for our celebration. Please feel free to wear whatever makes you feel comfortable and confident! For those who'd like a little inspiration, here are a few soft, earthy tones that complement our wedding palette:
+            <p className="pt-3 text-[17px] sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
+              We kindly invite you to dress in formal attire for our celebration. Please feel free to wear whatever makes you feel comfortable and confident!
             </p>
+            <p className="pt-3 text-[17px] sm:text-sm text-[#7D7261] leading-relaxed max-w-lg mx-auto">
+              For those who'd like a little inspiration, here are a few soft, earthy tones that complement our wedding palette:            </p>
           </div>
 
           {/* Color Swatches */}
-          <div className="flex flex-wrap justify-center gap-6 pt-6 px-4 max-w-2xl mx-auto pb-4">
+          <div className="flex flex-wrap justify-center gap-6 pt-6 px-4 max-w-2xl mx-auto pb-4 ">
             {[
               { hex: 'bg-[#e9d2ac]', name: 'Champagne' },
               { hex: 'bg-[#ce9297]', name: 'Dusty Rose' },
@@ -107,7 +109,7 @@ export default function ItinerarySection({ isWeddingDay, currentEventIndex, wedd
             ].map((color, idx) => (
               <div key={idx} className="flex flex-col items-center space-y-3 group cursor-pointer w-20">
                 <div className={`w-12 h-12 rounded-full ${color.hex} shadow-sm border border-white/50 ring-1 ring-[#EADCC9] group-hover:ring-[#C5A880] transition-all duration-300 transform group-hover:scale-105`} />
-                <span className="text-[14px] text-center text-[#7D7261] uppercase tracking-widest leading-tight">{color.name}</span>
+                <span className="text-[12px] text-center text-[#7D7261] uppercase tracking-widest leading-tight">{color.name}</span>
               </div>
             ))}
           </div>
