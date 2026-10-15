@@ -11,5 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Supabase Health Endpoint
-              run: |
-                curl -i -X GET "${{ secrets.SUPABASE_URL }}/auth/v1/health"
+        run: |
+          curl -i -X GET "${{ secrets.SUPABASE_URL }}/auth/v1/health"
